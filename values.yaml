@@ -1,14 +1,22 @@
 
+deployment:
+  name: crane
+  namespace: bm
 
+matches:
+  crane: ready
+  role: role-crane
 
+serviceAccount: default
 
 env:
-  AUTH_TOKEN: ""
-  HARBOR_ID: ""
-  SHIP_ID: ""
-  DOCKER_REGISTRY: "gcr.io/verdant-bulwark-278"
-  AUTO_KUBERNETES_UPDATE: "true"
+  auth_token: ""
+  harbour_id: ""
+  ship_id: ""
+  docker_regirstry: "gcr.io/verdant-bulwark-278"
+  auto_update: "true"
+  imageRegistry: "gcr.io/verdant-bulwark-278/blazemeter/"
+  dockerTag: "latest-master"
+  pullPolicy: "Always"
 
-imageRegistry: "gcr.io/verdant-bulwark-278/blazemeter/"
-dockerTag: "latest-master"
-pullPolicy: "Always"
+restartPolicy: Always
