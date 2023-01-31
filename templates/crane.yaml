@@ -10,6 +10,7 @@ spec:
   selector:
     matchLabels:
       role: role-crane
+      crane: ready
   strategy:
     type: Recreate
   template:
@@ -17,6 +18,16 @@ spec:
       labels:
         role: role-crane
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: crane
+                operator: In
+                values:
+                - ready
+
       serviceAccountName: default
       automountServiceAccountToken: true
       containers:
@@ -36,7 +47,7 @@ spec:
         - name: AUTO_KUBERNETES_UPDATE
           value: 'true'
         image: gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.pullPolicy }}
         name: crane-container
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
