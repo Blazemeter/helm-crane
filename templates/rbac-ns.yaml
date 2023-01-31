@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: role-crane
+  namespace: bm
+rules:
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list"]
+- apiGroups: ["extensions", "apps", ""] # leave empty string for core
+  resources: ["pods", "services", "endpoints", "daemonsets", "pods/*", "pods/exec", "deployments", "replicasets", "ingresses", "deployments/scale"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection", "createcollection"]
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: role-binding-crane
+  namespace: bm
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: bm
+roleRef:
+  kind: Role 
+  name: role-crane
+  apiGroup: rbac.authorization.k8s.io

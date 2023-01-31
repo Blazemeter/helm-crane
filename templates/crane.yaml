@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    role: role-crane
+  name: crane
+  namespace: bm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: role-crane
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        role: role-crane
+    spec:
+      serviceAccountName: default
+      automountServiceAccountToken: true
+      containers:
+      - env:
+        - name: AUTH_TOKEN
+          value: f6cab633bb8434f722d8092612c323ab25b30fc86ee58d7cdbd2f6a7e01e1d4d
+        - name: HARBOR_ID
+          value: 63cd1cc281374f2d9743cc73
+        - name: SHIP_ID
+          value: 63cd1ccbc3a1da566e481e03
+        - name: CONTAINER_MANAGER_TYPE
+          value: KUBERNETES
+        - name: IMAGE_OVERRIDES
+          value: '{}'
+        - name: DOCKER_REGISTRY
+          value: gcr.io/verdant-bulwark-278
+        - name: AUTO_KUBERNETES_UPDATE
+          value: 'true'
+        image: gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master
+        imagePullPolicy: Always
+        name: crane-container
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
