@@ -3,11 +3,11 @@
 
 
 env:
-  AUTH_TOKEN: f6cab633bb8434f722d8092612c323ab25b30fc86ee58d7cdbd2f6a7e01e1d4d
-  HARBOR_ID: 63cd1cc281374f2d9743cc73
-  SHIP_ID: 63cd1ccbc3a1da566e481e03
-  DOCKER_REGISTRY: gcr.io/verdant-bulwark-278
-  AUTO_KUBERNETES_UPDATE: 'true'
+  AUTH_TOKEN: ""
+  HARBOR_ID: ""
+  SHIP_ID: ""
+  DOCKER_REGISTRY: "gcr.io/verdant-bulwark-278"
+  AUTO_KUBERNETES_UPDATE: "true"
 
 imageRegistry: "gcr.io/verdant-bulwark-278/blazemeter/"
 dockerTag: "latest-master"
