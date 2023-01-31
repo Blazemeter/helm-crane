@@ -2,21 +2,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    role: role-crane
-  name: crane
-  namespace: bm
+    role: {{ .Values.matches.role }}
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.deployment.namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      role: role-crane
-      crane: ready
+      role: {{ .Values.matches.role }}
+      crane: {{ .Values.matches.crane }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        role: role-crane
+        role: {{ .Values.matches.role }}
     spec:
       affinity:
         podAntiAffinity:
@@ -26,18 +26,18 @@ spec:
               - key: crane
                 operator: In
                 values:
-                - ready
+                - {{ .Values.matches.crane }}
 
       serviceAccountName: default
       automountServiceAccountToken: true
       containers:
       - env:
         - name: AUTH_TOKEN
-          value: f6cab633bb8434f722d8092612c323ab25b30fc86ee58d7cdbd2f6a7e01e1d4d
+          value: 
         - name: HARBOR_ID
-          value: 63cd1cc281374f2d9743cc73
+          value: 
         - name: SHIP_ID
-          value: 63cd1ccbc3a1da566e481e03
+          value: 
         - name: CONTAINER_MANAGER_TYPE
           value: KUBERNETES
         - name: IMAGE_OVERRIDES
