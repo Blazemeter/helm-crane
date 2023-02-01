@@ -1,13 +1,19 @@
 
 deployment:
-  name: crane
-  namespace: bm
+  name: "crane"
+  namespace: "bm"
 
 matches:
-  crane: ready
-  role: role-crane
+  crane: "ready"
+  role: "role-crane"
+  cluster-role: "cluster-role-crane"
 
-serviceAccount: default
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: false
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "default"
 
 env:
   auth_token: ""

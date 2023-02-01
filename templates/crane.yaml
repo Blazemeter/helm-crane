@@ -28,7 +28,7 @@ spec:
                 values:
                 - {{ .Values.matches.crane }}
 
-      serviceAccountName: default
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       automountServiceAccountToken: true
       containers:
       - env:
@@ -43,10 +43,10 @@ spec:
         - name: IMAGE_OVERRIDES
           value: '{}'
         - name: DOCKER_REGISTRY
-          value: gcr.io/verdant-bulwark-278
+          value: {{ .Value.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
           value: 'true'
-        image: gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master
+        image: {{ .Value.env.image }}
         imagePullPolicy: {{ .Values.pullPolicy }}
         name: crane-container
       restartPolicy: Always

@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cluster-role-crane
+  name: {{ .Values.matches.cluster-role }}
 rules:
 - apiGroups: [""]
   resources: ["nodes"]
@@ -12,12 +12,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: cluster-role-binding-crane
+  name: cluster-role-binding-default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-role-crane
+  name: {{ .Values.matches.cluster-role }}
 subjects:
 - kind: ServiceAccount
-  name: default
-  namespace: bm
+  name: {{ .Values.serviceAccount.name }}
+  namespace: {{ .Values.deployment.namespace }}
