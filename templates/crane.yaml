@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     role: {{ .Values.matches.role }}
-  name: {{ .Values.deployment.name }}
+  name: {{ .Release.name }}-crane
   namespace: {{ .Values.deployment.namespace }}
 spec:
   replicas: 1
