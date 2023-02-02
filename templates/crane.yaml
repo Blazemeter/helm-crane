@@ -33,11 +33,11 @@ spec:
       containers:
       - env:
         - name: AUTH_TOKEN
-          value: 
+          value: {{ .Value.env.auth_token }}
         - name: HARBOR_ID
-          value: 
+          value: {{ .Values.env.harbour_id }}
         - name: SHIP_ID
-          value: 
+          value: {{ .Values.env.ship_id }}
         - name: CONTAINER_MANAGER_TYPE
           value: KUBERNETES
         - name: IMAGE_OVERRIDES
@@ -45,9 +45,9 @@ spec:
         - name: DOCKER_REGISTRY
           value: {{ .Value.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
-          value: 'true'
-        image: {{ .Value.env.image }}
-        imagePullPolicy: {{ .Values.pullPolicy }}
+          value: {{ .Values.env.auto_update}}
+        image: {{ if .Value.env.image }}true{{ else }}false{{ end }}
+        imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
-      restartPolicy: Always
+      restartPolicy: {{ .Value.restartPolicy }}
       terminationGracePeriodSeconds: 30
