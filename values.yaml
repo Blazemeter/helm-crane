@@ -20,9 +20,8 @@ env:
   harbour_id: ""
   ship_id: ""
   docker_regirstry: "gcr.io/verdant-bulwark-278"
-  auto_update: "true"
-  imageRegistry: "gcr.io/verdant-bulwark-278/blazemeter/"
-  dockerTag: "latest-master"
+  auto_update: true
+  image: "gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master"
   pullPolicy: "Always"
 
-restartPolicy: Always
+restartPolicy: "Always"
