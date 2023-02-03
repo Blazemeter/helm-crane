@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ .Values.matches.cluster-role }}
+  name: {{ .Values.matches.clusterrole }}
 rules:
 - apiGroups: [""]
   resources: ["nodes"]
@@ -12,11 +12,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ .Values.matches.cluster-role }}-binding-{{ .Values.serviceAccount.name }}
+  name: {{ .Values.matches.clusterrole }}-binding-{{ .Values.serviceAccount.name }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ .Values.matches.cluster-role }}
+  name: {{ .Values.matches.clusterrole }}
 subjects:
 - kind: ServiceAccount
   name: {{ .Values.serviceAccount.name }}
