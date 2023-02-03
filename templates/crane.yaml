@@ -43,7 +43,7 @@ spec:
         - name: IMAGE_OVERRIDES
           value: '{}'
         - name: DOCKER_REGISTRY
-          value: {{ .Value.env.docker_regirstry }}
+          value: {{ .Values.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
           value: {{ .Values.env.auto_update }}
           {{- if .Values.proxy.use_proxy }}

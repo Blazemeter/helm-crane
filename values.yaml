@@ -15,7 +15,7 @@ serviceAccount:
   name: "default"
 
 env:
-  auth_token: ""
+  authtoken: ""
   harbour_id: ""
   ship_id: ""
   docker_regirstry: "gcr.io/verdant-bulwark-278"
