@@ -5,7 +5,7 @@ deployment:
 matches:
   crane: "ready"
   role: "role-crane"
-  cluster-role: "cluster-role-crane"
+  clusterrole: "cluster-role-crane"
 
 serviceAccount:
   # Specifies whether a ServiceAccount should be created
