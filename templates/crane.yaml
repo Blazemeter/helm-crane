@@ -46,7 +46,11 @@ spec:
           value: {{ .Value.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
           value: {{ .Values.env.auto_update}}
-        image: {{ if .Value.env.image }}true{{ else }}false{{ end }}
+          {{- if .Values.proxy.use_proxy }}
+        - name: HTTP_PROXY
+          value: {{ .Values.proxy.http_proxy }} 
+          {{- end }}
+        image: {{ .Value.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
       restartPolicy: {{ .Value.restartPolicy }}
