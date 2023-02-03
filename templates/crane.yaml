@@ -33,7 +33,7 @@ spec:
       containers:
       - env:
         - name: AUTH_TOKEN
-          value: {{ .Value.env.auth_token }}
+          value: {{ .Value.env.authtoken }}
         - name: HARBOR_ID
           value: {{ .Values.env.harbour_id }}
         - name: SHIP_ID
