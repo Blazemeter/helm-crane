@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     role: {{ .Values.matches.role }}
-  name: {{ .Release.name }}crane
+  name: {{ .Release.name }}_crane
   namespace: {{ .Values.deployment.namespace }}
 spec:
   replicas: 1
@@ -46,10 +46,20 @@ spec:
           value: {{ .Values.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
           value: {{ .Values.env.auto_update }}
-          {{- if .Values.proxy.use_proxy }}
+          
+          {{- if .Values.proxy.http_proxy }}
+        - name: HTTP_PROXY
+          value: {{ .Values.proxy.proxy_path }}    
+        - name: NO_PROXY
+          value: {{ .Values.proxy.no_proxy }} 
+
+          {{- else if .Values.proxy.https_proxy }}
         - name: HTTPS_PROXY
-          value: {{ .Values.proxy.https_proxy }} 
+          value: {{ .Values.proxy.proxy_path }} 
+        - name: NO_PROXY
+          value: {{ .Values.proxy.no_proxy }}     
           {{- end }}
+        
         image: {{ .Values.env.image }} 
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
