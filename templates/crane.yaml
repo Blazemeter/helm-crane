@@ -33,7 +33,7 @@ spec:
       containers:
       - env:
         - name: AUTH_TOKEN
-          value: {{ .Value.env.authtoken }}
+          value: {{ .Values.env.authtoken }}
         - name: HARBOR_ID
           value: {{ .Values.env.harbour_id }}
         - name: SHIP_ID
@@ -50,8 +50,8 @@ spec:
         - name: HTTPS_PROXY
           value: {{ .Values.proxy.https_proxy }} 
           {{- end }}
-        image: {{ .Value.env.image }} 
+        image: {{ .Values.env.image }} 
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
-      restartPolicy: {{ .Value.restartPolicy }}
+      restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30
