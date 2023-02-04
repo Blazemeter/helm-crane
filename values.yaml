@@ -15,9 +15,9 @@ serviceAccount:
   name: "default"
 
 env:
-  authtoken: ""
-  harbour_id: ""
-  ship_id: ""
+  authtoken: "sfbwig"
+  harbour_id: "lkndvoehrgo"
+  ship_id: "kjdf2397rknfdl"
   docker_regirstry: "gcr.io/verdant-bulwark-278"
   auto_update: true
   image: "gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master"
