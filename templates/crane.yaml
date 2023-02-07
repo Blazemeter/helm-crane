@@ -33,11 +33,11 @@ spec:
       containers:
       - env:
         - name: AUTH_TOKEN
-          value: {{ .Values.env.authtoken | default 24j6bk12g5khvb#Auth }}
+          value: {{ .Values.env.authtoken }}
         - name: HARBOR_ID
-          value: {{ .Values.env.harbour_id | default 67985Harbour }}
+          value: {{ .Values.env.harbour_id }}
         - name: SHIP_ID
-          value: {{ .Values.env.ship_id | default 8564575Ship }}
+          value: {{ .Values.env.ship_id }}
         - name: CONTAINER_MANAGER_TYPE
           value: KUBERNETES
         - name: IMAGE_OVERRIDES
