@@ -1,4 +1,4 @@
-# Helm - Blazemeter crane - OPL
+# Helm for Blazemeter Private Location
 
 Deploy Blazemeter private location engine to your Kubernetes cluster using HELM chart. Plus the chart allows to make additional configurations if required. 
 
@@ -9,6 +9,7 @@ Deploy Blazemeter private location engine to your Kubernetes cluster using HELM 
 2. A Kubernetes cluster
 3. Latest [Helm installed](https://helm.sh/docs/helm/helm_version/)
 4. The kubernetes cluster needs to fulfill [Blazemeter Private location requirements](https://guide.blazemeter.com/hc/en-us/articles/209186065-Private-Location-System-Requirements)
+
 
 ## Usage
 There are 2 methods for installing this Helm chart, or any Helm chart for that matter. In any case, the user will need Harbour_ID, Ship_ID & Auth_token from Blazemeter. 
@@ -29,11 +30,15 @@ There are 2 methods for installing this Helm chart, or any Helm chart for that m
     - Generate the docker command [using API](https://api.blazemeter.com/performance/#generate-docker-command)
     - Copy Auth_token. 
 
+
 ### Two common methods of installing HELM chart
 1. Using `helm install` method
 2. Pulling the chart using `helm pull` and then install the chart using `helm install` along with additional configurations.
 
-### Method_1
+> Method 1
+```
+helm install crane https://github.com/ImMnan/Helm-crane-blazemeter.git --set env.harbour_id="Harbour_ID" env.ship_id="Ship_ID" env.authtoken="Auth_token" 
+```
 
 
 
