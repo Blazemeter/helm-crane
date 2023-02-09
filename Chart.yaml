@@ -6,13 +6,13 @@ keywords:
   - Blazemeter
   - Kubernetes
   - Private location
-  - Agent
+  - Engine
   - OPL
   - On-premise-engine
   - Automation-Testing
   - Load-Generator
-type: application
 
+type: application
 
 version: 0.1.0
 
