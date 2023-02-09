@@ -11,10 +11,8 @@ Deploy Blazemeter private location engine to your Kubernetes cluster using HELM 
 4. The kubernetes cluster needs to fulfill [Blazemeter Private location requirements](https://guide.blazemeter.com/hc/en-us/articles/209186065-Private-Location-System-Requirements)
 
 ## Usage
-1. 
+There are 2 methods for installing this Helm Chart, or any Helm Chart for that matter. 
 
-```yaml
-name: crane
-test: done
+1. Using `helm install` method
+2. Pulling the chart using `helm pull` and then install the chart `helm install` along with additional configurations.
 
-```
