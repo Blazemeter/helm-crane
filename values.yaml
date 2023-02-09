@@ -1,5 +1,6 @@
 
 deployment:
+  name: crane
   namespace: "bm"
 
 matches:
@@ -8,11 +9,10 @@ matches:
   clusterrole: "cluster-role-crane"
 
 serviceAccount:
-  # Specifies whether a ServiceAccount should be created
-  create: true
-  # The name of the ServiceAccount to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name:
+  # Specifies whether a ServiceAccount should be created, currently BM OPLs in Kubernetes only supports default service account.
+  create: false
+  # The name of the ServiceAccount to use, keep empty to use default account.
+  name: 
 
 env:
   authtoken: "sfbwig"

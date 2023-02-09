@@ -28,7 +28,7 @@ spec:
                 values:
                 - {{ .Values.matches.crane }}
 
-      serviceAccountName: {{ .Values.serviceAccount.name }}
+      serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
       containers:
       - env:
