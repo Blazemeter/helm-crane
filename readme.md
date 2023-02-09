@@ -1,4 +1,4 @@
-
+![Helm-Blazemeter-crane](/Image.png)
 # Helm - Blazemeter crane - OPL
 
 Deploy Blazemeter private location engine to your Kubernetes cluster using HELM chart. Plus the chart allows to make additional configurations if required. 
