@@ -64,6 +64,6 @@ It is recommended to install this Helm chart onto the auto-scalable cluster for 
 
 However, make sure you are scalling the nodes, as it is not recommended to go with EKS Fargate or GKE Autopilot, those types of autoscalling is not supported for Blazemeter crane deployments. 
 
-Therefore, ***Always go with Node autoscalling***
+Therefore, ***always go with Node autoscalling***
 
 
