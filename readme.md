@@ -35,11 +35,12 @@ There are 2 methods for installing this Helm chart, or any Helm chart for that m
 1. Using `helm install` method
 2. Pulling the chart using `helm pull` and then install the chart using `helm install` along with additional configurations.
 
-> Method 1
+> ### Method 1
 ```
 helm install crane https://github.com/ImMnan/Helm-crane-blazemeter.git --set env.harbour_id="Harbour_ID" env.ship_id="Ship_ID" env.authtoken="Auth_token" 
 ```
 
+>
 
 
 
