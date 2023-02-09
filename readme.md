@@ -12,3 +12,7 @@ Deploy Blazemeter private location engine to your Kubernetes cluster using HELM 
 
 ## Usage
 1. 
+
+```yaml
+name: crane
+test: done
