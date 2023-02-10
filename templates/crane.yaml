@@ -17,6 +17,7 @@ spec:
     metadata:
       labels:
         role: {{ .Values.matches.role }}
+        crane: {{ .Values.matches.crane }}
     spec:
       affinity:
         podAntiAffinity:

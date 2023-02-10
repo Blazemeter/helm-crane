@@ -19,7 +19,7 @@ env:
   harbour_id: "lkndvoehrgo"
   ship_id: "kjdf2397rknfdl"
   docker_regirstry: "gcr.io/verdant-bulwark-278"
-  auto_update: true
+  auto_update: "true"
   image: "gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master"
   pullPolicy: "Always"
 
