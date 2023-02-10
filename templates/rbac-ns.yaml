@@ -19,7 +19,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Values.matches.role }}-binding-serviceAccount-{{ .Values.deployment.namespace }}-{{ template "blazemeter-crane.serviceAccountName" . }}
+  name: {{ .Values.matches.role }}-binding-{{ .Values.deployment.namespace }}-{{ template "blazemeter-crane.serviceAccountName" . }}
   namespace: {{ .Values.deployment.namespace }}
 subjects:
 - kind: ServiceAccount
