@@ -48,20 +48,18 @@ spec:
           value: {{ .Values.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
           value: {{ .Values.env.auto_update }}
-
-          {{- if .Values.proxy.http_proxy }}
+          {{- if .Values.proxy.use -}}
+            {{if .Values.proxy.http_proxy }}
         - name: HTTP_PROXY
-          value: {{ .Values.proxy.proxy_path }}    
+          value: {{ .Values.proxy.http_path }}
+            {{- end -}}
+            {{ if .Values.proxy.https_proxy }}    
+        - name: HTTP_PROXY  
+          value: {{ .Values.proxy.https_path }} 
+            {{- end }}
         - name: NO_PROXY
-          value: {{ .Values.proxy.no_proxy }} 
-
-          {{- else if .Values.proxy.https_proxy }}
-        - name: HTTPS_PROXY
-          value: {{ .Values.proxy.proxy_path }} 
-        - name: NO_PROXY
-          value: {{ .Values.proxy.no_proxy }}     
+          values: {{ .Values.proxy.no_proxy }}
           {{- end }}
-        
         image: {{ .Values.env.image }} 
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
