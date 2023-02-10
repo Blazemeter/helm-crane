@@ -24,7 +24,6 @@ env:
   pullPolicy: "Always"
 
   # Proxy configurations here
-
 proxy:
   http_proxy: no
   https_proxy: no

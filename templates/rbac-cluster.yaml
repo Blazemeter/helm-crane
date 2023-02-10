@@ -19,5 +19,5 @@ roleRef:
   name: {{ .Values.matches.clusterrole }}
 subjects:
 - kind: ServiceAccount
-  name: {{ .Values.serviceAccount.name }}
+  name: {{ template "blazemeter-crane.serviceAccountName" . }}
   namespace: {{ .Values.deployment.namespace }}

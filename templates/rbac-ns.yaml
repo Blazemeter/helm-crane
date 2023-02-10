@@ -23,7 +23,7 @@ metadata:
   namespace: {{ .Values.deployment.namespace }}
 subjects:
 - kind: ServiceAccount
-  name: {{ .Values.serviceAccount.name }}
+  name: {{ template "blazemeter-crane.serviceAccountName" . }}
   namespace: {{ .Values.deployment.namespace }}
 roleRef:
   kind: Role 
