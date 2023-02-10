@@ -28,7 +28,8 @@ spec:
                 operator: In
                 values:
                 - {{ .Values.matches.crane }}
-
+              topologyKey: topology.kubernetes.io/zone
+              
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
       containers:
