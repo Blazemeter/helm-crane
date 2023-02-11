@@ -58,7 +58,7 @@ proxy:
   http_proxy: yes
   http_path: "http://server:port" 
   https_proxy: yes
-  https_path: "http://server:port"
+  https_path: "https://server:port"
 ```
 
 5. Change `auto_update: false` if you do not want the cluster to be [auto-updated](https://guide.blazemeter.com/hc/en-us/articles/360009897078-How-to-Enable-Auto-Upgrade-for-Running-Containers) (Not recommended though).
