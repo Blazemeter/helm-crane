@@ -31,7 +31,7 @@ proxy:
   http_path: "http://server:port" 
 
   https_proxy: no
-  https_path: "http://server:port"  
+  https_path: "https://server:port"  
 #  the NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and 
 #  Transaction-based Mock Services to work. If you do not use any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
