@@ -49,7 +49,7 @@ spec:
         - name: AUTO_KUBERNETES_UPDATE
           value: {{ .Values.env.auto_update }}
           {{- if .Values.proxy.use -}}
-            {{if .Values.proxy.http_proxy }}
+            {{ if .Values.proxy.http_proxy }}
         - name: HTTP_PROXY
           value: {{ .Values.proxy.http_path }}
             {{- end -}}
