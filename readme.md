@@ -43,7 +43,7 @@ helm install crane [repo path] --set env.harbour_id="Harbour_ID" env.ship_id="Sh
 > Method 2
 1. Pull the chart
 ```
-helm pull https://github.com/ImMnan/Helm-crane-blazemeter.git
+helm pull [repo path]
 ```
 2. Open values file to make ammendments as per requirements 
 ``` 
