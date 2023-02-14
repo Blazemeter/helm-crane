@@ -37,7 +37,7 @@ There are 2 methods for installing this Helm chart, or any Helm chart for that m
 
 > Method 1
 ```
-helm install crane https://github.com/ImMnan/Helm-crane-blazemeter.git --set env.harbour_id="Harbour_ID" env.ship_id="Ship_ID" env.authtoken="Auth_token" --create-namespace --namespace=bm
+helm install crane [repo path] --set env.harbour_id="Harbour_ID" env.ship_id="Ship_ID" env.authtoken="Auth_token" --create-namespace --namespace=bm
 ```
 
 > Method 2
@@ -66,7 +66,7 @@ proxy:
 7. Please avoid switching the `serviceAccount.create` in the values to `yes`, as serviceAccount other than `default` will cause issues with Blazemeter crane deployments. Though I have setup code which will successfully create a new serviceAccount and assign it to all resources in this Helm chart, this is something we need to avoid for now. 
 8. Install the helm chart
 ```
-helm install crane blazemeter-crane --create-namespace --namespace=bm
+helm install crane blazemeter-crane-repo --create-namespace --namespace=bm
 ```
 
 ## Recommendations
