@@ -63,7 +63,7 @@ proxy:
 
 5. Change `auto_update: false` if you do not want the cluster to be [auto-updated](https://guide.blazemeter.com/hc/en-us/articles/360009897078-How-to-Enable-Auto-Upgrade-for-Running-Containers) (Not recommended though).
 6. Lastly, you can name the namespace for this deployment, just add the name in `namespace`, this helm chart will be installed under that namespace.
-7. Please avoide switching the `serviceAccount.create` to `yes`, as serviceAccount other than `default` will cause issues with Blazemeter crane deployments. Though I have setup code which will successfully create a new serviceAccount and assign it to all resources in this Helm chart, this is something we need to avoide for now. 
+7. Please avoid switching the `serviceAccount.create` in the values to `yes`, as serviceAccount other than `default` will cause issues with Blazemeter crane deployments. Though I have setup code which will successfully create a new serviceAccount and assign it to all resources in this Helm chart, this is something we need to avoide for now. 
 8. Install the helm chart
 ```
 helm install crane blazemeter-crane --create-namespace --namespace=bm
