@@ -65,14 +65,14 @@ Here, `crane` is the name we want to set for this chart on our cluster, `blazeme
 helm pull blazemeter/blazemeter-crane
 ```
 Again, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
-`Harbour_ID`, `Ship_ID` and `authtoken` is the one we aquired before see[2.1]. 
 
 2. Open `values` file to make ammendments as per requirements 
 ``` 
 vi values.yaml
 ```
 
-3. Add the Harbour_ID, Ship_ID and Auth_token in the `values.yaml` file. 
+3. Add the Harbour_ID, Ship_ID and Auth_token in the `values.yaml` file.  `Harbour_ID`, `Ship_ID` and `authtoken` is the one we aquired before see[2.1]. 
+
 ```yaml
 env:
   authtoken: "[auth-token]"
