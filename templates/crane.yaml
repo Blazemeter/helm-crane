@@ -60,27 +60,25 @@ spec:
         - name: NO_PROXY
           values: {{ .Values.proxy.no_proxy }}
           {{- end }}
-        
-        volumeMounts:
-        - name: {{ .Values.volume.volume_name }}
-          mountPath: {{ .Values.volume.mount_path }}
-
-        - name: REQUEST_CA_BUNDLE
-          values: {{ .Values.volume.mount_path }}/where.crt
-        - name: AWS_CA_BUNDLE
-          values: {{ .Values.volume.mount_path }}/where-else.crt
-        - name: KUBERNETES_CA_BUNDLE_MOUNT=REQUESTS_CA_BUNDLE
-          values: REQUESTS_CA_BUNDLE={{ .Values.ca_bundle.cm_name }}=where.crt:AWS_CA_BUNDLE=cert-config=where-else.crt
-
         image: {{ .Values.env.image }} 
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
 
+        {{ if .Values.ca_bundle.use }}
+        volumeMounts:
+        - name: {{ .Values.volume.volume_name }}
+          mountPath: {{ .Values.volume.mount_path }}
+        - name: REQUEST_CA_BUNDLE
+          values: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.ca_subpath }}
+        - name: AWS_CA_BUNDLE
+          values: {{ .Values.volume.mount_path }}/{{ .Values.ca_bindle.aws_subpath }}
+        - name: KUBERNETES_CA_BUNDLE_MOUNT
+          values: REQUESTS_CA_BUNDLE={{ .Values.ca_bundle.cm_name }}={{ .Values.ca_bundle.ca_subpath }}:AWS_CA_BUNDLE={{ .Values.ca_bundle.cm_name }}={{ .Values.ca_bindle.aws_subpath }}
       volumes:
       - name: {{ .Values.volume.volume_name }}
         configMap:
         # Provide the name of the ConfigMap containing the files you wantto add to the container
           name: {{ .Values.ca_bundle.cm_name }}
-        
+        {{ end }}
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30

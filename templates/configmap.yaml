@@ -1,4 +1,4 @@
-{{ if .Values.ca_bundle.use }}
+{{- if .Values.ca_bundle.use -}}
 
 apiVersion: v1
 kind: ConfigMap
@@ -7,4 +7,4 @@ metadata:
 data:
   {{ .Files.Get "files/certificate.crt" }}
 
-{{ end }}
+{{- end -}}
