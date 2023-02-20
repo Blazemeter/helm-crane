@@ -75,8 +75,8 @@ spec:
         name: crane-container
 
         {{ if .Values.ca_bundle.use }}
-        volumeMounts:
-        - name: {{ .Values.volume.volume_name }}
+          volumeMounts:
+          - name: {{ .Values.volume.volume_name }}
             mountPath: {{ .Values.volume.mount_path }}
 
       volumes:
@@ -86,4 +86,3 @@ spec:
           name: {{ .Values.ca_bundle.cm_name }}
         {{ end }}
       restartPolicy: {{ .Values.restartPolicy }}
-      terminationGracePeriodSeconds: 30
