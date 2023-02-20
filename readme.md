@@ -32,7 +32,7 @@ There are 2 methods for installing this Helm chart, or any Helm chart for that m
 
 
 ### [2.2] Two common methods of installing HELM chart
-1. Using `helm install` method - [read documentation]https://helm.sh/docs/helm/helm_install/)
+1. Using `helm install` method - [read documentation](https://helm.sh/docs/helm/helm_install/)
 2. Pulling the chart using `helm pull` and then install the chart using `helm install` along with additional configurations. [read documentations](https://helm.sh/docs/helm/helm_pull/)
 
 #### [2.3] We recommend adding the blazemeter-crane repo to your helm repo list
