@@ -35,7 +35,7 @@ There are 2 methods for installing this Helm chart, or any Helm chart for that m
 1. Using `helm install` method - [read documentation](https://helm.sh/docs/helm/helm_install/)
 2. Pulling the chart using `helm pull` and then install the chart using `helm install` along with additional configurations. [read documentations](https://helm.sh/docs/helm/helm_pull/)
 
-#### [2.3] We recommend adding the blazemeter-crane repo to your helm repo list
+### [2.3] We recommend adding the blazemeter-crane repo to your helm repo list
 
 1. We will add `blazemeter` helm reporsitory to our cluster, [read documentations](https://helm.sh/docs/helm/helm_repo/)
 ```
@@ -49,14 +49,17 @@ helm repo list
 Once the repository has been added, we can simply use the repository name (blazemeter in our case) to install the charts through chart name (instead of using the complete url all the time).
 
 
-> [2.3.1] Method 1
+#### [2.3.1] Method 1
+
+Install the chart directly
 ```
 helm install crane blazemeter/blazemeter-crane --set env.harbour_id="Harbour_ID" env.ship_id="Ship_ID" env.authtoken="Auth_token" --create-namespace --namespace=bm
 ```
 Here, `crane` is the name we want to set for this chart on our cluster, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
 `Harbour_ID`, `Ship_ID` and `authtoken` is the one we aquired before see[2.1]. 
 
-> [2.3.2] Method 2
+
+#### [2.3.2] Method 2
 1. Pull the chart
 ```
 helm pull blazemeter/blazemeter-crane
@@ -70,6 +73,13 @@ vi values.yaml
 ```
 
 3. Add the Harbour_ID, Ship_ID and Auth_token in the `values.yaml` file. 
+```yaml
+env:
+  authtoken: "[auth-token]"
+  harbour_id: "[harbour-id]"
+  ship_id: "[ship-id]"
+```
+
 4. If the [proxy](https://guide.blazemeter.com/hc/en-us/articles/115005639765-Optional-Installation-Step-Configuring-Private-Location-s-Agents-To-Use-a-Corporate-Proxy-Optional-Installation-Step:-Configuring-Private-Location's-Agents-To-Use-a-Corporate-Proxy#h_4a05699b-fb2d-4d9b-933d-11b5e3befaca) needs to be configured, change the value for `use` to `yes` following the configuration for `http_proxy` or/and `https_proxy`. Make sure the values are set to `yes` before adding the proxy `path`, as shown below:
 
 ```yaml
@@ -82,14 +92,38 @@ proxy:
 ```
 
 5. Change `auto_update: false` if you do not want the cluster to be [auto-updated](https://guide.blazemeter.com/hc/en-us/articles/360009897078-How-to-Enable-Auto-Upgrade-for-Running-Containers) (Not recommended though).
+```yaml
+  auto_update: "'true'"
+```
+
 6. Lastly, you can name the namespace for this deployment, just add the name in `namespace`, this helm chart will be installed under that namespace.
-7. Please avoid switching the `serviceAccount.create` in the values to `yes`, as serviceAccount other than `default` will cause issues with Blazemeter crane deployments. Though I have setup code which will successfully create a new serviceAccount and assign it to all resources in this Helm chart, this is something we need to avoid for now. 
+```yaml
+deployment:
+  name: crane
+  namespace: "bm"
+```
+
+7. Please avoid switching the `serviceAccount.create`  to `yes`, as serviceAccount other than `default` will cause issues with Blazemeter crane deployments. Though I have setup code which will successfully create a new serviceAccount and assign it to all resources in this Helm chart, this is something we need to avoid for now. 
+
+8. Once the values are updated, please verify if the values are correctly used in the helm chart:
+
+```
+helm template .
+```
+This will print the template helm will use to install this chart. Check the values and if something is missing, please make ammends.
 
 8. Install the helm chart
 ```
 helm install crane blazemeter-crane --create-namespace --namespace=bm
 ```
 Here, crane is the name we are setting for the chart on our system and blazemeter-crane is the actual name of the chart. 
+
+### [2.4] Varify the chart installation
+
+To varify the installation of our Helm chart run:
+```
+helm list
+```
 
 ## [3.0] Recommendations
 
