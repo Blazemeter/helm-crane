@@ -1,8 +1,9 @@
 {{ if .Values.ca_bundle.use }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cert-config
+  name: {{ .Values.ca_bundle.cm_name }}
 data:
   {{ .Files.Get "files/certificate.crt" }}
 
