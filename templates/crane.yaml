@@ -63,7 +63,6 @@ spec:
         image: {{ .Values.env.image }} 
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
-
 #        {{ if .Values.ca_bundle.use }}
 #        volumeMounts:
 #        - name: {{ .Values.volume.volume_name }}
@@ -76,7 +75,7 @@ spec:
 #          values: REQUESTS_CA_BUNDLE={{ .Values.ca_bundle.cm_name }}={{ .Values.ca_bundle.ca_subpath }}:AWS_CA_BUNDLE={{ .Values.ca_bundle.cm_name }}={{ .Values.ca_bindle.aws_subpath }}
 #      volumes:
 #      - name: {{ .Values.volume.volume_name }}
- #       configMap:
+#        configMap:
         # Provide the name of the ConfigMap containing the files you wantto add to the container
 #          name: {{ .Values.ca_bundle.cm_name }}
 #        {{ end }}

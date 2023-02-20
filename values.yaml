@@ -36,6 +36,7 @@ proxy:
 #  Transaction-based Mock Services to work. If you do not use any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 
+# just adding for future use, currently the chart does not help configure ca_bundle
 ca_bundle:
   use: no
   cm_name: "cert-config"
