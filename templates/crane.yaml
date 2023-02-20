@@ -60,8 +60,27 @@ spec:
         - name: NO_PROXY
           values: {{ .Values.proxy.no_proxy }}
           {{- end }}
+        
+        volumeMounts:
+        - name: config-volume
+          mountPath: /var/cm
+
+        - name: REQUEST_CA_BUNDLE
+          values: /var/cm/where.crt
+        - name: AWS_CA_BUNDLE
+          values: /var/cm/where-else.crt
+        - name: KUBERNETES_CA_BUNDLE_MOUNT=REQUESTS_CA_BUNDLE
+          values: REQUESTS_CA_BUNDLE=cert-config=where.crt:AWS_CA_BUNDLE=cert-config=where-else.crt
+
         image: {{ .Values.env.image }} 
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
+
+      volumes:
+      - name: config-volume
+        configMap:
+        # Provide the name of the ConfigMap containing the files you wantto add to the container
+          name: cert-config
+        
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30
