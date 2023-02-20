@@ -38,12 +38,12 @@ proxy:
 
 ca_bundle:
   use: no
-  cm_name: cert-config
-  ca_subpath: certificate.crt
-  aws_subpath: certificat.crt
+  cm_name: "cert-config"
+  ca_subpath: "certificate.crt"
+  aws_subpath: "certificate.crt"
 volume:
-  volume_name: config-volume
-  mount_path: /var/cm
+  volume_name: "config-volume"
+  mount_path: "/var/cm"
 
 
 restartPolicy: "Always"
