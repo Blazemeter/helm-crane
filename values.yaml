@@ -39,7 +39,6 @@ proxy:
 # just adding for future use, currently the chart does not help configure ca_bundle
 ca_bundle:
   use: no
-  cm_name: "cert-config"
   ca_subpath: "certificate.crt"
   aws_subpath: "certificate.crt"
 volume:
