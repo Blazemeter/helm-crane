@@ -51,13 +51,12 @@ Once the repository has been added, we can simply use the repository name (blaze
 
 #### [2.3.1] Method 1
 
-Install the chart directly
+Install the chart directly this does not work as we are passing more than 2 arguments.
+> Do not use this:
 ```
 helm install crane blazemeter/blazemeter-crane --set env.harbour_id="Harbour_ID" env.ship_id="Ship_ID" env.authtoken="Auth_token" --create-namespace --namespace=bm
 ```
-Here, `crane` is the name we want to set for this chart on our cluster, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
-`Harbour_ID`, `Ship_ID` and `authtoken` is the one we aquired before see[2.1]. 
-
+> Use the method 2
 
 #### [2.3.2] Method 2
 1. Pull the chart
