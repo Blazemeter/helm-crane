@@ -61,7 +61,7 @@ helm install crane blazemeter/blazemeter-crane --set env.harbour_id="Harbour_ID"
 #### [2.3.2] Method 2
 1. Pull the chart
 ```
-helm pull blazemeter/blazemeter-crane
+helm pull blazemeter/blazemeter-crane --untar=true
 ```
 Again, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
 
