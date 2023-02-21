@@ -1,6 +1,9 @@
+{{ if .Values.ca_bundle.use }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-configmap
 data:
-  - {{ .Files.Get "files/certificate.crt" }}
+  certificate.crt: |-
+    {{ .Files.Get "certificate.crt" | indent 4 }}
+{{ end }}
