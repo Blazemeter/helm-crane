@@ -42,7 +42,7 @@ ca_bundle:
   ca_subpath: "certificate.crt"
   aws_subpath: "certificate.crt"
 volume:
-  volume_name: "config-volume"
+  volume_name: "volume-cm"
   mount_path: "/var/cm"
 
 
