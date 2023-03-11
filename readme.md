@@ -116,7 +116,7 @@ This will print the template helm will use to install this chart. Check the valu
 ```
 helm install crane blazemeter-crane --create-namespace --namespace=bm
 ```
-Here, crane is the name we are setting for the chart on our system and blazemeter-crane is the actual name of the chart. 
+Here, crane is the name we are setting for the chart on our system and blazemeter-crane is the actual name of the chart. Make sure the namespace declared here is the same as the one we declared in the values file (see 2.3.2.6 section).
 
 ### [2.4] Varify the chart installation
 
