@@ -121,7 +121,7 @@ Here, crane is the name we are setting for the chart on our system and blazemete
 
 To varify the installation of our Helm chart run:
 ```
-helm list
+helm list -A
 ```
 
 ## [3.0] Recommendations
