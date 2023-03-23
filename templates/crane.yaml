@@ -19,17 +19,6 @@ spec:
         role: {{ .Values.matches.role }}
         crane: {{ .Values.matches.crane }}
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: crane
-                operator: In
-                values:
-                - {{ .Values.matches.crane }}
-            topologyKey: topology.kubernetes.io/zone
-
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
       containers:
