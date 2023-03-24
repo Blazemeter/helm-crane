@@ -39,7 +39,7 @@ There are 2 methods for installing this Helm chart, or any Helm chart for that m
 
 1. We will add `blazemeter` helm reporsitory to our cluster, [read documentations](https://helm.sh/docs/helm/helm_repo/)
 ```
-helm repo add blazemeter https://helm-repo-bm.storage.googleapis.com/
+helm repo add blazemeter https://helm-repo-bm.storage.googleapis.com/charts
 ```
 
 2. Confirm the addition of this repository using the following:
