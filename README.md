@@ -106,7 +106,7 @@ deployment:
 
 8. Now, if you want to configure your Kubernetes installation to use CA certificates, make changes to this section of the values.yaml file:
   -  Change the `use` to `yes`
-  -  Provice the path to certificate file respectively for both (ca_subpath & aws_subpath). The best thing is to just copy/move these cert files in the same directory as this chart and just provide the name of the certs instead of complete path.
+  -  Provide the path to certificate file respectively for both (ca_subpath & aws_subpath). The best thing is to just copy/move these cert files in the same directory as this chart and just provide the name of the certs instead of complete path.
 
 ```yaml
 ca_bundle:
