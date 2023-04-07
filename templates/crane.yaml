@@ -49,7 +49,6 @@ spec:
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
           {{ end }}
-          # This is for CA_Bundle, do not make any change in here. Make changes in the values.yaml
           {{ if .Values.ca_bundle.use }}
         - name: REQUEST_CA_BUNDLE
           value: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.ca_subpath }}
@@ -58,11 +57,9 @@ spec:
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt:AWS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt
           {{ end }}
-        
-        image: {{ .Values.env.image }}
+        mage: {{ .Values.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
-
         {{ if .Values.ca_bundle.use }}
         volumeMounts:
         - name: {{ .Values.volume.volume_name }}
@@ -70,9 +67,7 @@ spec:
       volumes:
       - name: {{ .Values.volume.volume_name }}
         configMap:
-        # Provide the name of the ConfigMap containing the files you wantto add to the container
           name: {{ .Release.Name }}-configmap
         {{ end }}   
-
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30
