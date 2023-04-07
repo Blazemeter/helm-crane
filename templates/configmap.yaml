@@ -6,5 +6,5 @@ metadata:
   namespace: bm
 data:
   certificate.crt: |-
-    {{ .Files.Get "certificate.crt" | indent 4 }}
+{{ .Files.Get "certificate.crt" | indent 4 }}
 {{ end }}
