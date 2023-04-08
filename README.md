@@ -63,7 +63,9 @@ helm install crane blazemeter/blazemeter-crane --set env.harbour_id="Harbour_ID"
 ```
 helm pull blazemeter/blazemeter-crane --untar=true
 ```
+
 Again, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
+This above command will by-default pull the latest version of the chart, i.e. 0.1.2 which allows configuring CA_bundle. However, if you are interested in other version please use the flag `--version=` in the pull command. 
 
 2. Open `values` file to make ammendments as per requirements 
 ``` 
