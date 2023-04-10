@@ -48,9 +48,26 @@ spec:
             {{- end }}
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
-          {{- end }}
-        image: {{ .Values.env.image }}
+          {{ end }}
+          {{ if .Values.ca_bundle.use }}
+        - name: REQUEST_CA_BUNDLE
+          value: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.ca_subpath }}
+        - name: AWS_CA_BUNDLE
+          value: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.aws_subpath }}
+        - name: KUBERNETES_CA_BUNDLE_MOUNT
+          value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt:AWS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt
+          {{ end }}
+        mage: {{ .Values.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
+        {{ if .Values.ca_bundle.use }}
+        volumeMounts:
+        - name: {{ .Values.volume.volume_name }}
+          mountPath: {{ .Values.volume.mount_path }}
+      volumes:
+      - name: {{ .Values.volume.volume_name }}
+        configMap:
+          name: {{ .Release.Name }}-configmap
+        {{ end }}   
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30

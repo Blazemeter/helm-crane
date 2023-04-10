@@ -63,7 +63,9 @@ helm install crane blazemeter/blazemeter-crane --set env.harbour_id="Harbour_ID"
 ```
 helm pull blazemeter/blazemeter-crane --untar=true
 ```
+
 Again, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
+This above command will by-default pull the latest version of the chart, i.e. 0.1.2 which allows configuring CA_bundle. However, if you are interested in other version please use the flag `--version=` in the pull command. 
 
 2. Open `values` file to make ammendments as per requirements 
 ``` 
@@ -104,14 +106,28 @@ deployment:
 
 7. Please avoid switching the `serviceAccount.create`  to `yes`, as serviceAccount other than `default` will cause issues with Blazemeter crane deployments. Though I have setup code which will successfully create a new serviceAccount and assign it to all resources in this Helm chart, this is something we need to avoid for now. 
 
-8. Once the values are updated, please verify if the values are correctly used in the helm chart:
+8. Now, if you want to configure your Kubernetes installation to use CA certificates, make changes to this section of the values.yaml file:
+  -  Change the `use` to `yes`
+  -  Provide the path to certificate file respectively for both (ca_subpath & aws_subpath). The best thing is to just copy/move these cert files in the same directory as this chart and just provide the name of the certs instead of complete path.
+
+```yaml
+ca_bundle:
+  use: no
+  ca_subpath: "certificate.crt"
+  aws_subpath: "certificate.crt"
+volume:
+  volume_name: "volume-cm"
+  mount_path: "/var/cm"
+```
+
+9. Once the values are updated, please verify if the values are correctly used in the helm chart:
 
 ```
 helm template .
 ```
 This will print the template helm will use to install this chart. Check the values and if something is missing, please make ammends.
 
-8. Install the helm chart
+10. Install the helm chart
 ```
 helm install crane blazemeter-crane --create-namespace --namespace=bm
 ```
@@ -132,4 +148,8 @@ However, make sure you are scalling the nodes, as it is not recommended to go wi
 
 Therefore, ***always go with Node autoscalling***
 
+Version changelog:
 
+- 0.1.2 - Supports Proxy, CA_certs as an additional configurable aspect of Blazemeter crane installation
+- o.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane installation
+- 0.1.0 - Supports standard - vanila installation of  Blazemeter crane installation (no proxy or CA_Bundle configurable)

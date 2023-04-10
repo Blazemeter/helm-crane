@@ -1,6 +1,6 @@
 apiVersion: v2
 name: blazemeter-crane
-description: A Helm chart for Blazemeter crane private location engine deployment.
+description: A Helm chart for Blazemeter crane private location engine deployment. Version 0.1.2 has support for CA_bundle configuration.
 keywords:
   - crane
   - Blazemeter
@@ -12,10 +12,12 @@ keywords:
   - Automation Testing
   - Load Generator
   - Auto scalling
+  - CA_Bundle
+  - Proxy-configurations
 
 type: application
 
-version: 0.1.0
+version: 0.1.2
 
 maintainers: 
   - name: Manan Patel
