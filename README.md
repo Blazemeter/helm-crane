@@ -148,7 +148,7 @@ However, make sure you are scalling the nodes, as it is not recommended to go wi
 
 Therefore, ***always go with Node autoscalling***
 
-## [4.0] Version changelog:
+## [4.0] Changelog:
 
 - 0.1.2 - Supports Proxy, CA_certs as an additional configurable aspect of Blazemeter crane installation
 - o.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane installation
