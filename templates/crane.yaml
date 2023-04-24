@@ -43,12 +43,12 @@ spec:
           value: {{ .Values.proxy.http_path }}
             {{- end -}}
             {{ if .Values.proxy.https_proxy }}
-        - name: HTTP_PROXY
+        - name: HTTPS_PROXY
           value: {{ .Values.proxy.https_path }}
             {{- end }}
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
-          {{ end }}
+          {{ end -}}
           {{ if .Values.ca_bundle.use }}
         - name: REQUEST_CA_BUNDLE
           value: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.ca_subpath }}
