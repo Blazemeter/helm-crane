@@ -152,4 +152,4 @@ Therefore, ***always go with Node autoscalling***
 
 - 0.1.2 - Supports Proxy, CA_certs as an additional configuration of Blazemeter crane deployment
 - 0.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane deployment
-- 0.1.0 - Supports standard - vanila installation of  Blazemeter crane deployment (no proxy or CA_Bundle configurable)
+- 0.1.0 - Supports standard - vanila Blazemeter crane deployment (no proxy or CA_Bundle configurable)
