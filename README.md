@@ -12,7 +12,7 @@ Deploy Blazemeter private location engine to your Kubernetes cluster using HELM 
 
 
 ## [2.0] Usage
-There are 2 methods for installing this Helm chart, or any Helm chart for that matter. In any case, the user will need Harbour_ID, Ship_ID & Auth_token from Blazemeter. 
+To start with, Blazemeter user will need Harbour_ID, Ship_ID & Auth_token from Blazemeter. 
 
 ### [2.1] Here is how to generate Harbour_ID, Ship_ID and Auth_token
 1. Get the Harbour_ID, Ship_ID and Auth_token through BlazeMeter GUI
@@ -30,30 +30,17 @@ There are 2 methods for installing this Helm chart, or any Helm chart for that m
     - Generate the docker command [using API](https://api.blazemeter.com/performance/#generate-docker-command)
     - Copy Auth_token. 
 
-
+---
 ### [2.2] Two common methods of installing HELM chart
 1. Cloning this Git repository or pulling the chart tar file
-2. Pulling the chart using `helm pull` and then install the chart using `helm install` along with additional configurations. [read documentations](https://helm.sh/docs/helm/helm_pull/) 
-**NOTE** My HELM repo hosted on GCP is down, so choose method one.
+2. Pulling the chart using `helm pull` and then install the chart using `helm install` along with additional configurations. [read documentations](https://helm.sh/docs/helm/helm_pull/) \
 
-### [2.3] I recommend adding the blazemeter-crane repo to your helm repo list
+**NOTE** My HELM repo hosted on GCP is down, so choose method one. Therefore point [2.2.3 would not work as expected, appologies for the trouble - Follow 2.2.2]
 
-1. We will add `blazemeter` helm reporsitory to our cluster, [read documentations](https://helm.sh/docs/helm/helm_repo/)
-```
-helm repo add blazemeter https://helm-repo-bm.storage.googleapis.com/charts
-```
-
-2. Confirm the addition of this repository using the following:
-```
-helm repo list
-```
-Once the repository has been added, we can simply use the repository name (blazemeter in our case) to install the charts through chart name (instead of using the complete url all the time).
-
-
-#### [2.3.1] Method 1
+#### [2.2.2] Method 1
 
 - Pull/Download the chart - tar file from the github repository:
-```
+```bash
 git clone https://github.com/ImMnan/Helm-crane-blazemeter.git
 ```
 - Untar the chart
@@ -61,16 +48,29 @@ git clone https://github.com/ImMnan/Helm-crane-blazemeter.git
 tar -xvf blazemeter-crane-0.1.2.tgz
 ```
 
-#### [2.3.2] Method 2
-1. Pull the chart
+#### [2.2.3] Method 2
+
+To start with, I recommend adding the blazemeter-crane repo to your helm repo list
+
+1. We will add `blazemeter` helm reporsitory to our cluster, [read documentations](https://helm.sh/docs/helm/helm_repo/)
+```
+helm repo add blazemeter https://helm-repo-bm.storage.googleapis.com/charts
+```
+2. Confirm the addition of this repository using the following:
+```
+helm repo list
+```
+Once the repository has been added, we can simply use the repository name (blazemeter in our case) to install the charts through chart name (instead of using the complete url all the time).
+
+3. Pull the chart
 ```
 helm pull blazemeter/blazemeter-crane --untar=true
 ```
-
-Again, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
+So, `blazemeter` is our repo name as added before [2.3], and `blazemeter-crane` is the chart name. 
 This above command will by-default pull the latest version of the chart, i.e. 0.1.2 which allows configuring CA_bundle. However, if you are interested in other version please use the flag `--version=` in the pull command. 
 
-#### [2.4] Configuring the Chart values before installing
+---
+### [2.5] Configuring the Chart values before installing
 
 1. Open `values` file to make ammendments as per requirements 
 ``` 
