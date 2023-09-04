@@ -45,5 +45,11 @@ volume:
   volume_name: "volume-cm"
   mount_path: "/var/cm"
 
+# If you plan to use non-prividelge containers, please enable the below configuration. 
+# this will run all pods (related to private location installation) within the cluser as non_root.
+non_privilege_container:
+  use: no
+  runasgroup: 1337
+  runasuser: 1337
 
 restartPolicy: "Always"

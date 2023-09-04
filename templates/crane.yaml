@@ -37,26 +37,30 @@ spec:
           value: {{ .Values.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
           value: {{ .Values.env.auto_update }}
-          {{- if .Values.proxy.use -}}
-            {{ if .Values.proxy.http_proxy }}
+        {{- if .Values.proxy.use -}}
+          {{ if .Values.proxy.http_proxy }}
         - name: HTTP_PROXY
           value: {{ .Values.proxy.http_path }}
-            {{- end -}}
-            {{ if .Values.proxy.https_proxy }}
+          {{- end -}}
+          {{ if .Values.proxy.https_proxy }}
         - name: HTTPS_PROXY
           value: {{ .Values.proxy.https_path }}
-            {{- end }}
+          {{ end }}
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
-          {{ end -}}
-          {{ if .Values.ca_bundle.use }}
+        {{- end -}}
+        {{ if .Values.ca_bundle.use }}
         - name: REQUEST_CA_BUNDLE
           value: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.ca_subpath }}
         - name: AWS_CA_BUNDLE
           value: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.aws_subpath }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt:AWS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt
-          {{ end }}
+        {{ end }}
+        {{ if .Values.non_privilege_container.use }}
+        - name: INHERIT_RUNNING_USER_AND_GROUP
+          value: 'true'
+        {{ end }}
         image: {{ .Values.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
@@ -69,5 +73,14 @@ spec:
         configMap:
           name: {{ .Release.Name }}-configmap
         {{ end }}   
+        {{- if .Values.non_privilege_container.use -}}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsGroup: {{ .Values.non_privilege_container.runAsGroup }}   
+          runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
+        {{ end }}
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30
