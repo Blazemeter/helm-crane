@@ -27,10 +27,10 @@ env:
 proxy:
   use: no
  # If you have authentication required for your proxy, then you will need to add username:password@server:port
-  http_proxy: no
+  http_proxy: yes
   http_path: "http://server:port" 
 
-  https_proxy: no
+  https_proxy: yes
   https_path: "https://server:port"  
 #  the NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and 
 #  Transaction-based Mock Services to work. If you do not use any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
@@ -48,7 +48,7 @@ volume:
 # If you plan to use non-prividelge containers, please enable the below configuration. 
 # this will run all pods (related to private location installation) within the cluser as non_root.
 non_privilege_container:
-  use: yes
+  use: no
   runAsGroup: 1337
   runAsUser: 1337
 
