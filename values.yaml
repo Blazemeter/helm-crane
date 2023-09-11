@@ -32,11 +32,11 @@ proxy:
 
   https_proxy: yes
   https_path: "https://server:port"  
-#  the NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and 
+#  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and 
 #  Transaction-based Mock Services to work. If you do not use any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 
-# just adding for future use, currently the chart does not help configure ca_bundle
+# Configure CA Bundle here - Change use: yes
 ca_bundle:
   use: no
   ca_subpath: "certificate.crt"
@@ -45,8 +45,8 @@ volume:
   volume_name: "volume-cm"
   mount_path: "/var/cm"
 
-# If you plan to use non-prividelge containers, please enable the below configuration. 
-# this will run all pods (related to private location installation) within the cluser as non_root.
+# If you plan to use non-privileged containers, please enable the below configuration, change use:yes
+# This will run all pods/containers (related to private location installation) within the cluster as non_root.
 non_privilege_container:
   use: no
   runAsGroup: 1337
