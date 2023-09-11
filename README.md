@@ -116,14 +116,23 @@ volume:
   auto_update: "'true'"
 ```
 
-- Lastly, you can name the namespace for this deployment, just add the name in `namespace`, this helm chart will be installed under that namespace.
+- Lastly, you can name the namespace for this deployment, just add the name in `namespace`, and this helm chart will be installed under that namespace.
 ```yaml
 deployment:
   name: crane
   namespace: "bm"
 ```
+#### [4.5] Deplouying Non_provoledge container - NON_ROOT deployment. 
+- If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to this part of the `values` file.
+```YAML
+non_privilege_container:
+  use: no
+  runAsGroup: 1337
+  runAsUser: 1337
+```
+Change the `use` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge.
 
-#### [4.5] Varify if everything is setup correctly
+#### [4.6] Verify if everything is setup correctly
 - Once the values are updated, please verify if the values are correctly used in the helm chart:
 
 ```
