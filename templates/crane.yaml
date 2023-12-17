@@ -57,6 +57,22 @@ spec:
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt:AWS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt
         {{- end -}}
+        {{ if .Values.istio_ingress.use }}
+        - name: KUBERNETES_WEB_EXPOSE_TYPE
+          value: ISTIO
+        - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
+          value: {{ .Values.istio_ingress.web_expose_subdomain }}
+        - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+          value: {{ .Values.istio_ingress.credentialName }}
+        - name: KUBERNETES_SERVICE_USE_TYPE
+          value: CLUSTERIP
+        - name: KUBERNETES_USE_PRE_PULLING
+          value: {{ .Values.istio_ingress.pre_pulling }}
+        - name: KUBERNETES_SERVICES_BLOCKING_GET
+          value: "true"
+        - name: KUBERNETES_ISTIO_GATEWAY_NAME
+          value: {{ .Values.istio_ingress.istio_gateway_name }}
+        {{ end }}
         {{ if .Values.non_privilege_container.use }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
