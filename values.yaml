@@ -54,7 +54,10 @@ non_privilege_container:
 
 restartPolicy: "Always"
 
-#Use Istio-Ingress if this Private location is going to run mock-services
+# Use Istio-Ingress if this Private location is going to run mock-services
+# Follow this guide till you have created a secret in istio-system namespace called wildcard-credential.
+# https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
+
 istio_ingress: 
   use: no
   credentialName: "wildcard-credential"
