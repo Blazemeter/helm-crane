@@ -53,3 +53,11 @@ non_privilege_container:
   runAsUser: 1337
 
 restartPolicy: "Always"
+
+#Use Istio-Ingress if this Private location is going to run mock-services
+istio_ingress: 
+  use: no
+  credentialName: "wildcard-credential"
+  web_expose_subdomain: "mydomain.local"
+  pre_pulling: "true"
+  istio_gateway_name: "bzm-gateway"
