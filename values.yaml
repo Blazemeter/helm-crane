@@ -65,3 +65,4 @@ istio_ingress:
   pre_pulling: "true"
   istio_gateway_name: "bzm-gateway"
   roleName: "role-crane-istio" # This role will have permissions to support istio-ingress 
+
