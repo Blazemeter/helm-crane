@@ -62,7 +62,7 @@ istio_ingress:
   use: no
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
-  pre_pulling: "true"
+  pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
   roleName: "role-crane-istio" # This role will have permissions to support istio-ingress 
 
