@@ -59,10 +59,9 @@ restartPolicy: "Always"
 # https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
 
 istio_ingress: 
-  use: no
+  use: yes
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
-  roleName: "role-crane-istio" # This role will have permissions to support istio-ingress 
 
