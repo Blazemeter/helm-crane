@@ -13,7 +13,12 @@ rules:
 - apiGroups: ["extensions", "apps", ""] # leave empty string for core
   resources: ["pods", "services", "endpoints", "daemonsets", "pods/*", "pods/exec", "deployments", "replicasets", "ingresses", "deployments/scale"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection", "createcollection"]
-
+{{- if .Values.istio_ingress.use }} 
+# this is for istio ingress for mock services
+- apiGroups: ["networking.istio.io"]
+  resources: ["destinationrules", "virtualservices", "gateways"]
+  verbs: ["get", "list", "create", "delete", "patch", "update"]
+{{ end -}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -28,33 +33,3 @@ roleRef:
   kind: Role 
   name: {{ .Values.matches.role }}
   apiGroup: rbac.authorization.k8s.io
-
----
-# Only for istio config
-{{ if .Values.istio_ingress.use }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: {{ .Values.istio_ingress.roleName }}
-  namespace: {{ .Values.deployment.namespace }}
-rules:
-  - apiGroups: ["networking.istio.io"]
-    resources: ["destinationrules", "virtualservices", "gateways"]
-    verbs: ["get", "list", "create", "delete", "patch", "update"]
-
----
-# This will bind the "role-crane-istio" role to the "default" service account in the given namespace
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata: 
-  name: role-binding-crane-istio 
-  namespace: {{ .Values.deployment.namespace }}
-roleRef:
-- apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: {{ .Values.istio_ingress.roleName }}
-subjects: 
-- kind: ServiceAccount
-  name: {{ template "blazemeter-crane.serviceAccountName" . }}
-   namespace: {{ .Values.deployment.namespace }}
-{{ end }}
