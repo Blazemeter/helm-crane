@@ -72,11 +72,11 @@ spec:
           value: "true"
         - name: KUBERNETES_ISTIO_GATEWAY_NAME
           value: {{ .Values.istio_ingress.istio_gateway_name | quote }}
-        {{ end }}
+        {{- end -}}
         {{ if .Values.non_privilege_container.use }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
-        {{- end -}}
+        {{ end }}
         image: {{ .Values.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
