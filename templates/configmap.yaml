@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-configmap
-  namespace: bm
+  namespace: {{ .Values.deployment.namespace }}
 data:
   certificate.crt: |-
 {{ .Files.Get "certificate.crt" | indent 4 }}
