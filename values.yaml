@@ -5,8 +5,8 @@ deployment:
 
 matches:
   crane: "ready"
-  role: "role-crane"
-  clusterrole: "cluster-role-crane"
+  role: "roleCrane"
+  clusterrole: "cluster-roleCrane"
 
 serviceAccount:
   # Specifies whether a ServiceAccount should be created, currently BM OPLs in Kubernetes only supports default service account.
@@ -59,7 +59,7 @@ restartPolicy: "Always"
 # https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
 
 istio_ingress: 
-  use: yes
+  use: no
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
   pre_pulling: "true" 
