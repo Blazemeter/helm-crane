@@ -1,6 +1,6 @@
 # Helm for Blazemeter Private Location
 
-[Download the latest Chart](https://github.com/ImMnan/Helm-crane-blazemeter/releases/download/0.1.3/blazemeter-crane-0.1.3.tgz)
+[Download the latest Chart](https://github.com/ImMnan/Helm-crane-blazemeter/releases/download/1.0.0/blazemeter-crane-1.0.0.tgz)
 
 Deploy Blazemeter private location engine to your Kubernetes cluster using HELM chart. Plus the chart allows to make advanced configurations if required. 
 
@@ -37,7 +37,7 @@ To start with, Blazemeter user will need Harbour_ID, Ship_ID & Auth_token from B
 
 - Pull/Download the chart - tar file from the github repository 
 
-  [Download the latest Chart](https://github.com/ImMnan/Helm-crane-blazemeter/releases/download/0.1.3/blazemeter-crane-0.1.3.tgz)
+  [Download the latest Chart](https://github.com/ImMnan/Helm-crane-blazemeter/releases/download/1.0.0/blazemeter-crane-1.0.0.tgz)
 
 - Untar the chart
 ```bash
@@ -122,7 +122,7 @@ deployment:
   name: crane
   namespace: "bm"
 ```
-#### [4.5] Deplouying Non_provoledge container - NON_ROOT deployment. 
+#### [4.5] Deploying Non_provoledge container - NON_ROOT deployment. 
 - If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to this part of the `values` file.
 ```YAML
 non_privilege_container:
@@ -132,7 +132,19 @@ non_privilege_container:
 ```
 Change the `use` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge.
 
-#### [4.6] Verify if everything is setup correctly
+#### [4.5] Installing Istio based crane for mock service deployment within the k8s cluster. 
+- If this OPL/Private location is going to run mock services, make changes to this part of the `values` file.
+```yaml
+istio_ingress: 
+  use: no
+  credentialName: "wildcard-credential"
+  web_expose_subdomain: "mydomain.local"
+  pre_pulling: "true" 
+  istio_gateway_name: "bzm-gateway"
+```
+Change the `use` to `yes` and this will automatically setup istio-ingress for this installation. Which will allow outside traffic to access the mock-service pod. However, make sure istio is already installed and configured as per the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6) 
+
+#### [4.7] Verify if everything is setup correctly
 - Once the values are updated, please verify if the values are correctly used in the helm chart:
 
 ```
@@ -166,6 +178,7 @@ Therefore, ***always go with Node autoscalling***
 
 ## [8.0] Changelog:
 
+- 1.0.0 - Now supports mock service deployment to this kubernetes based crane installation
 - 0.1.3 - Supports configuration for non_proviledge container deployment, also added a license 
 - 0.1.2 - Supports Proxy, CA_certs as an additional configuration of Blazemeter crane deployment
 - 0.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane deployment

@@ -5,8 +5,8 @@ deployment:
 
 matches:
   crane: "ready"
-  role: "role-crane"
-  clusterrole: "cluster-role-crane"
+  role: "roleCrane"
+  clusterrole: "cluster-roleCrane"
 
 serviceAccount:
   # Specifies whether a ServiceAccount should be created, currently BM OPLs in Kubernetes only supports default service account.
@@ -15,9 +15,9 @@ serviceAccount:
   name: 
 
 env:
-  authtoken: "sfbwig"
-  harbour_id: "lkndvoehrgo"
-  ship_id: "kjdf2397rknfdl"
+  authtoken: "AuthToken"
+  harbour_id: "HarbouId"
+  ship_id: "ShidId"
   docker_regirstry: "gcr.io/verdant-bulwark-278"
   auto_update: "'true'"
   image: "gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master"
@@ -53,3 +53,15 @@ non_privilege_container:
   runAsUser: 1337
 
 restartPolicy: "Always"
+
+# Use Istio-Ingress if this Private location is going to run mock-services
+# Follow this guide till you have created a secret in istio-system namespace called wildcard-credential.
+# https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
+
+istio_ingress: 
+  use: no
+  credentialName: "wildcard-credential"
+  web_expose_subdomain: "mydomain.local"
+  pre_pulling: "true" 
+  istio_gateway_name: "bzm-gateway"
+
