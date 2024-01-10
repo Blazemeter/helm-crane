@@ -16,10 +16,11 @@ keywords:
   - Proxy-configurations
   - Istio
   - Ingress
+  - Secret
 
 type: application
 
-version: 1.0.0
+version: 1.0.1
 
 maintainers: 
   - name: Manan Patel
