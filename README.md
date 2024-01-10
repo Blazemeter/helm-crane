@@ -1,5 +1,6 @@
 # Helm for Blazemeter Private Location
 [DOWNLOAD Pre-Release](https://github.com/ImMnan/Helm-crane-blazemeter/releases/download/1.0.1/blazemeter-crane-1.0.1.tgz)
+
 [Download the latest Chart](https://github.com/ImMnan/Helm-crane-blazemeter/releases/download/1.0.0/blazemeter-crane-1.0.0.tgz)
 
 Deploy Blazemeter private location engine to your Kubernetes cluster using HELM chart. Plus the chart allows to make advanced configurations if required. 
