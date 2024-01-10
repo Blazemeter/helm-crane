@@ -32,7 +32,7 @@ spec:
       {{ else }}
         - name: AUTH_TOKEN
           value: {{ .Values.env.authToken.token }}
-      {{- end -}}
+      {{ end }}
         - name: HARBOR_ID
           value: {{ .Values.env.harbour_id }}
         - name: SHIP_ID

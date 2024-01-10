@@ -18,7 +18,7 @@ env:
   authToken: 
     # if you want to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
     secret:
-      use: no
+      use: yes
       secretName: "test-secretName"
       secretKey: "auth-token"
     # if secret is not used, please enter the AUTH_TOKEN below directly. 
