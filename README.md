@@ -132,7 +132,7 @@ non_privilege_container:
 ```
 Change the `use` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge.
 
-#### [4.5] Installing Istio based crane for mock service deployment within the k8s cluster. 
+#### [4.6] Installing Istio based crane for mock service deployment within the k8s cluster. 
 - If this OPL/Private location is going to run mock services, make changes to this part of the `values` file.
 ```yaml
 istio_ingress: 
@@ -144,7 +144,33 @@ istio_ingress:
 ```
 Change the `use` to `yes` and this will automatically setup istio-ingress for this installation. Which will allow outside traffic to access the mock-service pod. However, make sure istio is already installed and configured as per the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6) 
 
-#### [4.7] Verify if everything is setup correctly
+#### [4.7] Inheriting the AUTH_TOKEN for crane from your k8s secret
+- If user/admins require the AUTH_TOKEN for any crane installation to be secret/secure, the ENV values for AUTH_TOKEN can be inherited from the k8s secret. User needs to make changes to this part of the `values` file.
+```yaml
+env:
+  authToken: 
+    # if you want to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
+    secret:
+      use: yes
+      secretName: "your-secretName"
+      secretKey: "auth-token"
+    # if secret is not used, please enter the AUTH_TOKEN below directly. 
+    token:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
+```
+Change the `use` to `yes` and this will automatically inherit the AUTH_TOKEN values from the secret user provide in the following values. Make sure the cluster/namespace has the secret applied in the following format:
+```YAML
+apiVersion: v1
+kind: Secret
+metadata:
+  name: your-secretName
+  namespace: blazemeter
+type: Opaque
+data:
+  auth-token: ZjIzZjU0ZTIwODk5ZWYwYzgzYmJkMzZmYzU3ODlhNzc3ODJjYTY1YjJjODIzZTMyMjY3NDcxM2QzZTc3Mzg2Yw==
+```
+
+
+#### [5.0] Verify if everything is setup correctly
 - Once the values are updated, please verify if the values are correctly used in the helm chart:
 
 ```
@@ -152,7 +178,7 @@ helm template .
 ```
 This will print the template helm will use to install this chart. Check the values and if something is missing, please make ammends.
 
-### [5.0] Installing the chart
+### [6.0] Installing the chart
 
 - Install the helm chart
 ```
@@ -161,14 +187,14 @@ helm install crane blazemeter-crane --create-namespace --namespace=bm
 Here, crane is the name we are setting for the chart on our system and blazemeter-crane is the actual name of the chart. Make sure the namespace declared here is the same as the one we declared in the values file (see 2.3.2.6 section).
 
 
-### [6.0] Varify the chart installation
+### [7.0] Varify the chart installation
 
 - To varify the installation of our Helm chart run:
 ```
 helm list -A
 ```
 
-## [7.0] Recommendations
+## [8.0] Recommendations
 
 It is recommended to install this Helm chart onto the auto-scalable cluster for example - [EKS](https://aws.amazon.com/eks/), [GKE](https://cloud.google.com/kubernetes-engine) or [AKS](https://azure.microsoft.com/en-in/products/kubernetes-service/#:~:text=Azure%20Kubernetes%20Service%20(AKS)%20offers,edge%2C%20and%20multicloud%20Kubernetes%20clusters.). 
 
@@ -178,8 +204,9 @@ Therefore, ***always go with Node autoscalling***
 
 ## [8.0] Changelog:
 
-- 1.0.0 - Now supports mock service deployment to this kubernetes based crane installation
-- 0.1.3 - Supports configuration for non_proviledge container deployment, also added a license 
+- 1.0.1 - The AUTH_TOKEN can now be inherited from a secret [4.7]
+- 1.0.0 - Now supports mock service deployment to this kubernetes based crane installation [4.6]
+- 0.1.3 - Supports configuration for non_proviledge container deployment, also added a license [4.5]
 - 0.1.2 - Supports Proxy, CA_certs as an additional configuration of Blazemeter crane deployment
 - 0.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane deployment
 - 0.1.0 - Supports standard - vanila Blazemeter crane deployment (no proxy or CA_Bundle configurable)
