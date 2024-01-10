@@ -1,7 +1,7 @@
 
 deployment:
   name: crane
-  namespace: "bm"
+  namespace: "bm1"
 
 matches:
   crane: "ready"
@@ -15,9 +15,16 @@ serviceAccount:
   name: 
 
 env:
-  authtoken: "AuthToken"
-  harbour_id: "HarbouId"
-  ship_id: "ShidId"
+  authToken: 
+    # if you want to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
+    secret:
+      use: no
+      secretName: "test-secretName"
+      secretKey: "auth-token"
+    # if secret is not used, please enter the AUTH_TOKEN below directly. 
+    token:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
+  harbour_id: 63cd1cc281374f2d9743cc73
+  ship_id: 656802147d074adaa60a6098
   docker_regirstry: "gcr.io/verdant-bulwark-278"
   auto_update: "'true'"
   image: "gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master"

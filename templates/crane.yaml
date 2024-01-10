@@ -23,8 +23,16 @@ spec:
       automountServiceAccountToken: true
       containers:
       - env:
+      {{ if .Values.env.authToken.secret.use }}
         - name: AUTH_TOKEN
-          value: {{ .Values.env.authtoken }}
+          valueFrom:
+            secretKeyRef:
+              name: {{.Values.env.authToken.secret.secretName }}
+              key: {{ .Values.env.authToken.secret.secretKey }}
+      {{ else }}
+        - name: AUTH_TOKEN
+          value: {{ .Values.env.authToken.token }}
+      {{- end -}}
         - name: HARBOR_ID
           value: {{ .Values.env.harbour_id }}
         - name: SHIP_ID
