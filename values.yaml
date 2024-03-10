@@ -72,3 +72,7 @@ istio_ingress:
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 
+# Labels to add to resources created by Crane
+labels:
+  use: no 
+  labelsJson: {"label_1": "label_1_value", "label_2": "label"}
