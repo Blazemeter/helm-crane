@@ -85,6 +85,10 @@ spec:
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
         {{ end }}
+        {{- if .Values.env.labels.use }}
+        - name: KUBERNETES_LABELS
+          value: {"label_1": "label_1_value", "label_2": "label_2_value"}
+        {{ end -}}
         image: {{ .Values.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
