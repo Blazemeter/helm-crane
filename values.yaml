@@ -76,3 +76,10 @@ istio_ingress:
 labels:
   use: no 
   labelsJson: {"label_1": "label_1_value", "label_2": "label"}
+
+# CPU limits for resources created by agent.
+# Memory limits for resources created by agent.
+resourceLimit:
+  use: no 
+  CPU: "2"
+  MEM: "8"
