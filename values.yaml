@@ -1,7 +1,7 @@
 
 deployment:
   name: crane
-  namespace: "bm1"
+  namespace: "bm"
 
 matches:
   crane: "ready"
@@ -18,7 +18,7 @@ env:
   authToken: 
     # if you want to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
     secret:
-      use: yes
+      use: no
       secretName: "your-secretName"
       secretKey: "auth-token"
     # if secret is not used, please enter the AUTH_TOKEN below directly. 
@@ -74,12 +74,12 @@ istio_ingress:
 
 # Labels to add to resources created by Crane
 labels:
-  use: no 
-  labelsJson: {"label_1": "label_1_value", "label_2": "label"}
+  use: yes 
+  labelsJson: {"label_1": "label_1_value", "label_2": "label2value"}
 
 # CPU limits for resources created by agent.
 # Memory limits for resources created by agent.
 resourceLimit:
-  use: no 
+  use: yes 
   CPU: "2"
   MEM: "8"
