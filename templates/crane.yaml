@@ -87,7 +87,7 @@ spec:
         {{ end }}
         {{- if .Values.labels.use }}
         - name: KUBERNETES_LABELS
-          value: {{ .Values.labels.labelsJson }}
+          value: {{ .Values.labels.labelsJson | toJson }}
         {{ end }}
         {{ if .Values.resourceLimit.use }}
         - name: KUBERNETES_RESOURCES_LIMITS_CPU
