@@ -88,13 +88,13 @@ spec:
         {{- if .Values.labels.use }}
         - name: KUBERNETES_LABELS
           value: {{ .Values.labels.labelsJson | toJson | quote}}
-        {{ end }}
+        {{ end -}}
         {{ if .Values.resourceLimit.use }}
         - name: KUBERNETES_RESOURCES_LIMITS_CPU
           value: {{ .Values.resourceLimit.CPU | quote }}
         - name: KUBERNETES_RESOURCES_LIMITS_MEMORY
           value: {{ .Values.resourceLimit.MEM | quote }}
-        {{ end }}
+        {{ end -}}
         image: {{ .Values.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
