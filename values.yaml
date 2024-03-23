@@ -3,6 +3,7 @@ deployment:
   name: crane
   namespace: "bm"
 
+# This is the name of roles and clusterroles created by the chart.
 matches:
   crane: "ready"
   role: "roleCrane"
@@ -72,3 +73,15 @@ istio_ingress:
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 
+
+# Labels to add to resources created by Crane
+labels:
+  use: no 
+  labelsJson: {"label_1": "label_1_value", "label_2": "label2value"}
+
+# CPU limits for resources created by agent.
+# Memory limits for resources created by agent.
+resourceLimit:
+  use: no
+  CPU: "800m"
+  MEM: "4Gi"
