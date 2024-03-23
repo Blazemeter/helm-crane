@@ -170,6 +170,22 @@ data:
   auth-token: ZjIzZjU0ZTIwODk5ZWYwYzgzYmJkMzZmYzU3ODlhNzc3ODJjYTY1YjJjODIzZTMyMjY3NDcxM2QzZTc3Mzg2Yw==
 ```
 
+#### [4.8] Configure deployment to support child pods to inherit labels from the crane
+- If user/admins require certain set of labels as part of the deployment of a cluster resource, we can use this `labels` values. These labels will be Inherited from the crane when the child pods are deployed. Because, note that labels added to crane deployment will not be automatically inherited by the child pods. Switch the use to `yes` and add labels in a Json format as per the example:
+```yaml
+labels:
+  use: yes 
+  labelsJson: {"label_1": "label_1_value", "label_2": "label2value"}
+```
+
+#### [4.8] Configure deployment to support child pods to inherit resource limits from the crane
+- If user/admins require a CPU, MEM limit to be applied to all cluster resources, we can use this `resourceLimit` values. These resource limits will be Inherited from the crane ENV when the child pods are deployed. Because, note that resource limit added to crane deployment will not be automatically inherited by the child pods. Switch the use to `yes` and add resource limits in a string format as per the example:
+```yaml
+resourceLimit:
+  use: yes
+  CPU: "800m"
+  MEM: "4Gi"
+```
 
 #### [5.0] Verify if everything is setup correctly
 - Once the values are updated, please verify if the values are correctly used in the helm chart:
