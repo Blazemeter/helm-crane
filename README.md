@@ -177,7 +177,7 @@ labels:
   labelsJson: {"label_1": "label_1_value", "label_2": "label2value"}
 ```
 
-#### [4.8] Configure deployment to support child pods to inherit resource limits from the crane
+#### [4.9] Configure deployment to support child pods to inherit resource limits from the crane
 - If user/admins require a CPU, MEM limit to be applied to all cluster resources, we can use this `resourceLimit` values. These resource limits will be Inherited from the crane ENV when the child pods are deployed. Because, note that resource limit added to crane deployment will not be automatically inherited by the child pods. Switch the use to `yes` and add resource limits in a string format as per the example:
 ```yaml
 resourceLimit:
@@ -218,11 +218,12 @@ However, make sure you are scalling the nodes, as it is not recommended to go wi
 
 Therefore, ***always go with Node autoscalling***
 
-## [8.0] Changelog:
+## [9.0] Changelog:
 
+- 1.1.0 - Chart now supports inheriting labels and resourcelimits to child pods from crane environment [4.8] [4.9]
 - 1.0.1 - The AUTH_TOKEN can now be inherited from a secret [4.7]
 - 1.0.0 - Now supports mock service deployment to this kubernetes based crane installation [4.6]
 - 0.1.3 - Supports configuration for non_proviledge container deployment, also added a license [4.5]
-- 0.1.2 - Supports Proxy, CA_certs as an additional configuration of Blazemeter crane deployment
-- 0.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane deployment
+- 0.1.2 - Supports Proxy, CA_certs as an additional configuration of Blazemeter crane deployment [4.3]
+- 0.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane deployment [4.2]
 - 0.1.0 - Supports standard - vanila Blazemeter crane deployment (no proxy or CA_Bundle configurable)
