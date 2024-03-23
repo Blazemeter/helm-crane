@@ -72,6 +72,7 @@ istio_ingress:
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 
+
 # Labels to add to resources created by Crane
 labels:
   use: yes 
@@ -80,6 +81,6 @@ labels:
 # CPU limits for resources created by agent.
 # Memory limits for resources created by agent.
 resourceLimit:
-  use: yes 
-  CPU: "2"
-  MEM: "8"
+  use: yes
+  CPU: "800m"
+  MEM: "4Gi"
