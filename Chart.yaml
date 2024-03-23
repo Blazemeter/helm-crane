@@ -17,10 +17,12 @@ keywords:
   - Istio
   - Ingress
   - Secret
+  - Labels
+  - ResourceLimit
 
 type: application
 
-version: 1.0.1
+version: 1.1.0
 
 maintainers: 
   - name: Manan Patel
