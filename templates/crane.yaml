@@ -107,7 +107,7 @@ spec:
         configMap:
           name: {{ .Release.Name }}-configmap
         {{ end }}   
-      {{- if .Values.non_privilege_container.use -}}
+      {{- if .Values.non_privilege_container.use }}
       securityContext:
         allowPrivilegeEscalation: false
         capabilities:
