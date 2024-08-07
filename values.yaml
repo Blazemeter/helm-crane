@@ -73,6 +73,12 @@ istio_ingress:
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 
+# We can use nginx-ingress instead of istio-ingress
+nginx_ingress:
+  use: no
+  pre-installed: no # if you have nginx-ingress installed in your cluster, set this to true
+  credentialName: "wildcard-credential"
+  web_expose_subdomain: "mydomain.local"  
 
 # Labels to add to resources created by Crane
 labels:
