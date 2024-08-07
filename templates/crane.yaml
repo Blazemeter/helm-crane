@@ -65,7 +65,7 @@ spec:
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt:AWS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt
         {{- end -}}
-        {{ if .Values.istio_ingress.use }}
+        {{ if and (.Values.istio_ingress.use)  (eq .Values.nginx_ingress.use false) }}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: ISTIO
         - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
@@ -80,6 +80,24 @@ spec:
           value: "true"
         - name: KUBERNETES_ISTIO_GATEWAY_NAME
           value: {{ .Values.istio_ingress.istio_gateway_name | quote }}
+        {{- end -}}
+        {{ if and (.Values.nginx_ingress.use)  (eq .Values.istio_ingress.use false)}}
+        - name: KUBERNETES_WEB_EXPOSE_TYPE
+          value: INGRESS
+        - name: KUBERNETES_INGRESS_CLASS
+          value: "nginx"
+        - name: KUBERNETES_SERVICE_USE_TYPE
+          value: CLUSTERIP
+        - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
+          value: {{ .Values.nginx_ingress.web_expose_subdomain | quote }}
+        - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+          value: {{ .Values.nginx_ingress.credentialName | quote }}
+        - name: PARALLEL_HANDLERS_COUNT
+          value: '50'
+        - name: USE_PARALLEL_HANDLER
+          value: 'true'
+        - name: RUN_HEALTH_WEB_SERVICE
+          value: 'true'
         {{- end -}}
         {{ if .Values.non_privilege_container.use }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
