@@ -14,12 +14,13 @@ rules:
   resources: ["pods", "services", "endpoints", "daemonsets", "pods/*", "pods/exec", "deployments", "replicasets", "ingresses", "deployments/scale", "jobs"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection", "createcollection"]
 {{ if and (.Values.istio_ingress.use)  (eq .Values.nginx_ingress.use false) }} 
-# this is for istio ingress for mock services
+# this is for istio ingress mock services deployment
 - apiGroups: ["networking.istio.io"]
   resources: ["destinationrules", "virtualservices", "gateways"]
   verbs: ["get", "list", "create", "delete", "patch", "update"]
-{{ end }}
+{{- end -}}
 {{ if and (.Values.nginx_ingress.use)  (eq .Values.istio_ingress.use false)}}
+# this is for nginx ingress mock services deployment
 - apiGroups: ["networking.k8s.io"]
   resources: ["virtualservices", "gateways", "ingresses"]
   verbs: ["get", "list", "create", "delete", "patch", "update"]
