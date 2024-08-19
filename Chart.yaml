@@ -19,6 +19,7 @@ keywords:
   - Secret
   - Labels
   - ResourceLimit
+  - Nginx Ingress
 
 type: application
 
