@@ -132,7 +132,7 @@ spec:
           drop:
           - ALL
         runAsGroup: {{ .Values.non_privilege_container.runAsGroup }}   
-        runAsenabler: {{ .Values.non_privilege_container.runAsenabler }}        
+        runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
       {{ end }}
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30

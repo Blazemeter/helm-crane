@@ -34,7 +34,7 @@ env:
   # Proxy configurations here, change enable to yes, followed by http/https configuration
 proxy:
   enable: no
- # If you have authentication required for your proxy, then you will need to add enablername:password@server:port
+ # If you have authentication required for your proxy, then you will need to add username:password@server:port
   http_proxy: yes
   http_path: "http://server:port" 
 
@@ -58,7 +58,7 @@ volume:
 non_privilege_container:
   enable: no
   runAsGroup: 1337
-  runAsenabler: 1337
+  runAsUser: 1337
 
 restartPolicy: "Always"
 
