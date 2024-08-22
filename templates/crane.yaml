@@ -23,7 +23,7 @@ spec:
       automountServiceAccountToken: true
       containers:
       - env:
-      {{ if .Values.env.authToken.secret.use }}
+      {{ if .Values.env.authToken.secret.enable }}
         - name: AUTH_TOKEN
           valueFrom:
             secretKeyRef:
@@ -45,7 +45,7 @@ spec:
           value: {{ .Values.env.docker_regirstry }}
         - name: AUTO_KUBERNETES_UPDATE
           value: {{ .Values.env.auto_update }}
-        {{- if .Values.proxy.use -}}
+        {{- if .Values.proxy.enable -}}
           {{ if .Values.proxy.http_proxy }}
         - name: HTTP_PROXY
           value: {{ .Values.proxy.http_path }}
@@ -57,7 +57,7 @@ spec:
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
         {{- end -}}
-        {{ if .Values.ca_bundle.use }}
+        {{ if .Values.ca_bundle.enable }}
         - name: REQUEST_CA_BUNDLE
           value: {{ .Values.volume.mount_path }}/{{ .Values.ca_bundle.ca_subpath }}
         - name: AWS_CA_BUNDLE
@@ -65,28 +65,28 @@ spec:
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt:AWS_CA_BUNDLE={{ .Release.Name }}-configmap=certificate.crt
         {{- end -}}
-        {{ if and (.Values.istio_ingress.use)  (eq .Values.nginx_ingress.use false) }}
+        {{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: ISTIO
         - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
           value: {{ .Values.istio_ingress.web_expose_subdomain | quote }}
         - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
           value: {{ .Values.istio_ingress.credentialName | quote }}
-        - name: KUBERNETES_SERVICE_USE_TYPE
+        - name: KUBERNETES_SERVICE_enable_TYPE
           value: CLUSTERIP
-        - name: KUBERNETES_USE_PRE_PULLING
+        - name: KUBERNETES_enable_PRE_PULLING
           value: {{ .Values.istio_ingress.pre_pulling | quote }}
         - name: KUBERNETES_SERVICES_BLOCKING_GET
           value: "true"
         - name: KUBERNETES_ISTIO_GATEWAY_NAME
           value: {{ .Values.istio_ingress.istio_gateway_name | quote }}
         {{- end -}}
-        {{ if and (.Values.nginx_ingress.use)  (eq .Values.istio_ingress.use false)}}
+        {{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: INGRESS
         - name: KUBERNETES_INGRESS_CLASS
           value: "nginx"
-        - name: KUBERNETES_SERVICE_USE_TYPE
+        - name: KUBERNETES_SERVICE_enable_TYPE
           value: CLUSTERIP
         - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
           value: {{ .Values.nginx_ingress.web_expose_subdomain | quote }}
@@ -94,20 +94,20 @@ spec:
           value: {{ .Values.nginx_ingress.credentialName | quote }}
         - name: PARALLEL_HANDLERS_COUNT
           value: '50'
-        - name: USE_PARALLEL_HANDLER
+        - name: enable_PARALLEL_HANDLER
           value: 'true'
         - name: RUN_HEALTH_WEB_SERVICE
           value: 'true'
         {{- end -}}
-        {{ if .Values.non_privilege_container.use }}
-        - name: INHERIT_RUNNING_USER_AND_GROUP
+        {{ if .Values.non_privilege_container.enable }}
+        - name: INHERIT_RUNNING_enableR_AND_GROUP
           value: 'true'
         {{ end }}
-        {{- if .Values.labels.use }}
+        {{- if .Values.labels.enable }}
         - name: KUBERNETES_LABELS
           value: {{ .Values.labels.labelsJson | toJson | quote}}
         {{ end }}
-        {{ if .Values.resourceLimit.use }}
+        {{ if .Values.resourceLimit.enable }}
         - name: KUBERNETES_RESOURCES_LIMITS_CPU
           value: {{ .Values.resourceLimit.CPU | quote }}
         - name: KUBERNETES_RESOURCES_LIMITS_MEMORY
@@ -116,7 +116,7 @@ spec:
         image: {{ .Values.env.image }}
         imagePullPolicy: {{ .Values.env.pullPolicy }}
         name: crane-container
-        {{ if .Values.ca_bundle.use }}
+        {{ if .Values.ca_bundle.enable }}
         volumeMounts:
         - name: {{ .Values.volume.volume_name }}
           mountPath: {{ .Values.volume.mount_path }}
@@ -125,14 +125,14 @@ spec:
         configMap:
           name: {{ .Release.Name }}-configmap
         {{ end }}   
-      {{- if .Values.non_privilege_container.use }}
+      {{- if .Values.non_privilege_container.enable }}
       securityContext:
         allowPrivilegeEscalation: false
         capabilities:
           drop:
           - ALL
         runAsGroup: {{ .Values.non_privilege_container.runAsGroup }}   
-        runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
+        runAsenabler: {{ .Values.non_privilege_container.runAsenabler }}        
       {{ end }}
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30
