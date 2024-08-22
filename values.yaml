@@ -73,10 +73,11 @@ istio_ingress:
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 
-# We can enable nginx-ingress instead of istio-ingress
+# We can enable nginx-ingress instead of istio-ingress, currently, the chart expects nginx-ingress to be pre-installed in the cluster. 
+# Follow Blazemeter guide for more information on installing nginx-ingress.
 nginx_ingress:
-  enable: no
-  pre-installed: no # if you have nginx-ingress installed in your cluster, set this to true
+  enable: yes
+#  pre-installed: yes
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"  
 
