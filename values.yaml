@@ -12,17 +12,17 @@ matches:
 serviceAccount:
   # Specifies whether a ServiceAccount should be created, currently BM OPLs in Kubernetes only supports default service account.
   create: false
-  # The name of the ServiceAccount to use, keep empty to use default account.
+  # The name of the ServiceAccount to enable, keep empty to enable default account.
   name: 
 
 env:
   authToken: 
     # if you want to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
     secret:
-      use: no
+      enable: no
       secretName: "your-secretName"
       secretKey: "auth-token"
-    # if secret is not used, please enter the AUTH_TOKEN below directly. 
+    # if secret is not enabled, please enter the AUTH_TOKEN below directly. 
     token:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
   harbour_id: "MY_SAMPLE_HARBOURID-302870vdr9237"
   ship_id: "MY_SAMPLE_SHIPID-dfwe3423535"
@@ -31,63 +31,63 @@ env:
   image: "gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master"
   pullPolicy: "Always"
 
-  # Proxy configurations here, change use to yes, followed by http/https configuration
+  # Proxy configurations here, change enable to yes, followed by http/https configuration
 proxy:
-  use: no
- # If you have authentication required for your proxy, then you will need to add username:password@server:port
+  enable: no
+ # If you have authentication required for your proxy, then you will need to add enablername:password@server:port
   http_proxy: yes
   http_path: "http://server:port" 
 
   https_proxy: yes
   https_path: "https://server:port"  
 #  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and 
-#  Transaction-based Mock Services to work. If you do not use any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
+#  Transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 
-# Configure CA Bundle here - Change use: yes
+# Configure CA Bundle here - Change enable: yes
 ca_bundle:
-  use: no
+  enable: no
   ca_subpath: "certificate.crt"
   aws_subpath: "certificate.crt"
 volume:
   volume_name: "volume-cm"
   mount_path: "/var/cm"
 
-# If you plan to use non-privileged containers, please enable the below configuration, change use:yes
+# If you plan to enable non-privileged containers, please enable the below configuration, change enable:yes
 # This will run all pods/containers (related to private location installation) within the cluster as non_root.
 non_privilege_container:
-  use: no
+  enable: no
   runAsGroup: 1337
-  runAsUser: 1337
+  runAsenabler: 1337
 
 restartPolicy: "Always"
 
-# Use Istio-Ingress if this Private location is going to run mock-services
+# enable Istio-Ingress if this Private location is going to run mock-services
 # Follow this guide till you have created a secret in istio-system namespace called wildcard-credential.
 # https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
 
 istio_ingress: 
-  use: no
+  enable: no
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 
-# We can use nginx-ingress instead of istio-ingress
+# We can enable nginx-ingress instead of istio-ingress
 nginx_ingress:
-  use: no
+  enable: no
   pre-installed: no # if you have nginx-ingress installed in your cluster, set this to true
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"  
 
 # Labels to add to resources created by Crane
 labels:
-  use: no 
+  enable: no 
   labelsJson: {"label_1": "label_1_value", "label_2": "label2value"}
 
 # CPU limits for resources created by agent.
 # Memory limits for resources created by agent.
 resourceLimit:
-  use: no
+  enable: no
   CPU: "800m"
   MEM: "4Gi"
