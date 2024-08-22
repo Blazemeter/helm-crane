@@ -1,10 +1,10 @@
 # Helm for Blazemeter Private Location
 
-[Download the latest Chart](https://github.com/ImMnan/Helm-crane-blazemeter/releases/download/1.1.0/blazemeter-crane-1.1.0.tgz)
+[Download the latest Chart](https://github.com/Blazemeter/helm-crane/releases/download/1.2.0/helm-crane-1.2.0.tgz)
 
 Deploy Blazemeter private location engine to your Kubernetes cluster using HELM chart. Plus the chart allows to make advanced configurations if required. 
 
-![Helm-Blazemeter-crane](/Image.png)
+![Helm-crane](/Image.png)
 
 ### [1.0] Requirements
 1. A [BlazeMeter account](https://www.blazemeter.com/)
@@ -82,11 +82,11 @@ env:
 ```
 
 #### [4.2] Adding Proxy config details
-- If the [proxy](https://guide.blazemeter.com/hc/en-us/articles/115005639765-Optional-Installation-Step-Configuring-Private-Location-s-Agents-To-Use-a-Corporate-Proxy-Optional-Installation-Step:-Configuring-Private-Location's-Agents-To-Use-a-Corporate-Proxy#h_4a05699b-fb2d-4d9b-933d-11b5e3befaca) needs to be configured, change the value for `use` to `yes`. Now, add the configuration for `http_proxy` or/and `https_proxy`. Make sure the values are set to `yes` before adding the proxy `path`, as shown below:
+- If the [proxy](https://guide.blazemeter.com/hc/en-us/articles/115005639765-Optional-Installation-Step-Configuring-Private-Location-s-Agents-To-Use-a-Corporate-Proxy-Optional-Installation-Step:-Configuring-Private-Location's-Agents-To-Use-a-Corporate-Proxy#h_4a05699b-fb2d-4d9b-933d-11b5e3befaca) needs to be configured, change the value for `enable` to `yes`. Now, add the configuration for `http_proxy` or/and `https_proxy`. Make sure the values are set to `yes` before adding the proxy `path`, as shown below:
 
 ```yaml
 proxy:
-  use: yes
+  enable: yes
   http_proxy: yes
   http_path: "http://server:port" 
   https_proxy: yes
@@ -95,12 +95,12 @@ proxy:
 
 #### [4.3] Adding CA certificates
 - Now, if you want to configure your Kubernetes installation to use CA certificates, make changes to this section of the values.yaml file:
-  -  Change the `use` to `yes`
+  -  Change the `enable` to `yes`
   -  Provide the path to certificate file respectively for both (ca_subpath & aws_subpath). The best thing is to just copy/move these cert files in the same directory as this chart and just provide the name of the certs instead of complete path.
 
 ```yaml
 ca_bundle:
-  use: no
+  enable: no
   ca_subpath: "certificate.crt"
   aws_subpath: "certificate.crt"
 volume:
@@ -126,38 +126,48 @@ deployment:
 - If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to this part of the `values` file.
 ```YAML
 non_privilege_container:
-  use: no
+  enable: no
   runAsGroup: 1337
   runAsUser: 1337
 ```
-Change the `use` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge.
+Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge.
 
 #### [4.6] Installing Istio based crane for mock service deployment within the k8s cluster. 
-- If this OPL/Private location is going to run mock services, make changes to this part of the `values` file.
+- If this OPL/Private location is going to run mock services using istio-ingress, make changes to this part of the `values` file.
 ```yaml
 istio_ingress: 
-  use: no
+  enable: no
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
   pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 ```
-Change the `use` to `yes` and this will automatically setup istio-ingress for this installation. Which will allow outside traffic to access the mock-service pod. However, make sure istio is already installed and configured as per the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6) 
+Change the `enable` to `yes` and this will automatically setup istio-ingress for this installation. Which will allow outside traffic to access the mock-service pod. However, make sure istio is already installed and configured as per the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6) 
 
-#### [4.7] Inheriting the AUTH_TOKEN for crane from your k8s secret
+#### [4.7] Installing Nginx Ingress based crane for mock service deployment, 
+- If this OPL/Private location is going to run mock services using nginx-ingress, make changes to this part of the `values` file.
+```yaml
+nginx_ingress:
+  enable: yes
+  credentialName: "wildcard-credential"
+  web_expose_subdomain: "mydomain.local" 
+```
+Change the `enable` to `yes` and this will automatically setup nginx-ingress for this installation. Which will allow outside traffic to access the mock-service pod. However, make sure nginx is already installed and configured. [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6)
+
+#### [4.8] Inheriting the AUTH_TOKEN for crane from your k8s secret
 - If user/admins require the AUTH_TOKEN for any crane installation to be secret/secure, the ENV values for AUTH_TOKEN can be inherited from the k8s secret. User needs to make changes to this part of the `values` file.
 ```yaml
 env:
   authToken: 
     # if you want to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
     secret:
-      use: yes
+      enable: yes
       secretName: "your-secretName"
       secretKey: "auth-token"
-    # if secret is not used, please enter the AUTH_TOKEN below directly. 
+    # if secret is not enabled, please enter the AUTH_TOKEN below directly. 
     token:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
 ```
-Change the `use` to `yes` and this will automatically inherit the AUTH_TOKEN values from the secret user provide in the following values. Make sure the cluster/namespace has the secret applied in the following format:
+Change the `enable` to `yes` and this will automatically inherit the AUTH_TOKEN values from the secret user provide in the following values. Make sure the cluster/namespace has the secret applied in the following format:
 ```YAML
 apiVersion: v1
 kind: Secret
@@ -169,22 +179,23 @@ data:
   auth-token: ZjIzZjU0ZTIwODk5ZWYwYzgzYmJkMzZmYzU3ODlhNzc3ODJjYTY1YjJjODIzZTMyMjY3NDcxM2QzZTc3Mzg2Yw==
 ```
 
-#### [4.8] Configure deployment to support child pods to inherit labels from the crane
-- If user/admins require certain set of labels as part of the deployment of a cluster resource, we can use this `labels` values. These labels will be Inherited from the crane when the child pods are deployed. Because, note that labels added to crane deployment will not be automatically inherited by the child pods. Switch the use to `yes` and add labels in a Json format as per the example:
+#### [4.9] Configure deployment to support child pods to inherit labels from the crane
+- If user/admins require certain set of labels as part of the deployment of a cluster resource, we can use this `labels` values. These labels will be Inherited from the crane when the child pods are deployed. Because, note that labels added to crane deployment will not be automatically inherited by the child pods. Switch the `enable` to `yes` and add labels in a Json format as per the example:
 ```yaml
 labels:
-  use: yes 
+  enable: yes 
   labelsJson: {"label_1": "label_1_value", "label_2": "label2value"}
 ```
 
-#### [4.9] Configure deployment to support child pods to inherit resource limits from the crane
-- If user/admins require a CPU, MEM limit to be applied to all cluster resources, we can use this `resourceLimit` values. These resource limits will be Inherited from the crane ENV when the child pods are deployed. Because, note that resource limit added to crane deployment will not be automatically inherited by the child pods. Switch the use to `yes` and add resource limits in a string format as per the example:
+#### [4.10] Configure deployment to support child pods to inherit resource limits from the crane
+- If user/admins require a CPU, MEM limit to be applied to all cluster resources, we can use this `resourceLimit` values. These resource limits will be Inherited from the crane ENV when the child pods are deployed. Because, note that resource limit added to crane deployment will not be automatically inherited by the child pods. Switch the `enable` to `yes` and add resource limits in a string format as per the example:
 ```yaml
 resourceLimit:
-  use: yes
+  enable: yes
   CPU: "800m"
   MEM: "4Gi"
 ```
+
 
 #### [5.0] Verify if everything is setup correctly
 - Once the values are updated, please verify if the values are correctly used in the helm chart:
