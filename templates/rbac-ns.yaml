@@ -10,15 +10,22 @@ rules:
 - apiGroups: [""]
   resources: ["pods", "pods/log"]
   verbs: ["get", "list"]
-- apiGroups: ["extensions", "apps", ""] # leave empty string for core
-  resources: ["pods", "services", "endpoints", "daemonsets", "pods/*", "pods/exec", "deployments", "replicasets", "ingresses", "deployments/scale"]
+- apiGroups: ["extensions", "apps", "batch", ""] # leave empty string for core
+  resources: ["pods", "services", "endpoints", "daemonsets", "pods/*", "pods/exec", "deployments", "replicasets", "ingresses", "deployments/scale", "jobs"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection", "createcollection"]
-{{ if .Values.istio_ingress.use }} 
-# this is for istio ingress for mock services
+{{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }} 
+# this is for istio ingress mock services deployment
 - apiGroups: ["networking.istio.io"]
   resources: ["destinationrules", "virtualservices", "gateways"]
   verbs: ["get", "list", "create", "delete", "patch", "update"]
+{{- end -}}
+{{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
+# this is for nginx ingress mock services deployment
+- apiGroups: ["networking.k8s.io"]
+  resources: ["virtualservices", "gateways", "ingresses"]
+  verbs: ["get", "list", "create", "delete", "patch", "update"]
 {{ end }}
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

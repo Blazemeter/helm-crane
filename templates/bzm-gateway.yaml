@@ -1,4 +1,4 @@
-{{ if .Values.istio_ingress.use }}
+{{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }} 
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
