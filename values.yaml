@@ -76,7 +76,7 @@ istio_ingress:
 # We can enable nginx-ingress instead of istio-ingress, currently, the chart expects nginx-ingress to be pre-installed in the cluster. 
 # Follow Blazemeter guide for more information on installing nginx-ingress.
 nginx_ingress:
-  enable: yes
+  enable: no
 #  pre-installed: yes
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"  
