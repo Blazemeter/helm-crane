@@ -18,17 +18,18 @@ spec:
       number: 443
       name: https-443
       protocol: HTTPS
-    tls:
-      mode: PASSTHROUGH
     hosts:
-    - "*"
+    - "*"      
+    tls:
+      mode: SIMPLE
+      # This must be located in the "istio-system" namespace
+      credentialName: {{ .Values.istio_ingress.credentialName }}
   - port:
       number: 15443
       name: https-15443
       protocol: HTTPS
-    tls:
-      mode: SIMPLE
-      credentialName: {{ .Values.istio_ingress.credentialName }}
     hosts:
     - "*"
+    tls:
+      mode: PASSTHROUGH
 {{ end }}
