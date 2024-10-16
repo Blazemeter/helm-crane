@@ -126,13 +126,13 @@ spec:
           name: {{ .Release.Name }}-configmap
         {{ end }}   
       {{- if .Values.non_privilege_container.enable }}
-      securityContext:
-        allowPrivilegeEscalation: false
-        capabilities:
-          drop:
-          - ALL
-        runAsGroup: {{ .Values.non_privilege_container.runAsGroup }}   
-        runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsGroup: {{ .Values.non_privilege_container.runAsGroup }}   
+          runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
       {{ end }}
       restartPolicy: {{ .Values.restartPolicy }}
       terminationGracePeriodSeconds: 30
