@@ -69,7 +69,7 @@ ca_bundle:
 
 #For functional test only. This uses the same environment variables as CA_Bundle configration.
 gridProxy:
-  enable: yes
+  enable: no
   a_environment: 'https://your.environment.net'
   tlsKeyGrid: "certificate.key"          # The private key for the domain used to run the BlazeMeter Grid proxy over HTTPS. Value in string format. 
   tlsCertGrid: "certificate.crt"         # The public certificate for the domain used to run the BlazeMeter Grid proxy over HTTPS. Value in string format.
@@ -128,8 +128,8 @@ nodeSelector:
 craneResources: 
   requests:           # The request resources are enabled by default for efficient agent functions. 
     enable: yes
-    CPU: 256m
-    MEM: 1024Mi 
+    CPU: 250m
+    MEM: 512Mi 
   limits:
     enable: no
     CPU: 1
