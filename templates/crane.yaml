@@ -21,6 +21,10 @@ spec:
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
+      {{ if .Values.nodeSelector.enable }}
+      nodeSelector:
+        {{ .Values.nodeSelector.syntax | toYaml | nindent 8 }}      
+      {{ end }}
       containers:
       - env:
         {{ if .Values.env.secret_authtoken.enable }}
