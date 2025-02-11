@@ -82,7 +82,7 @@ gridProxy:
     
 
 # If you plan to enable non-privileged containers, please enable the below configuration, change enable:yes
-# This will run all pods/containers (related to private location installation) within the cluster as non_root. 
+# This will run all pods/containers (related to private location installation)as well as crane within the cluster as non_root. 
 # Non-root deployment requires qualifying plan and an additional feature to be enabled, please contact support for enabling this feature if your account has a qualifying plan. 
 non_privilege_container:
   enable: no
@@ -108,24 +108,32 @@ nginx_ingress:
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"  
 
-# Labels to add to resources created by Crane, must be in JSON format.
-labels:
+# Labels to add to crane and child resources created by Crane, must be in JSON format.
+labelsCrane:
+  enable: yes
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+labelsExecutors:
   enable: no 
-  syntax: {"label_1": "label_1_value", "label_2": "label2value"}
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 
-#Set to specify that the crane container passes tolerations and node selector elements to child containers.
-toleration: 
+#Set to specify that the crane container passes tolerations and node selector elements to crane and child resources. Must be in JSON format.
+tolerationCrane: 
+  enable: yes
+  syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
+tolerationExecutors: 
   enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 
-#Used to configure the k8s nodeSelector field to match specific node labels for the Crane engine deployment. Must be in JSON format.
-nodeSelector:
+#Used to configure the k8s nodeSelector field to match specific node labels for the Crane as well as child resources. Must be in JSON format.
+nodeSelectorCrane:
+  enable: yes
+  syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
+nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 
-
 # CPU & Memory limits & requests for resources for crane deployment. 
-craneResources: 
+resourcesCrane: 
   requests:           # The request resources are enabled by default for efficient agent functions. 
     enable: yes
     CPU: 250m
@@ -136,7 +144,7 @@ craneResources:
     MEM: 2Gi
 
 # CPU & Memory limits & requests for resources created by agent.
-executorResources: 
+resourcesExecutors: 
   requests:           # The request resources are enabled by default for efficient agent functions. 
     enable: yes 
     CPU: 1000m
@@ -149,6 +157,6 @@ executorResources:
     
 # Integer value in megabytes. Set to control the ephemeral storage requests & limit of the Taurus pod (optional). 
 ephemeralStorage:
-  enable: no
+  enable: yes
   limits: 1024         # The values are in Mi
   requests: 100        # Default: 100 (Mi). 
