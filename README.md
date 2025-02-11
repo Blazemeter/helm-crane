@@ -2,7 +2,7 @@
 
 [Download the latest Chart](https://github.com/Blazemeter/helm-crane/releases)
 
-Deploy Blazemeter private location engine to your Kubernetes cluster using HELM chart. Plus the chart allows to make advanced configurations if required. 
+Deploy Blazemeter private location to your Kubernetes cluster using HELM chart. The chart allows to make advanced/custom configurations to your Blazemeter private location deployment. 
 
 ![Helm-crane](/Image.png)
 
@@ -312,7 +312,7 @@ helm install crane /path/to/chart --namespace <namespace>
 
 ## [7.0] Varify the chart installation
 
-- To varify the installation of our Helm chart run:
+- To verify the installation of our Helm chart run:
 ```
 helm list -n <namespace>
 ```
@@ -322,7 +322,7 @@ helm list -n <namespace>
 
 It is recommended to install this Helm chart onto the auto-scalable cluster for example - [EKS](https://aws.amazon.com/eks/), [GKE](https://cloud.google.com/kubernetes-engine) or [AKS](https://azure.microsoft.com/en-in/products/kubernetes-service/#:~:text=Azure%20Kubernetes%20Service%20(AKS)%20offers,edge%2C%20and%20multicloud%20Kubernetes%20clusters.). 
 
-However, make sure you are scaling the nodes, as it is not recommended to go with EKS Fargate or GKE Autopilot, those types of autoscaling are not supported for Blazemeter crane deployments. 
+However, make sure you are scaling the nodes, as it is not recommended to go with EKS Fargate or GKE Autopilot, as these autoscaling methods are not supported/tested for Blazemeter crane deployments. 
 
 Therefore, ***always go with Node autoscaling***
 
