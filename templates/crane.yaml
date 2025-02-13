@@ -16,14 +16,21 @@ spec:
   template:
     metadata:
       labels:
+      {{ if .Values.labelsCrane.enable }}
+      {{ .Values.labelsCrane.syntax | toYaml | nindent 8 }}
+      {{ end }}
         role: {{ .Values.deployment.role }}
         crane: ready
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
-      {{ if .Values.nodeSelector.enable }}
+      {{ if .Values.nodeSelectorCrane.enable }}
       nodeSelector:
-        {{ .Values.nodeSelector.syntax | toYaml | nindent 8 }}      
+        {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 8 }}      
+      {{ end }}
+      {{ if .Values.tolerationCrane.enable }}
+      tolerations:
+      {{ .Values.tolerationCrane.syntax | toYaml | nindent 8 }}
       {{ end }}
       containers:
       - env:
@@ -128,35 +135,41 @@ spec:
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
         {{ end }}
-        {{- if .Values.labels.enable }}
+        {{- if .Values.labelsExecutors.enable }}
         - name: KUBERNETES_LABELS
-          value: {{ .Values.labels.syntax | toJson | quote }}
+          value: {{ .Values.labelsExecutors.syntax | toJson | quote }}
         {{ end -}}
-        {{ if .Values.toleration.enable }}
+        {{ if .Values.tolerationExecutors.enable }}
         - name: KUBERNETES_TOLERATIONS_JSON
-          value: {{ .Values.toleration.syntax | toJson | quote }}
+          value: {{ .Values.tolerationExecutors.syntax | toJson | quote }}
         {{ end -}}
-        {{ if .Values.nodeSelector.enable }}
+        {{ if .Values.nodeSelectorExecutor.enable }}
         - name: KUBERNETES_NODE_SELECTOR_JSON
-          value: {{ .Values.nodeSelector.syntax | toJson | quote }}
+          value: {{ .Values.nodeSelectorExecutor.syntax | toJson | quote }}
         {{ end -}}
-        {{ if .Values.executorResources.requests.enable }}
+        {{ if .Values.resourcesExecutors.requests.CPU }}
         - name: KUBERNETES_RESOURCES_DEFAULT_CPU
-          value: {{ .Values.executorResources.requests.CPU | quote }}
+          value: {{ .Values.resourcesExecutors.requests.CPU | quote }}
+        {{ end -}}
+        {{ if .Values.resourcesExecutors.requests.MEM }}
         - name: KUBERNETES_RESOURCES_DEFAULT_MEM
-          value: {{ .Values.executorResources.requests.MEM | quote }}
+          value: {{ .Values.resourcesExecutors.requests.MEM | quote }}
         {{ end -}}
-        {{ if .Values.executorResources.limits.enable }}
+        {{ if .Values.resourcesExecutors.limits.CPU }}
         - name: KUBERNETES_RESOURCES_LIMITS_CPU
-          value: {{ .Values.executorResources.limits.CPU | quote }}
-        - name: KUBERNETES_RESOURCES_LIMITS_MEMORY
-          value: {{ .Values.executorResources.limits.MEM | quote }}
+          value: {{ .Values.resourcesExecutors.limits.CPU | quote }}
         {{ end -}}
-        {{ if .Values.ephemeralStorage.enable }}
+        {{ if .Values.resourcesExecutors.limits.MEM }}
+        - name: KUBERNETES_RESOURCES_LIMITS_MEMORY
+          value: {{ .Values.resourcesExecutors.limits.MEM | quote }}
+        {{ end -}}
+        {{ if .Values.resourcesExecutors.limits.storage }}
         - name: KUBERNETES_LIMITS_EPHEMERAL_STORAGE
-          value: {{ .Values.ephemeralStorage.limits | quote }}
+          value: {{ .Values.resourcesExecutors.limits.storage | quote }}
+        {{ end -}}
+        {{ if .Values.resourcesExecutors.requests.storage }}
         - name: KUBERNETES_REQUESTS_EPHEMERAL_STORAGE
-          value: {{ .Values.ephemeralStorage.requests | quote }}
+          value: {{ .Values.resourcesExecutors.requests.storage| quote }}
         {{ end -}}
         {{ if .Values.gridProxy.enable }}
         - name: DODUO_PORT
@@ -174,18 +187,26 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{ end -}}
         name: crane-container
-        {{ if or (.Values.craneResources.requests.enable) (.Values.craneResources.limits.enable) }} 
+        {{ with .Values.resourcesCrane -}}
+        {{ if or (.requests.CPU) (.limits.CPU) (.limits.MEM) (.requests.MEM) (.requests.storage) (.limits.storage) }}
         resources:
-          {{- if .Values.craneResources.requests.enable }} 
+          {{ if or (.requests.MEM) (.requests.CPU) (.requests.storage) }}  
           requests:
-            memory: {{ .Values.craneResources.requests.MEM }}
-            cpu: {{ .Values.craneResources.requests.CPU }}
+            cpu: {{ .requests.CPU | default "250m" }}
+            memory: {{ .requests.MEM | default "512Mi" }}
+            {{ if .requests.storage }}
+            storage: {{ .requests.storage }}
+            {{ end -}}
           {{ end -}}
-          {{ if .Values.craneResources.limits.enable }}
+          {{ if or (.limits.MEM) (.limits.CPU) (.limits.storage) }} 
           limits:
-            memory: {{ .Values.craneResources.limits.MEM }}
-            cpu: {{ .Values.craneResources.limits.CPU }}         
+            cpu: {{ .limits.CPU | default "1" }}  
+            memory: {{ .limits.MEM | default "2Gi" }}
+            {{ if .limits.storage }}
+            storage: {{ .limits.storage }}
+            {{ end -}}       
           {{ end -}}
+        {{ end -}}
         {{ end -}}
         {{ if .Values.non_privilege_container.enable }}  
         securityContext:
