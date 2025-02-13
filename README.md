@@ -89,7 +89,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: <your-secretName>
-  namespace: blazemeter
+  namespace: <namespace name>
 type: Opaque
 data:
   authtoken: ZjIzZjU0ZTIwODk5ZWYwYzgzYmJkMzZmYzU3ODlhNzc3ODJjYTY1YjJjODIzZTMyMjY3NDcxM2QzZTc3Mzg2Yw==
@@ -311,7 +311,7 @@ This will print the template Helm will use to install this chart. Check the valu
 
 - Install the helm chart
 ```sh
-helm install crane /path/to/chart --namespace <namespace>
+helm install crane /path/to/chart --namespace <namespace name>
 ```
 **Here, crane is the name we are setting for the chart on our system. Make sure the namespace is declared here.**
 
@@ -320,7 +320,7 @@ helm install crane /path/to/chart --namespace <namespace>
 
 - To verify the installation of our Helm chart run:
 ```sh
-helm list -n <namespace>
+helm list -n <namespace name>
 ```
 This will list all the Helm charts installed in the given namespace `-n`. 
 
@@ -328,7 +328,7 @@ This will list all the Helm charts installed in the given namespace `-n`.
 
 - To uninstall the Helm chart run:
 ```sh
-helm uninstall <release-name> -n <namespace it is installed in>
+helm uninstall <release-name> -n <namespace name>
 ```
 
 ## [9.0] Recommendations
