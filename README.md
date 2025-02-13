@@ -95,6 +95,19 @@ data:
   authtoken: ZjIzZjU0ZTIwODk5ZWYwYzgzYmJkMzZmYzU3ODlhNzc3ODJjYTY1YjJjODIzZTMyMjY3NDcxM2QzZTc3Mzg2Yw==
 ```
 
+- Additionally, you can now configure the deployment settings, like non-default serviceAccount, role & clusterrole name and restart policy in the below section of the `values` file.
+```yaml
+deployment:
+  # This is the name of roles and clusterroles created by the chart.
+  role: "roleCrane"
+  clusterrole: "cluster-roleCrane"
+  serviceAccount:
+  # Specifies whether a ServiceAccount should be created. 
+    create: false
+  # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
+    name:
+  restartPolicy: "Always"
+```
 
 #### [4.2] Configuring the default image settings
 
