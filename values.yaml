@@ -1,12 +1,12 @@
 
 deployment:
-# This is the name of roles and clusterroles created by the chart.
+  # This is the name of roles and clusterroles created by the chart.
   role: "roleCrane"
   clusterrole: "cluster-roleCrane"
   serviceAccount:
-    # Specifies whether a ServiceAccount should be created, currently BM OPLs in Kubernetes only supports default service account.
+  # Specifies whether a ServiceAccount should be created. 
     create: false
-    # The name of the ServiceAccount to enable, keep empty to enable default account.
+  # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
     name:
   restartPolicy: "Always"
 
@@ -52,12 +52,11 @@ proxy:
 
   https_proxy: yes
   https_path: "https://server:port"  
-#  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and 
-#  Transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
+#  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 
 # Configure CA Bundle here - Change enable: yes
-# Add these certifates to the chart main directory, for example: I have placed certificate.crt. 
+# Add these certifates to the chart main directory, for example: we have placed certificate.crt in the chart main directory.
 ca_bundle:
   enable: no
   request_ca_bundle: "certificate.crt"
@@ -67,7 +66,7 @@ ca_bundle:
     mount_path: "/var/cm"
     readOnly: true
 
-#For functional test only. This uses the same environment variables as CA_Bundle configration.
+#For functional test only. This uses the same environment variables as CA_Bundle configration. Place the certificate in chart main directory.
 gridProxy:
   enable: no
   a_environment: 'https://your.environment.net'
@@ -90,7 +89,7 @@ non_privilege_container:
   runAsUser: 1337
 
 # enable Istio-Ingress if this Private location is going to run mock-services
-# Follow this guide till you have created a secret in istio-system namespace called wildcard-credential.
+# Follow the below guide till you have created a secret in istio-system namespace called wildcard-credential.
 # https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
 
 istio_ingress: 
@@ -116,7 +115,7 @@ labelsExecutors:
   enable: no 
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 
-#Set to specify that the crane container passes tolerations and node selector elements to crane and child resources. Must be in JSON format.
+#Set to specify the tolerations for the crane and child resources. Must be in JSON format.
 tolerationCrane: 
   enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
@@ -143,7 +142,7 @@ resourcesCrane:
     MEM: #2Gi
     storage: #1024
 
-# CPU & Memory limits & requests for resources created by agent. You can also specify ephemeral storage limits for the child resources.
+# CPU & Memory limits & requests for resources for child resources. You can also specify ephemeral storage limits for the child resources.
 resourcesExecutors: 
   requests:           
     CPU: 1000m        
