@@ -17,9 +17,9 @@ env:
     secretName: "your-secretName"
     secretKey: "auth-token"
   # if secret is not enabled, please enter the AUTH_TOKEN below directly. 
-  authtoken:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
-  harbour_id: "MY_SAMPLE_HARBOURID"
-  ship_id: "MY_SAMPLE_SHIPID"
+  authtoken: "73e250f1704c31ca03fa8c860e4164133cb163ca33fe9d0f62815b2d17d9320c"
+  harbour_id: "63cd1cc281374f2d9743cc73"
+  ship_id: "678f5a97652fa282c80888c4"
 
 image:   
   docker_registry: "gcr.io/verdant-bulwark-278"  #default registry for Blazemeter crane (DO NOT CHANGE)
@@ -110,7 +110,7 @@ nginx_ingress:
 
 # Labels to add to crane and child resources created by Crane, must be in JSON format.
 labelsCrane:
-  enable: yes
+  enable: no
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 labelsExecutors:
   enable: no 
@@ -118,7 +118,7 @@ labelsExecutors:
 
 #Set to specify that the crane container passes tolerations and node selector elements to crane and child resources. Must be in JSON format.
 tolerationCrane: 
-  enable: yes
+  enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 tolerationExecutors: 
   enable: no
@@ -126,37 +126,30 @@ tolerationExecutors:
 
 #Used to configure the k8s nodeSelector field to match specific node labels for the Crane as well as child resources. Must be in JSON format.
 nodeSelectorCrane:
-  enable: yes
+  enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 
-# CPU & Memory limits & requests for resources for crane deployment. 
-resourcesCrane: 
-  requests:           # The request resources are enabled by default for efficient agent functions. 
-    enable: yes
+# CPU & Memory limits & requests for resources for crane deployment.  You can also specify ephemeral storage limits for the crane.
+resourcesCrane:  
+  requests:     
     CPU: 250m
     MEM: 512Mi 
+    storage: #100
   limits:
-    enable: no
-    CPU: 1
-    MEM: 2Gi
+    CPU: #1 
+    MEM: #2Gi
+    storage: #1024
 
-# CPU & Memory limits & requests for resources created by agent.
+# CPU & Memory limits & requests for resources created by agent. You can also specify ephemeral storage limits for the child resources.
 resourcesExecutors: 
-  requests:           # The request resources are enabled by default for efficient agent functions. 
-    enable: yes 
-    CPU: 1000m
+  requests:           
+    CPU: 1000m        
     MEM: 4096         # This value should be an integer unlike other values that supports k8s standard for declaring resource limits/requests.
+    storage: #100     
   limits:
-    enable: no
-    CPU: 2
-    MEM: 8Gi
-
-    
-# Integer value in megabytes. Set to control the ephemeral storage requests & limit of the Taurus pod (optional). 
-ephemeralStorage:
-  enable: yes
-  limits: 1024         # The values are in Mi
-  requests: 100        # Default: 100 (Mi). 
+    CPU: #2
+    MEM: #8Gi
+    storage: #1024
