@@ -300,7 +300,7 @@ resourcesExecutors:
 
 - Once the values are updated, please verify if the values are correctly used in the helm chart:
 
-```
+```sh
 helm lint <path-to-chart>
 helm template <path-to-chart>
 ```
@@ -310,7 +310,7 @@ This will print the template Helm will use to install this chart. Check the valu
 ## [6.0] Installing the chart
 
 - Install the helm chart
-```
+```sh
 helm install crane /path/to/chart --namespace <namespace>
 ```
 **Here, crane is the name we are setting for the chart on our system. Make sure the namespace is declared here.**
@@ -319,12 +319,19 @@ helm install crane /path/to/chart --namespace <namespace>
 ## [7.0] Varify the chart installation
 
 - To verify the installation of our Helm chart run:
-```
+```sh
 helm list -n <namespace>
 ```
+This will list all the Helm charts installed in the given namespace `-n`. 
 
+## [8.0] Uninstalling the chart
 
-## [8.0] Recommendations
+- To uninstall the Helm chart run:
+```sh
+helm uninstall <release-name> -n <namespace it is installed in>
+```
+
+## [9.0] Recommendations
 
 It is recommended to install this Helm chart onto the auto-scalable cluster for example - [EKS](https://aws.amazon.com/eks/), [GKE](https://cloud.google.com/kubernetes-engine) or [AKS](https://azure.microsoft.com/en-in/products/kubernetes-service/#:~:text=Azure%20Kubernetes%20Service%20(AKS)%20offers,edge%2C%20and%20multicloud%20Kubernetes%20clusters.). 
 
@@ -332,7 +339,7 @@ However, make sure you are scaling the nodes, as it is not recommended to go wit
 
 Therefore, ***always go with Node autoscaling***
 
-## [9.0] Changelog:
+## [10.0] Changelog:
 
 - 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource limit/requests are now configurable for crane and child resources. Simplified nesting and values configuration. Chart can now work with non-default serviceAccount. Minor fixes & calibrations. 
 - 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
