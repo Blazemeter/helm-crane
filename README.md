@@ -188,7 +188,7 @@ gridProxy:
 
 
 #### [4.5] Deploying Non_priviledge container - NON_ROOT deployment. 
-- If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to the following part of the `values` file. Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge. You can ammend the runAsGroup and runAsUser to any value of your choice. 
+- If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to the following part of the `values` file. Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge. You can ammend the runAsGroup and runAsUser to any value of your choice. We can only have same user/groupId for both crane and child resources.
 
 ```YAML
 non_privilege_container:
@@ -229,66 +229,72 @@ nginx_ingress:
 
 #### [4.9] Configure deployment to support child pods to inherit labels from the crane
 
-- If you require a certain set of labels as part of the deployment of a cluster resource, we can use these `labels` values. These labels will be Inherited from the crane when the child pods are deployed. Because, note that labels added to crane deployment will not be automatically inherited by the child pods. Switch the `enable` to `yes` and add labels in a JSON format as per the example:
+- If you require a certain set of labels as part of the deployment of crane and it's child resources, we can use these `labels` values. These labels can be set for crane as well as the child pods. Add labels in a JSON format as per the example. 
 ```yaml
-labels:
-  enable: yes 
-  labelsJson: {"label_1": "label_1_value", "label_2": "label2value"}
+labelsCrane:
+  enable: no
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+labelsExecutors:
+  enable: no 
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
+*Note: `labelsCrane` is for labels set for crane and `labelsExecutors` is for labels set for child pods.*
 
-#### [4.12] Configure deployment to support node selectors and tolerations 
+#### [4.12] Configure deployment to support for tolerations 
 
-- The configuration is used to specify the tolerations & nodeselector labels. The crane container will pass these tolerations and node selector elements to child containers when they are deployed. Switch the `enable` to `yes` and add tolerations & nodeselector labels in a Json format as per the example:
+- The configuration is used to specify the tolerations for crane and child pods. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
 ```yaml
-toleration: 
-  enable: yes
+tolerationCrane: 
+  enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
+tolerationExecutors: 
+  enable: no
+  syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
+```
+*Note: `tolerationCrane` is for tolerations set for crane and `tolerationExecutors` is for tolerations set for child pods.*
 
-nodeSelector:
-  enable: yes
+
+#### [4.10] Configure deployment to support node selector for crane & child resources
+- The configuration is used to specify the node selector for crane and child pods. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
+```yaml
+nodeSelectorCrane:
+  enable: no
+  syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
+nodeSelectorExecutor:
+  enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
+*Note: `nodeSelectorCrane` is for node selectors set for crane and `nodeSelectorExecutor` is for node selectors set for child pods.*
 
 
-#### [4.10] Configure resources limits and requests for the crane & child resources.
+#### [4.11] Configure resources limits and requests for the crane & child resources.
 
-- If you require a CPU, or MEM limit or requests to be applied to crane and its child resources, we can use this `craneResources` or `executorResources` value. These values will be applied to crane resource section, as well as will be Inherited by the child pods. You can either use one of them or both. Switch the `enable` to `yes` and add resource limits/requests in a string format as per the example:
+- If you require a CPU, MEM or EphemeralStorage limits/requests to be applied to crane and its child resources, we can use this `resourcesCrane` or `resourcesExecutors` value. The values in `resourcesCrane` values will be applied to crane deployment, while the values in `resourcesExecutors` will be applied to the child resources. You can either use one of them or both. Add required values in the below value section in the values.yaml file.
 
 ```yaml
-# CPU & Memory limits & requests for resources for crane deployment. 
-craneResources: 
-  requests:           # The request resources are enabled by default for efficient agent functions. 
-    enable: yes
-    CPU: 256m
-    MEM: 1024Mi 
+# CPU & Memory limits & requests for resources for crane deployment. You can also specify ephemeral storage requests for the crane.
+resourcesCrane:  
+  requests:     
+    CPU: 250m
+    MEM: 512Mi 
+    storage: #100
   limits:
-    enable: no
-    CPU: 1
-    MEM: 2Gi
+    CPU: #1 
+    MEM: #2Gi
+    storage: #1024    # This is in MB
 
-# CPU & Memory limits & requests for resources created by agent.
-executorResources: 
-  requests:           # The request resources are enabled by default for efficient agent functions. 
-    enable: yes 
-    CPU: 1000m
+# CPU & Memory limits & requests for resources created by agent. You can also specify ephemeral storage limits for the child resources.
+resourcesExecutors: 
+  requests:           
+    CPU: 1000m        
     MEM: 4096         # This value should be an integer unlike other values that supports k8s standard for declaring resource limits/requests.
+    storage: #100     # This is in MB
   limits:
-    enable: no
-    CPU: 2
-    MEM: 8Gi
+    CPU: #2
+    MEM: #8Gi
+    storage: #1024
+
 ```
-
-
-#### [4.11] Configure deployment to implement ephemeral storage request/limit for the child pods
-
-- If you need to setup an ephemeral storage request/limit for the child pods, we can use this `ephemeralStorage` value. The values are in Mi. Switch the `enable` to `yes` and add the values in a string format as per the example:
-```yaml
-ephemeralStorage:
-  enable: no
-  limits: 1024         # The values are in Mi
-  requests: 100       # Default: 100 (Mi). 
-```
-
 
 ## [5.0] Verify if everything is setup correctly
 
@@ -328,7 +334,7 @@ Therefore, ***always go with Node autoscaling***
 
 ## [9.0] Changelog:
 
-- 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource limit/requests are now configurable for crane and child resources. Simplified nesting and values configuration. Chart can now work with non-default serviceAccount. Minor fixes. 
+- 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource limit/requests are now configurable for crane and child resources. Simplified nesting and values configuration. Chart can now work with non-default serviceAccount. Minor fixes & calibrations. 
 - 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
 - 1.2.2 - Chart now supports gridProxy deployment configurations
 - 1.2.1 - Chart now supports node selectors and tolerations
