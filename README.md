@@ -176,7 +176,7 @@ ca_bundle:
     readOnly: true
 ```
 
-*This uses the same environment variables as CA_Bundle configration, therefore, either one can be used per deployment*
+*This uses the same environment variables as CA_Bundle configuration, therefore, either one can be used per deployment*
 
 #### [4.6] Adding gridProxy configuration
 
@@ -329,7 +329,7 @@ helm install crane /path/to/chart --namespace <namespace name>
 **Here, crane is the name we are setting for the chart on our system. Make sure the namespace is declared here.**
 
 
-## [7.0] Varify the chart installation
+## [7.0] Verify the chart installation
 
 - To verify the installation of our Helm chart run:
 ```sh
