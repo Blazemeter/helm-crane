@@ -221,7 +221,6 @@ istio_ingress:
   enable: no
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
-  pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 ```
 *You can either use istio-ingress or nginx-ingress for mock service deployment. However, you cannot use both at the same time.* 
@@ -251,7 +250,7 @@ labelsExecutors:
   enable: no 
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
-*Note: `labelsCrane` is for labels set for crane and `labelsExecutors` is for labels set for child pods.*
+*Note: `labelsCrane` is for labels declared for crane and `labelsExecutors` is for labels declared for child pods.*
 
 #### [4.12] Configure deployment to support for tolerations 
 
@@ -264,7 +263,7 @@ tolerationExecutors:
   enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 ```
-*Note: `tolerationCrane` is for tolerations set for crane and `tolerationExecutors` is for tolerations set for child pods.*
+*Note: `tolerationCrane` is for tolerations declared for crane and `tolerationExecutors` is for tolerations declared for child pods.*
 
 
 #### [4.10] Configure deployment to support node selector for crane & child resources
@@ -277,7 +276,7 @@ nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
-*Note: `nodeSelectorCrane` is for node selectors set for crane and `nodeSelectorExecutor` is for node selectors set for child pods.*
+*Note: `nodeSelectorCrane` is for node selectors declared for crane and `nodeSelectorExecutor` is for node selectors declared for child pods.*
 
 
 #### [4.11] Configure resources limits and requests for the crane & child resources.
@@ -354,7 +353,7 @@ Therefore, ***always go with Node autoscaling***
 
 ## [10.0] Changelog:
 
-- 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource (CPU & MEM) limit/requests are now configurable for crane and child resources and also for ephemeral storage. Simplified nesting and values configuration. The chart can now work with non-default serviceAccount. Tolerations, nodeSelector and labels can be set for Crane and child resources separately, with Major fixes & calibrations.
+- 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource (CPU & MEM) limit/requests are now configurable for crane and child resources and also for ephemeral storage. Simplified nesting and values configuration. The chart can now work with non-default serviceAccount. Tolerations, nodeSelector and labels can be declared for Crane and child resources separately, with Major fixes & calibrations.
 - 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
 - 1.2.2 - Chart now supports gridProxy deployment configurations
 - 1.2.1 - Chart now supports node selectors and tolerations
