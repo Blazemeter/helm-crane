@@ -5,13 +5,13 @@ metadata:
   name: {{ .Release.Name }}-configmap
   namespace: {{ .Release.Namespace }}
 data:
-  {{ if and ( .Values.ca_bundle.enable ) ( eq .Values.gridProxy.enable false ) }} 
+  {{ if  .Values.ca_bundle.enable }} 
   {{ .Values.ca_bundle.request_ca_bundle }}: |-
 {{ .Files.Get .Values.ca_bundle.request_ca_bundle | indent 4 }}
   {{ .Values.ca_bundle.aws_ca_bundle }}: |-
 {{ .Files.Get .Values.ca_bundle.aws_ca_bundle | indent 4 }}
   {{ end -}}
-  {{ if and ( .Values.gridProxy.enable ) (eq .Values.ca_bundle.enable false) }} 
+  {{ if  .Values.gridProxy.enable }} 
   {{ .Values.gridProxy.tlsKeyGrid }}: |-
 {{ .Files.Get .Values.gridProxy.tlsKeyGrid | indent 4 }}
   {{ .Values.gridProxy.tlsCertGrid }}: |-

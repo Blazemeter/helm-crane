@@ -81,24 +81,32 @@ spec:
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
         {{ end -}}
-        {{ if and (.Values.ca_bundle.enable) (eq .Values.gridProxy.enable false) }} 
+        {{ if and (.Values.ca_bundle.enable) }} 
         - name: REQUESTS_CA_BUNDLE
           value: {{ .Values.ca_bundle.volume.mount_path }}/{{ .Values.ca_bundle.request_ca_bundle }}
         - name: AWS_CA_BUNDLE
           value: {{ .Values.ca_bundle.volume.mount_path }}/{{ .Values.ca_bundle.aws_ca_bundle }}
+          {{ if eq .Values.gridProxy.enable false }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}
+          {{ end -}}
         {{ end -}}
-        {{ if and ( .Values.gridProxy.enable ) (eq .Values.ca_bundle.enable false) }} 
+        {{ if .Values.gridProxy.enable }} 
         - name: A_ENVIRONMENT
           value: {{ .Values.gridProxy.a_environment }}
         - name: TLS_KEY_GRID
           value: {{ .Values.gridProxy.volume.mount_path }}/{{ .Values.gridProxy.tlsKeyGrid }}
         - name: TLS_CERT_GRID
           value: {{ .Values.gridProxy.volume.mount_path }}/{{ .Values.gridProxy.tlsCertGrid }}
+          {{ if eq .Values.ca_bundle.enable false }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
-        {{ end -}}        
+          {{ end -}}      
+        {{ end -}}
+        {{ if eq ( .Values.ca_bundle.enable) ( .Values.gridProxy.enable ) }}
+        - name: KUBERNETES_CA_BUNDLE_MOUNT
+          value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}:TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
+        {{ end }}
         {{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: ISTIO
@@ -217,25 +225,29 @@ spec:
           runAsGroup: {{ .Values.non_privilege_container.runAsGroup }} 
           runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
       {{ end -}}
-        {{ if and ( .Values.ca_bundle.enable ) ( eq .Values.gridProxy.enable false ) }} 
+      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) }} 
         volumeMounts:
+          {{ if .Values.ca_bundle.enable }}
         - name: {{ .Values.ca_bundle.volume.volume_name }}
           mountPath: {{ .Values.ca_bundle.volume.mount_path }}
           readOnly: {{ .Values.ca_bundle.volume.readOnly }}
-      volumes:
-      - name: {{ .Values.ca_bundle.volume.volume_name }}
-        configMap:
-          name: {{ .Release.Name }}-configmap
-        {{ end -}}
-        {{ if and ( .Values.gridProxy.enable ) ( eq .Values.ca_bundle.enable false ) }}         
-        volumeMounts:
+          {{ end -}}
+          {{ if .Values.gridProxy.enable }}
         - name: {{ .Values.gridProxy.volume.volume_name }}
           mountPath: {{ .Values.gridProxy.volume.mount_path }}
           readOnly: {{ .Values.gridProxy.volume.readOnly }}
+          {{ end }}
       volumes:
+          {{ if .Values.ca_bundle.enable }}
+      - name: {{ .Values.ca_bundle.volume.volume_name }}
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          {{ end -}}
+          {{ if .Values.gridProxy.enable }}
       - name: {{ .Values.gridProxy.volume.volume_name }}
         configMap:
           name: {{ .Release.Name }}-configmap
-        {{ end }}
+          {{ end -}}
+      {{ end }}
       restartPolicy: {{ .Values.deployment.restartPolicy }}
       terminationGracePeriodSeconds: 30
