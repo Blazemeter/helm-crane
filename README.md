@@ -176,8 +176,6 @@ ca_bundle:
     readOnly: true
 ```
 
-*This uses the same environment variables as CA_Bundle configuration, therefore, either one can be used per deployment*
-
 #### [4.6] Adding gridProxy configuration
 
 - If you plan to configure your crane installation to use [gridProxy](https://help.blazemeter.com/docs/guide/functional-run-gridproxy-over-https.htm?Highlight=grid%20proxy), make changes to the following section of the `values.yaml` file. Grid Proxy enables you to run Selenium functional tests in BlazeMeter without using a local server. You can run Grid Proxy over the HTTPS protocol using the following methods:
@@ -195,9 +193,7 @@ gridProxy:
     mount_path: "/etc/ssl/certs/doduo"
     readOnly: true
 ```
-- TLS_CERT_GRID and TLS_KEY_GRID reference the file in the pod where the ConfigMap is mounted
 
-*For functional test only. This uses the same environment variables as CA_Bundle configration, therefore, either one can be used per deployment*
 
 
 #### [4.5] Deploying Non_priviledge container - NON_ROOT deployment. 
