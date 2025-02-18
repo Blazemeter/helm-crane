@@ -103,7 +103,7 @@ spec:
           value: TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
           {{ end -}}      
         {{ end -}}
-        {{ if eq ( .Values.ca_bundle.enable) ( .Values.gridProxy.enable ) }}
+        {{ if and ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}:TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
         {{ end }}
