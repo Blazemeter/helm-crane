@@ -2,14 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    role: {{ .Values.deployment.role }}
+    role: {{ .Release.Name }}-{{ .Values.deployment.role }}
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      role: {{ .Values.deployment.role }}
+      role: {{ .Release.Name }}-{{ .Values.deployment.role }}
       crane: ready
   strategy:
     type: Recreate
@@ -19,7 +19,7 @@ spec:
       {{ if .Values.labelsCrane.enable }}
       {{ .Values.labelsCrane.syntax | toYaml | nindent 8 }}
       {{ end }}
-        role: {{ .Values.deployment.role }}
+        role: {{ .Release.Name }}-{{ .Values.deployment.role }}
         crane: ready
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
