@@ -1,8 +1,8 @@
 
 deployment:
   # This is the name of roles and clusterroles created by the chart.
-  role: "roleCrane"
-  clusterrole: "cluster-roleCrane"
+  role: "role"
+  clusterrole: "clusterrole"
   serviceAccount:
   # Specifies whether a ServiceAccount should be created. 
     create: false
