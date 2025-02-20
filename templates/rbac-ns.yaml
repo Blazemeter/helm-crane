@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ .Values.deployment.role }}
+  name: {{ .Release.Name }}-{{ .Values.deployment.role }}
   namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups: [""]
@@ -30,7 +30,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Values.deployment.role }}-binding-{{ .Release.Namespace }}-{{ template "blazemeter-crane.serviceAccountName" . }}
+  name: {{ .Release.Name }}-{{ .Values.deployment.role }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
 subjects:
 - kind: ServiceAccount
@@ -38,5 +38,5 @@ subjects:
   namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role 
-  name: {{ .Values.deployment.role }}
+  name: {{ .Release.Name }}-{{ .Values.deployment.role }}
   apiGroup: rbac.authorization.k8s.io
