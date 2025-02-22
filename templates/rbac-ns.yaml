@@ -1,8 +1,8 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ .Values.matches.role }}
-  namespace: {{ .Values.deployment.namespace }}
+  name: {{ .Release.Name }}-{{ .Values.deployment.role }}
+  namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups: [""]
   resources: ["pods/exec"]
@@ -30,13 +30,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Values.matches.role }}-binding-{{ .Values.deployment.namespace }}-{{ template "blazemeter-crane.serviceAccountName" . }}
-  namespace: {{ .Values.deployment.namespace }}
+  name: {{ .Release.Name }}-{{ .Values.deployment.role }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
 subjects:
 - kind: ServiceAccount
   name: {{ template "blazemeter-crane.serviceAccountName" . }}
-  namespace: {{ .Values.deployment.namespace }}
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role 
-  name: {{ .Values.matches.role }}
+  name: {{ .Release.Name }}-{{ .Values.deployment.role }}
   apiGroup: rbac.authorization.k8s.io

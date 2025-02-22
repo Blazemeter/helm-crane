@@ -1,12 +1,12 @@
 
 {{- define "blazemeter-crane.fullname" -}}
-{{- default .Chart.Name .Values.deployment.name | trunc 63 | trimSuffix "-" }}
+{{- default .Chart.Name .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{- define "blazemeter-crane.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-    {{- default (include "blazemeter-crane.fullname" .) .Values.serviceAccount.name -}}
+{{- if .Values.deployment.serviceAccount.create }}
+    {{- default (include "blazemeter-crane.fullname" .) .Values.deployment.serviceAccount.name -}}
 {{- else }}
-    {{- default "default" .Values.serviceAccount.name -}}
+    {{- default "default" .Values.deployment.serviceAccount.name -}}
 {{ end }}
 {{ end }}

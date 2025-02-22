@@ -2,3 +2,6 @@
 .git
 *.md
 .gitignore
+*.key
+*.crt
+*.pem

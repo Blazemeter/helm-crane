@@ -1,10 +1,20 @@
-{{ if .Values.ca_bundle.use }}
+{{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) }} 
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-configmap
-  namespace: {{ .Values.deployment.namespace }}
+  namespace: {{ .Release.Namespace }}
 data:
-  certificate.crt: |-
-{{ .Files.Get "certificate.crt" | indent 4 }}
-{{ end }}
+  {{ if  .Values.ca_bundle.enable }} 
+  {{ .Values.ca_bundle.request_ca_bundle }}: |-
+{{ .Files.Get .Values.ca_bundle.request_ca_bundle | indent 4 }}
+  {{ .Values.ca_bundle.aws_ca_bundle }}: |-
+{{ .Files.Get .Values.ca_bundle.aws_ca_bundle | indent 4 }}
+  {{ end -}}
+  {{ if  .Values.gridProxy.enable }} 
+  {{ .Values.gridProxy.tlsKeyGrid }}: |-
+{{ .Files.Get .Values.gridProxy.tlsKeyGrid | indent 4 }}
+  {{ .Values.gridProxy.tlsCertGrid }}: |-
+{{ .Files.Get .Values.gridProxy.tlsCertGrid | indent 4 }}
+  {{ end -}}
+{{ end -}}

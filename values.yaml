@@ -1,35 +1,47 @@
 
 deployment:
-  name: crane
-  namespace: "default"
+  # This is the name of roles and clusterroles created by the chart.
+  role: "role"
+  clusterrole: "clusterrole"
+  serviceAccount:
+  # Specifies whether a ServiceAccount should be created. 
+    create: false
+  # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
+    name:
+  restartPolicy: "Always"
 
-# This is the name of roles and clusterroles created by the chart.
-matches:
-  crane: "ready"
-  role: "roleCrane"
-  clusterrole: "cluster-roleCrane"
+env: 
+    # if you plan to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
+  secret_authtoken:
+    enable: no
+    secretName: "your-secretName"
+    secretKey: "auth-token"
+  # if secret is not enabled, please enter the AUTH_TOKEN below directly. 
+  authtoken: "your-sample-auth-token"
+  harbour_id: "your-sample-harbour-id"
+  ship_id: "your-sample-ship-id"
 
-serviceAccount:
-  # Specifies whether a ServiceAccount should be created, currently BM OPLs in Kubernetes only supports default service account.
-  create: false
-  # The name of the ServiceAccount to enable, keep empty to enable default account.
-  name: 
-
-env:
-  authToken: 
-    # if you want to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
-    secret:
-      enable: no
-      secretName: "your-secretName"
-      secretKey: "auth-token"
-    # if secret is not enabled, please enter the AUTH_TOKEN below directly. 
-    token:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
-  harbour_id: "MY_SAMPLE_HARBOURID"
-  ship_id: "MY_SAMPLE_SHIPID"
-  docker_registry: "gcr.io/verdant-bulwark-278"
-  auto_update: true
-  image: "gcr.io/verdant-bulwark-278/blazemeter/crane:latest-master"
+image:   
+  docker_registry: "gcr.io/verdant-bulwark-278"  #default registry for Blazemeter crane (DO NOT CHANGE)
+  image: "gcr.io/verdant-bulwark-278/blazemeter/crane"  #default image for Blazemeter crane (DO NOT CHANGE)
+  tag: "latest-master"
+  auto_update: true                             
+  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
   pullPolicy: "Always"
+
+# Allows the override of the default image received from BZA for the container to run. Set the key to the original value (Example: apm-image:latest). Set the value to the new repository name with a tag. Extract the appropriate version number from 'admin/ship-stats'.
+imageOverride:
+  enable: no
+  #If imageOverride is enabled, also make sure to change/modify the docker_registry as well as image path below.
+  docker_registry: "gcr.io/<custom-registry>"
+  image: "gcr.io/<custom-registry>/blazemeter/crane"
+  tag: "latest-master"
+  auto_update: true
+  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
+  # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
+  images: {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
+  pullPolicy: "Always"
+
 
   # Proxy configurations here, change enable to yes, followed by http/https configuration
 proxy:
@@ -40,83 +52,101 @@ proxy:
 
   https_proxy: yes
   https_path: "https://server:port"  
-#  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and 
-#  Transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
+#  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 
 # Configure CA Bundle here - Change enable: yes
+# Add these certifates to the chart main directory, for example: we have placed certificate.crt in the chart main directory.
 ca_bundle:
   enable: no
-  ca_subpath: "certificate.crt"
-  aws_subpath: "certificate.crt"
-volume:
-  volume_name: "volume-cm"
-  mount_path: "/var/cm"
+  request_ca_bundle: "certificate.crt"
+  aws_ca_bundle: "certificate2.crt"
+  volume:
+    volume_name: "volume-cm"
+    mount_path: "/var/cm"
+    readOnly: true
+
+#For functional test only. This uses the same environment. Place the certificate in chart main directory.
+gridProxy:
+  enable: no
+  a_environment: 'https://your.environment.net'
+  tlsKeyGrid: "certificate.key"          # The private key for the domain used to run the BlazeMeter Grid proxy over HTTPS. Value in string format. 
+  tlsCertGrid: "certificate.crt"         # The public certificate for the domain used to run the BlazeMeter Grid proxy over HTTPS. Value in string format.
+  mount_path: "/etc/ssl/certs/doduo"
+  doduoPort:  9070                       # The user-defined port where to run Doduo (BlazeMeter Grid Proxy). By default, Doduo listens on port 8000. 
+  volume:
+    volume_name: "tls-files"
+    mount_path: "/etc/ssl/certs/doduo"
+    readOnly: true
+    
 
 # If you plan to enable non-privileged containers, please enable the below configuration, change enable:yes
-# This will run all pods/containers (related to private location installation) within the cluster as non_root.
+# This will run all pods/containers (related to private location installation)as well as crane within the cluster as non_root. 
+# Non-root deployment requires qualifying plan and an additional feature to be enabled, please contact support for enabling this feature if your account has a qualifying plan. 
 non_privilege_container:
   enable: no
   runAsGroup: 1337
   runAsUser: 1337
 
-restartPolicy: "Always"
-
 # enable Istio-Ingress if this Private location is going to run mock-services
-# Follow this guide till you have created a secret in istio-system namespace called wildcard-credential.
+# Follow the below guide till you have created a secret in istio-system namespace called wildcard-credential.
 # https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
 
 istio_ingress: 
   enable: no
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
-  pre_pulling: "true" 
   istio_gateway_name: "bzm-gateway"
 
 # We can enable nginx-ingress instead of istio-ingress, currently, the chart expects nginx-ingress to be pre-installed in the cluster. 
 # Follow Blazemeter guide for more information on installing nginx-ingress.
 nginx_ingress:
   enable: no
-#  pre-installed: yes
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"  
 
-# Labels to add to resources created by Crane, must be in JSON format.
-labels:
+# Labels to add to crane and child resources created by Crane, must be in JSON format.
+labelsCrane:
+  enable: no
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+labelsExecutors:
   enable: no 
-  syntax: {"label_1": "label_1_value", "label_2": "label2value"}
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 
-#Set to specify that the crane container passes tolerations and node selector elements to child containers.
-toleration: 
+#Set to specify the tolerations for the crane and child resources. Must be in JSON format.
+tolerationCrane: 
+  enable: no
+  syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
+tolerationExecutors: 
   enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 
-#Used to configure the k8s nodeSelector field to match specific node labels for the Crane engine deployment. Must be in JSON format.
-nodeSelector:
+#Used to configure the k8s nodeSelector field to match specific node labels for the Crane as well as child resources. Must be in JSON format.
+nodeSelectorCrane:
+  enable: no
+  syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
+nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 
-#For functional test only
-gridProxy:
-  enable: no
-  doduoPort:  9070    # The user-defined port where to run Doduo (BlazeMeter Grid Proxy). By default, Doduo listens on port 8000. 
-  tlsCertGrid: wdfrg  # The public certificate for the domain used to run the BlazeMeter Grid proxy over HTTPS. Value in string format.
-  tlsKeyGrid: sefgwg  # The private key for the domain used to run the BlazeMeter Grid proxy over HTTPS. Value in string format. 
-
-# CPU limits & requests for resources created by agent.
-# Memory limits & requests for resources created by agent.
-resources: 
+# CPU & Memory limits & requests for resources for crane deployment.  You can also specify ephemeral storage limits for the crane.
+resourcesCrane:  
+  requests:     
+    CPU: 250m
+    MEM: 512Mi 
+    storage: #100
   limits:
-    enable: no
-    CPU: 2
-    MEM: 8Gi
-  requests:           # The request resources are enabled by default for efficient agent functions. 
-    enable: yes 
-    CPU: 1000m
+    CPU: #1 
+    MEM: #2Gi
+    storage: #1024
+
+# CPU & Memory limits & requests for resources for child resources. You can also specify ephemeral storage limits for the child resources.
+resourcesExecutors: 
+  requests:           
+    CPU: 1000m        
     MEM: 4096         # This value should be an integer unlike other values that supports k8s standard for declaring resource limits/requests.
-    
-# Integer value in megabytes. Set to control the ephemeral storage requests & limit of the Taurus pod (optional). 
-ephemeralStorage:
-  enable: no
-  limits: 1024         # The values are in Mi
-  requests: 100       # Default: 100 (Mi). 
+    storage: #100     
+  limits:
+    CPU: #2
+    MEM: #8Gi
+    storage: #1024
