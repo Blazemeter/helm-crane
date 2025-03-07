@@ -150,3 +150,29 @@ resourcesExecutors:
     CPU: #2
     MEM: #8Gi
     storage: #1024
+
+
+#Configure Liveness & Readiness Probes
+probes:
+  enable: yes
+  livenessProbe:
+    httpGet:
+      path: /healtz
+      port: 5000
+      scheme: HTTP
+    failureThreshold: 5
+    initialDelaySeconds: 5
+    periodSeconds: 15
+    successThreshold: 1
+    timeoutSeconds: 10  
+
+  readinessProbe:
+    httpGet:
+      path: /healtz
+      port: 5000
+      scheme: HTTP
+    failureThreshold: 3
+    initialDelaySeconds: 5
+    periodSeconds: 15
+    successThreshold: 1
+    timeoutSeconds: 10
