@@ -142,8 +142,8 @@ spec:
         {{ if .Values.non_privilege_container.enable }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
-        {{ end }}
-        {{- if .Values.labelsExecutors.enable }}
+        {{ end -}}
+        {{ if .Values.labelsExecutors.enable }}
         - name: KUBERNETES_LABELS
           value: {{ .Values.labelsExecutors.syntax | toJson | quote }}
         {{ end -}}
@@ -248,6 +248,30 @@ spec:
         configMap:
           name: {{ .Release.Name }}-configmap
           {{ end -}}
-      {{ end }}
+      {{ end -}}
+      {{ if .Values.probes.enable }}
+        livenessProbe:
+          httpGet:
+            path: /healtz
+            port: {{ .Values.probes.livenessProbe.port | default 5000 }}
+            scheme: HTTP
+          failureThreshold: {{ .Values.probes.livenessProbe.failureThreshold | default 5 }}
+          initialDelaySeconds: {{ .Values.probes.livenessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds: {{ .Values.probes.livenessProbe.periodSeconds | default 15 }}
+          successThreshold: {{ .Values.probes.livenessProbe.successThreshold | default 1 }}
+          timeoutSeconds: {{ .Values.probes.livenessProbe.timeoutSeconds | default 10 }}   
+                
+        readinessProbe:
+          httpGet:
+            path: /healtz
+            port: {{ .Values.probes.readinessProbe.port | default 5000 }}
+            scheme: HTTP
+          failureThreshold: {{ .Values.probes.readinessProbe.failureThreshold | default 3 }}
+          initialDelaySeconds: {{ .Values.probes.readinessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds: {{ .Values.probes.readinessProbe.periodSeconds | default 15 }}
+          successThreshold: {{ .Values.probes.readinessProbe.successThreshold | default 1 }}
+          timeoutSeconds: {{ .Values.probes.readinessProbe.timeoutSeconds | default 10 }}
+
+      {{ end }}    
       restartPolicy: {{ .Values.deployment.restartPolicy }}
       terminationGracePeriodSeconds: 30
