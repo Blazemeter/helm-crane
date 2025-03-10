@@ -349,6 +349,7 @@ Therefore, ***always go with Node autoscaling***
 
 ## [10.0] Changelog:
 
+- 1.3.1 - Readiness and Liveness probes are now added. 
 - 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource (CPU & MEM) limit/requests are now configurable for crane and child resources and also for ephemeral storage. Simplified nesting and values configuration. The chart can now work with non-default serviceAccount. Tolerations, nodeSelector and labels can be declared for Crane and child resources separately, with Major fixes & calibrations.
 - 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
 - 1.2.2 - Chart now supports gridProxy deployment configurations
