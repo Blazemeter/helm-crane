@@ -176,3 +176,11 @@ probes:
     periodSeconds: 15
     successThreshold: 1
     timeoutSeconds: 10
+
+
+podDisruptionBudget:
+  enable: no
+  ## min or max, disruptions can only support one. - https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  minAvailable: 1
+  maxUnavailable: #5 
+  matchLabels: {"label_1": "label_1_value", "label_2": "label_2_value"}
