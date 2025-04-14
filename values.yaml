@@ -180,7 +180,8 @@ probes:
 
 podDisruptionBudget:
   enable: yes
-  ## min or max, disruptions can only support one. - https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  # min or max, disruptions can only support one. - https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  ## If both are specified, minAvailable is used.
   minAvailable: 1
   maxUnavailable: #5 
   matchLabels: {"label_1": "label_1_value", "label_2": "label_2_value"}
@@ -189,17 +190,19 @@ podDisruptionBudget:
 secretProviderClass:
   enable: yes
   provider: aws
+  # This is in JSON, to allow users configure different spec, like: secretPath, secretKey, objectAlias, etc. 
   objects: [{ "objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:harbour-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "harbour-id-opl"},{"objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:ship-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "ship-id-opl"}]
   #secretObjects: [{ "data":[{"key":"harbour-id-key","objectName":"harbour-id-opl"}],"secretName":"harbour-id","type":"Opaque"},{"data":[{"key":"ship-id-key","objectName":"ship-id-opl"}],"secretName":"ship-id","type":"Opaque"}]
   secretObjects:  
-  # Comment out the below section if you do not want to create secrets in the namespace. 
-    - data:
+  # Comment out the below section if you do not plan to create secrets in the namespace. 
+    - secretName: harbour-id
+      type: Opaque
+      data:
         - key: harbour-id-key
           objectName: harbour-id-opl
-      secretName: harbour-id
-      type: Opaque
-    - data:
+    - secretName: ship-id
+      type: Opaque       
+      data:
         - key: ship-id-key
           objectName: ship-id-opl
-      secretName: ship-id
-      type: Opaque    
+ 
