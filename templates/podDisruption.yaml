@@ -1,4 +1,4 @@
-{{ if .Values.podDisruptionBudget.enabled }}
+{{ if .Values.podDisruptionBudget.enable }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -8,7 +8,7 @@ spec:
   {{ if and (.Values.podDisruptionBudget.minAvailable) ( eq .Values.podDisruptionBudget.maxUnavailable false) }}
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   {{ end }}
-  {{ if and (.Values.podDisruptionBudget.maxUnavailable) ( eq .Values.podDisruptionBudget.minAvailable false) }}
+  {{- if and (.Values.podDisruptionBudget.maxUnavailable) ( eq .Values.podDisruptionBudget.minAvailable false) }}
   maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
   {{ end }}
   selector:
