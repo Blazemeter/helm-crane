@@ -5,11 +5,10 @@ metadata:
   name: {{ .Release.Name }}-pdb
   namespace: {{ .Release.Namespace }}
 spec:
-  {{ if and (.Values.podDisruptionBudget.minAvailable) ( eq .Values.podDisruptionBudget.maxUnavailable false) }}
-  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
-  {{ end }}
-  {{- if and (.Values.podDisruptionBudget.maxUnavailable) ( eq .Values.podDisruptionBudget.minAvailable false) }}
+  {{ if and (.Values.podDisruptionBudget.maxUnavailable) ( empty .Values.podDisruptionBudget.minAvailable) }}
   maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{ else }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   {{ end }}
   selector:
     matchLabels: 
