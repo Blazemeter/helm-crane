@@ -4,10 +4,15 @@ deployment:
   role: "role"
   clusterrole: "clusterrole"
   serviceAccount:
-  # Specifies whether a ServiceAccount should be created. 
+  # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
     create: false
   # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name:
+    name: #sample-serviceAccount-name
+    annotations:
+      # This is a sample  annotation. You can add any annotations here.
+      # Comment out if not needed.
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
+      custom.annotation/key: custom-value    
   restartPolicy: "Always"
 
 env: 
@@ -179,7 +184,7 @@ probes:
 
 
 podDisruptionBudget:
-  enable: yes
+  enable: no
   # min or max, disruptions can only support one. - https://kubernetes.io/docs/tasks/run-application/configure-pdb/
   ## If both are specified, minAvailable is used.
   minAvailable: 1
