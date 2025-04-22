@@ -34,15 +34,21 @@ spec:
       {{ end }}
       containers:
       - env:
-        {{ if .Values.secretProviderClass.secretObjects }} 
+        {{ if and (.Values.secretProviderClass.secretObjects) (eq .Values.env.secret_authtoken.enable false) }} 
         {{- range .Values.secretProviderClass.secretObjects }}
         - name: {{ .envName }}
           valueFrom:
             secretKeyRef:
               name: {{ .secretName }}
               key: {{ (index .data 0).key }}
-        {{- end }}
-        {{- else }}
+        {{ end }}
+        {{- else if .Values.env.secret_authtoken.enable }}
+        - name: AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{.Values.env.secret_authtoken.secretName }}
+              key: {{ .Values.env.secret_authtoken.secretKey }}
+        {{- else }}        
         - name: AUTH_TOKEN
           value: {{ .Values.env.authtoken }}
         - name: HARBOR_ID
