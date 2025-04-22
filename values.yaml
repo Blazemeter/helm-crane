@@ -193,21 +193,36 @@ podDisruptionBudget:
 
 
 secretProviderClass:
-  enable: yes
+  enable: yesh
   provider: aws
   # This is in JSON, to allow users configure different spec, like: secretPath, secretKey, objectAlias, etc. 
   objects: [{ "objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:harbour-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "harbour-id-opl"},{"objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:ship-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "ship-id-opl"}]
   #secretObjects: [{ "data":[{"key":"harbour-id-key","objectName":"harbour-id-opl"}],"secretName":"harbour-id","type":"Opaque"},{"data":[{"key":"ship-id-key","objectName":"ship-id-opl"}],"secretName":"ship-id","type":"Opaque"}]
   secretObjects:  
   # Comment out the below section if you do not plan to create secrets in the namespace. 
+    - secretName: auth-token
+      type: Opaque
+      data:
+        - key: auth-token-key
+          objectName: auth-token-opl
+      envName: AUTH_TOKEN
     - secretName: harbour-id
       type: Opaque
       data:
         - key: harbour-id-key
           objectName: harbour-id-opl
+      envName: HARBOUR_ID
     - secretName: ship-id
-      type: Opaque       
+      type: Opaque
       data:
         - key: ship-id-key
           objectName: ship-id-opl
+      envName: SHIP_ID
+  volume: 
+    name:       # (Optional) If not provided, will be <ReleaseName>-secrets-store-volume
+    readOnly:   # (Default: true) 
+    mount: 
+      name:     # (Optional) If not provided, will be <ReleaseName>-volume-mount
+      path: /mnt/secrets
+      readOnly: # (Default: true)
  
