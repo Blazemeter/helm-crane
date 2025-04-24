@@ -219,10 +219,6 @@ secretProviderClass:
           objectName: ship-id-opl
       envName: SHIP_ID
   volume: 
-    name:       # (Optional) If not provided, will be <ReleaseName>-secrets-store-volume
+    name:       # (Optional) If not provided, will be linked with release name - see helm template
     readOnly:   # (Default: true) 
-    mount: 
-      name:     # (Optional) If not provided, will be <ReleaseName>-volume-mount
-      path: /mnt/secrets
-      readOnly: # (Default: true)
- 
+    path: /mnt/secrets  
