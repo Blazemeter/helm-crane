@@ -269,9 +269,9 @@ spec:
           readOnly: {{ .Values.gridProxy.volume.readOnly }}
           {{ end }}
           {{ if .Values.secretProviderClass.enable }}
-        - name: {{ .Values.secretProviderClass.volume.mount.name | default (printf "%s-volume-mount" .Release.Name) }} #npd-blaze-secret-store
-          mountPath: {{ .Values.secretProviderClass.volume.mount.path }}
-          readOnly: {{ .Values.secretProviderClass.volume.mount.readOnly | default true }}
+        - name: {{ .Values.secretProviderClass.volume.name | default (printf "%s-volume-mount" .Release.Name) }} #npd-blaze-secret-store
+          mountPath: {{ .Values.secretProviderClass.volume.path | default /mnt/secrets }}
+          readOnly: {{ .Values.secretProviderClass.volume.readOnly | default true }}
           {{ end }}
       volumes:
           {{ if .Values.ca_bundle.enable }}
