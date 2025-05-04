@@ -211,7 +211,7 @@ secretProviderClass:
       data:
         - key: harbour-id-key
           objectName: harbour-id-opl
-      envName: HARBOUR_ID
+      envName: HARBOR_ID
     - secretName: ship-id
       type: Opaque
       data:
