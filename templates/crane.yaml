@@ -233,28 +233,30 @@ spec:
           runAsGroup: {{ .Values.non_privilege_container.runAsGroup }} 
           runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
       {{ end -}}
-      {{ if .Values.probes.enable }}
+      {{ with .Values.probes }}
+        {{ if .enable }}
         livenessProbe:
           httpGet:
             path: /healtz
-            port: {{ .Values.probes.livenessProbe.port | default 5000 }}
+            port: {{ .livenessProbe.port | default 5000 }}
             scheme: HTTP
-          failureThreshold: {{ .Values.probes.livenessProbe.failureThreshold | default 5 }}
-          initialDelaySeconds: {{ .Values.probes.livenessProbe.initialDelaySeconds | default 5 }}
-          periodSeconds: {{ .Values.probes.livenessProbe.periodSeconds | default 15 }}
-          successThreshold: {{ .Values.probes.livenessProbe.successThreshold | default 1 }}
-          timeoutSeconds: {{ .Values.probes.livenessProbe.timeoutSeconds | default 10 }}   
+          failureThreshold: {{ .livenessProbe.failureThreshold | default 5 }}
+          initialDelaySeconds: {{ .livenessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds: {{ .livenessProbe.periodSeconds | default 15 }}
+          successThreshold: {{ .livenessProbe.successThreshold | default 1 }}
+          timeoutSeconds: {{ .livenessProbe.timeoutSeconds | default 10 }}   
                 
         readinessProbe:
           httpGet:
             path: /healtz
-            port: {{ .Values.probes.readinessProbe.port | default 5000 }}
+            port: {{ .readinessProbe.port | default 5000 }}
             scheme: HTTP
-          failureThreshold: {{ .Values.probes.readinessProbe.failureThreshold | default 3 }}
-          initialDelaySeconds: {{ .Values.probes.readinessProbe.initialDelaySeconds | default 5 }}
-          periodSeconds: {{ .Values.probes.readinessProbe.periodSeconds | default 15 }}
-          successThreshold: {{ .Values.probes.readinessProbe.successThreshold | default 1 }}
-          timeoutSeconds: {{ .Values.probes.readinessProbe.timeoutSeconds | default 10 }}
+          failureThreshold: {{ .readinessProbe.failureThreshold | default 3 }}
+          initialDelaySeconds: {{ .readinessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds: {{ .readinessProbe.periodSeconds | default 15 }}
+          successThreshold: {{ .readinessProbe.successThreshold | default 1 }}
+          timeoutSeconds: {{ .readinessProbe.timeoutSeconds | default 10 }}
+        {{ end }}
       {{ end }}      
       {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) }} 
         volumeMounts:
@@ -270,7 +272,7 @@ spec:
           {{ end }}
           {{ if .Values.secretProviderClass.enable }}
         - name: {{ .Values.secretProviderClass.volume.name | default (printf "%s-volume-mount" .Release.Name) }} #npd-blaze-secret-store
-          mountPath: {{ .Values.secretProviderClass.volume.path | default /mnt/secrets }}
+          mountPath: {{ .Values.secretProviderClass.volume.path | default "/mnt/secrets" }}
           readOnly: {{ .Values.secretProviderClass.volume.readOnly | default true }}
           {{ end }}
       volumes:
