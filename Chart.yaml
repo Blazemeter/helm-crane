@@ -26,6 +26,8 @@ keywords:
   - Private repository
   - ReadinessProbe
   - LivenessProbe
+  - Secret Store CSI
+  - Pod Disruption Budget
   
 type: application
 icon: https://github.com/Blazemeter/helm-crane/raw/main/Image.png
@@ -33,7 +35,7 @@ icon: https://github.com/Blazemeter/helm-crane/raw/main/Image.png
 # - name: nginx
 #    condition: .Values.installed
 
-version: 1.3.1
+version: 1.3.2
 
 maintainers: 
   - name: Manan Patel
