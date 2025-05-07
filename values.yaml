@@ -16,12 +16,7 @@ deployment:
   restartPolicy: "Always"
 
 env: 
-    # if you plan to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
-  secret_authtoken:
-    enable: no
-    secretName: "your-secretName"
-    secretKey: "auth-token"
-  # if secret is not enabled, please enter the AUTH_TOKEN below directly. 
+  # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver. 
   authtoken: "your-sample-auth-token"
   harbour_id: "your-sample-harbour-id"
   ship_id: "your-sample-ship-id"
