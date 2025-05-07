@@ -106,7 +106,10 @@ nginx_ingress:
   web_expose_subdomain: "mydomain.local"  
 
 # Labels to add to crane and child resources created by Crane, must be in JSON format.
-labelsCrane:
+labelsCraneDeployment:
+  enable: no
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+labelsCranePod:
   enable: no
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 labelsExecutors:

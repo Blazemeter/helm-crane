@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   labels:
     role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+    {{ if .Values.labelsCraneDeployment.enable -}}
+    {{ .Values.labelsCraneDeployment.syntax | toYaml | nindent 4 }}
+    {{ end }}
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -16,8 +19,8 @@ spec:
   template:
     metadata:
       labels:
-      {{ if .Values.labelsCrane.enable }}
-      {{ .Values.labelsCrane.syntax | toYaml | nindent 8 }}
+      {{ if .Values.labelsCranePod.enable -}}
+      {{ .Values.labelsCranePod.syntax | toYaml | nindent 8 }}
       {{ end }}
         role: {{ .Release.Name }}-{{ .Values.deployment.role }}
         crane: ready
@@ -34,7 +37,7 @@ spec:
       {{ end }}
       containers:
       - env:
-        {{ if and (.Values.secretProviderClass.secretObjects) (eq .Values.env.secret_authtoken.enable false) }} 
+        {{ if .Values.secretProviderClass.secretObjects }} 
         {{- range .Values.secretProviderClass.secretObjects }}
         - name: {{ .envName }}
           valueFrom:
