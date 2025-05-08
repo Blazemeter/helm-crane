@@ -37,7 +37,7 @@ spec:
       {{ end }}
       containers:
       - env:
-        {{ if .Values.secretProviderClass.secretObjects }} 
+        {{ if .Values.secretProviderClass.enable }} 
         {{- range .Values.secretProviderClass.secretObjects }}
         - name: {{ .envName }}
           valueFrom:
