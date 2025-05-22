@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cranetestpod
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-delete-timeout": "90"
+spec:
+  serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
+  automountServiceAccountToken: true
+  #ttlSecondsAfterFinished: 90
+  containers:
+  - name: cranetestctr
+    securityContext:
+      runAsUser: 1337
+      runAsGroup: 1337
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true  
+    env: 
+    - name: WORKING_NAMESPACE
+      value: {{ .Release.Namespace | quote}}
+    - name: ROLE_NAME
+      value: {{ .Release.Name }}-{{ .Values.deployment.role }}
+    - name: ROLE_BINDING_NAME
+      value: {{ .Release.Name }}-{{ .Values.deployment.role }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
+    - name: SERVICE_ACCOUNT_NAME
+      value: {{ template "blazemeter-crane.serviceAccountName" . }}
+    {{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }}
+    - name: SV_ENABLE
+      value: "true"
+    - name: KUBERNETES_WEB_EXPOSE_TYPE
+      value: "ISTIO"
+    - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+      value: {{ .Values.istio_ingress.credentialName | quote }}      
+    {{ end }}
+    {{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
+    - name: SV_ENABLE
+      value: "true"
+    - name: KUBERNETES_WEB_EXPOSE_TYPE
+      value: "INGRESS"
+    - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+      value: {{ .Values.nginx_ingress.credentialName | quote }}
+    {{end }}
+    {{ if .Values.imageOverride.enable }}
+    - name: DOCKER_REGISTRY
+      value: {{ .Values.imageOverride.docker_registry | quote }}
+    - name: AUTO_KUBERNETES_UPDATE
+    {{ else }}    
+    - name: DOCKER_REGISTRY
+      value: {{ .Values.image.docker_registry | quote }}
+    {{ end }}          
+    image: "immnan/cranetest:0.1.22"
+    imagePullPolicy: "Always"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+  restartPolicy: "Never"
