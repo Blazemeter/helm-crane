@@ -33,7 +33,9 @@ spec:
     - name: KUBERNETES_WEB_EXPOSE_TYPE
       value: "ISTIO"
     - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-      value: {{ .Values.istio_ingress.credentialName | quote }}      
+      value: {{ .Values.istio_ingress.credentialName | quote }}
+    - name: KUBERNETES_ISTIO_GATEWAY_NAME
+      value: {{ .Values.istio_ingress.istio_gateway_name | quote }}        
     {{ end }}
     {{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
     - name: SV_ENABLE
@@ -42,7 +44,7 @@ spec:
       value: "INGRESS"
     - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
       value: {{ .Values.nginx_ingress.credentialName | quote }}
-    {{end }}
+    {{ end }}
     {{ if .Values.imageOverride.enable }}
     - name: DOCKER_REGISTRY
       value: {{ .Values.imageOverride.docker_registry | quote }}
