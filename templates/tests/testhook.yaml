@@ -6,7 +6,8 @@ metadata:
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": before-hook-creation
-    "helm.sh/hook-delete-timeout": "90"
+    "helm.sh/hook-container-name": cranetestctr
+    "sidecar.istio.io/inject": "false" 
 spec:
   serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
   automountServiceAccountToken: true
@@ -17,7 +18,7 @@ spec:
       runAsUser: 1337
       runAsGroup: 1337
       allowPrivilegeEscalation: false
-      runAsNonRoot: true  
+      runAsNonRoot: true
     env: 
     - name: WORKING_NAMESPACE
       value: {{ .Release.Namespace | quote}}
@@ -53,7 +54,7 @@ spec:
     - name: DOCKER_REGISTRY
       value: {{ .Values.image.docker_registry | quote }}
     {{ end }}          
-    image: "immnan/cranetest:0.1.22"
+    image: "immnan/cranetest:0.2.8"
     imagePullPolicy: "Always"
     resources:
       requests:
