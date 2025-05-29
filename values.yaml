@@ -220,3 +220,61 @@ secretProviderClass:
     name:       # (Optional) If not provided, will be linked with release name - see helm template
     readOnly:   # (Default: true) 
     path: /mnt/secrets  
+
+
+externalSecretsOperator:
+  enable: no
+  useExistingSecretStore:  # If you want to use an existing secret store, add the name of the secret store here.
+    name: #npd-blaze-secret-store
+
+  externalSecrete: 
+    name: npd-blaze-external-secret
+    refreshInterval: "15s"
+    target:
+      name: blazemeter-secrets-store # Name of Kubernetes Secret to make
+    data:
+      - secretKey: ship-id # New key to make
+        remoteRef:
+          key: ship-id
+        envName: SHIP_ID   # Name of the Secret in Secrets Manager
+      - secretKey: harbour-id # New key to make
+        remoteRef:
+          key: harbour-id # Name of the Secret in Secrets Manager
+        envName: HARBOR_ID   # Name of the Secret in Secrets Manager
+      - secretKey: auth-token # New key to make
+        remoteRef:
+          key: auth-token # Name of the Secret in Secrets Manager
+        envName: AUTH_TOKEN   # Name of the Secret in Secrets Manager  
+  
+  secretStore:
+    name: npd-blaze-secret-store
+    provider:
+      # The provider can be aws, gcpsm, switch the enable flag to true for the provider you want to use.
+      aws:
+        enable: true
+        #role: iam-role   #USE IF REQUIRED.
+        service: SecretsManager
+        region: ap-southeast-2
+    # Chart wiill use JWT authentication to access the AWS Secrets Manager.
+    # The JWT will use the serviceAccount used in this chart
+    # Unless the below authSecretRef is enabled
+        authSecretRef:
+          enable: false
+          accessKeyID:
+            name: #awssm-secret
+            key:  #access-key
+          secretAccessKey:
+            name: #awssm-secret
+            key:  #secret-access-key
+
+      gcpsm:
+        enable: false
+        projectID: your-gcp-project-id
+      # Chart will use the Workload Identity to access the GCP Secret Manager.
+      # The Workload Identity will use the serviceAccount used in this chart
+      # Unless the below secretRef is enabled
+        secretRef:
+          enable: false
+          secretAccessKeySecretRef:
+            name: #gcpsm-secret
+            key:  #secret-access-credentials
