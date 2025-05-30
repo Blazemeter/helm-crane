@@ -224,10 +224,14 @@ secretProviderClass:
 
 externalSecretsOperator:
   enable: no
-  useExistingSecretStore:  # If you want to use an existing secret store, add the name of the secret store here.
-    name: #npd-blaze-secret-store
+#  useExistingSecretStore:  # If you want to use an existing secret store, add the name of the secret store here.
+#    name: #npd-blaze-secret-store
+  volume: 
+    name:       # (Optional) If not provided, will be linked with release name - see helm template
+    readOnly:   # Default: true 
+    path:       # Default: /mnt/secrets  
 
-  externalSecrete: 
+  externalSecret: 
     name: npd-blaze-external-secret
     refreshInterval: "15s"
     target:
