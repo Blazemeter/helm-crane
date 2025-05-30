@@ -21,7 +21,7 @@ spec:
       runAsNonRoot: true
     env: 
     - name: WORKING_NAMESPACE
-      value: {{ .Release.Namespace | quote}}
+      value: {{ .Release.Namespace | quote }}
     - name: ROLE_NAME
       value: {{ .Release.Name }}-{{ .Values.deployment.role }}
     - name: ROLE_BINDING_NAME
@@ -37,7 +37,7 @@ spec:
       value: {{ .Values.istio_ingress.credentialName | quote }}
     - name: KUBERNETES_ISTIO_GATEWAY_NAME
       value: {{ .Values.istio_ingress.istio_gateway_name | quote }}        
-    {{ end }}
+    {{ end -}}
     {{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
     - name: SV_ENABLE
       value: "true"
@@ -45,12 +45,12 @@ spec:
       value: "INGRESS"
     - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
       value: {{ .Values.nginx_ingress.credentialName | quote }}
-    {{ end }}
+    {{ end -}}
     {{ if .Values.imageOverride.enable }}
     - name: DOCKER_REGISTRY
       value: {{ .Values.imageOverride.docker_registry | quote }}
     - name: AUTO_KUBERNETES_UPDATE
-    {{ else }}    
+    {{ else -}}    
     - name: DOCKER_REGISTRY
       value: {{ .Values.image.docker_registry | quote }}
     {{ end }}          
