@@ -1,8 +1,12 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: cranetestpod
+  name: cranetesthook
   namespace: {{ .Release.Namespace }}
+  {{ if .Values.labelsCranePod.enable -}}
+  labels: 
+      {{ .Values.labelsCranePod.syntax | toYaml | nindent 4 }}
+  {{ end }}
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": before-hook-creation
@@ -12,6 +16,14 @@ spec:
   serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
   automountServiceAccountToken: true
   #ttlSecondsAfterFinished: 90
+  {{ if .Values.nodeSelectorCrane.enable }}
+  nodeSelector:
+    {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}      
+  {{ end -}}
+  {{ if .Values.nodeSelectorCrane.enable }}
+  tolerations:
+    {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}
+  {{ end }}  
   containers:
   - name: cranetestctr
     securityContext:
@@ -53,14 +65,40 @@ spec:
     {{ else -}}    
     - name: DOCKER_REGISTRY
       value: {{ .Values.image.docker_registry | quote }}
-    {{ end }}          
-    image: "immnan/cranetest:0.2.8"
+    {{ end }}       
+    {{ if .Values.proxy.enable -}}
+      {{ if .Values.proxy.http_proxy }}
+    - name: HTTP_PROXY
+      value: {{ .Values.proxy.http_path }}
+      {{ end -}}
+      {{ if .Values.proxy.https_proxy }}
+    - name: HTTPS_PROXY
+      value: {{ .Values.proxy.https_path }}
+      {{ end }}
+    - name: NO_PROXY
+      value: {{ .Values.proxy.no_proxy }}
+    {{ end }}
+    image: "immnan/cranetest:latest"
     imagePullPolicy: "Always"
+  {{ with .Values.resourcesCrane -}}
+    {{ if or (.requests.CPU) (.limits.CPU) (.limits.MEM) (.requests.MEM) (.requests.storage) (.limits.storage) }}
     resources:
+      {{ if or (.requests.MEM) (.requests.CPU) (.requests.storage) }}  
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        cpu: {{ .requests.CPU | default "100m" }}
+        memory: {{ .requests.MEM | default "256Mi" }}
+        {{ if .requests.storage }}
+        storage: {{ .requests.storage }}
+        {{ end -}}
+      {{ end -}}
+      {{ if or (.limits.MEM) (.limits.CPU) (.limits.storage) }} 
       limits:
-        memory: "512Mi"
-        cpu: "250m"
+        cpu: {{ .limits.CPU | default "200" }}  
+        memory: {{ .limits.MEM | default "512Mi" }}
+        {{ if .limits.storage }}
+        storage: {{ .limits.storage }}
+        {{ end -}}       
+      {{ end -}}
+    {{ end -}}
+  {{ end }}
   restartPolicy: "Never"
