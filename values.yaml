@@ -232,28 +232,28 @@ externalSecretsOperator:
     path:       # Default: /mnt/secrets  
 
   externalSecret: 
-    name: npd-blaze-external-secret
+    name: blaze-external-secret
     refreshInterval: "15s"
     target:
-      name: blazemeter-secrets-store # Name of Kubernetes Secret to make
+      name: blazemeter-secrets-store     # Name of Kubernetes Secret to make
     data:
-      - secretKey: ship-id # New key to make
+      - secretKey: ship-id     # New key to make
         remoteRef:
-          key: ship-id
-        envName: SHIP_ID   # Name of the Secret in Secrets Manager
-      - secretKey: harbour-id # New key to make
+          key: ship-id         # Name of the Secret in Secrets Manager
+        envName: SHIP_ID       
+      - secretKey: harbour-id  # New key to make
         remoteRef:
-          key: harbour-id # Name of the Secret in Secrets Manager
-        envName: HARBOR_ID   # Name of the Secret in Secrets Manager
-      - secretKey: auth-token # New key to make
+          key: harbour-id      # Name of the Secret in Secrets Manager
+        envName: HARBOR_ID    
+      - secretKey: auth-token  # New key to make
         remoteRef:
-          key: auth-token # Name of the Secret in Secrets Manager
-        envName: AUTH_TOKEN   # Name of the Secret in Secrets Manager  
+          key: auth-token      # Name of the Secret in Secrets Manager
+        envName: AUTH_TOKEN   
   
   secretStore:
-    name: npd-blaze-secret-store
+    name: blaze-secret-store
     provider:
-      # The provider can be aws, gcpsm, switch the enable flag to true for the provider you want to use.
+    # The provider can be aws, gcpsm, switch the enable flag to true for the provider you want to use.
       aws:
         enable: true
         #role: iam-role   #USE IF REQUIRED.
