@@ -5,7 +5,7 @@ metadata:
     role: {{ .Release.Name }}-{{ .Values.deployment.role }}
     {{ if .Values.labelsCraneDeployment.enable -}}
     {{ .Values.labelsCraneDeployment.syntax | toYaml | nindent 4 }}
-    {{ end -}}
+    {{ end }}
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -34,7 +34,7 @@ spec:
       {{ if .Values.tolerationCrane.enable }}
       tolerations:
       {{ .Values.tolerationCrane.syntax | toYaml | nindent 8 }}
-      {{ end -}}
+      {{ end }}
       containers:
       - env:
         {{- if and ( .Values.secretProviderClass.enable ) ( not .Values.externalSecretsOperator.enable ) }} 
@@ -87,11 +87,11 @@ spec:
           {{ if .Values.proxy.http_proxy }}
         - name: HTTP_PROXY
           value: {{ .Values.proxy.http_path }}
-          {{- end -}}
+          {{ end -}}
           {{ if .Values.proxy.https_proxy }}
         - name: HTTPS_PROXY
           value: {{ .Values.proxy.https_path }}
-          {{- end }}
+          {{ end }}
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
         {{ end -}}
@@ -100,7 +100,7 @@ spec:
           value: {{ .Values.ca_bundle.volume.mount_path }}/{{ .Values.ca_bundle.request_ca_bundle }}
         - name: AWS_CA_BUNDLE
           value: {{ .Values.ca_bundle.volume.mount_path }}/{{ .Values.ca_bundle.aws_ca_bundle }}
-          {{- if not .Values.gridProxy.enable }}
+          {{ if not .Values.gridProxy.enable }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}
           {{ end -}}
@@ -152,7 +152,7 @@ spec:
           value: 'true'
         - name: RUN_HEALTH_WEB_SERVICE
           value: 'true'
-        {{end -}}
+        {{ end -}}
         {{ if .Values.non_privilege_container.enable }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
