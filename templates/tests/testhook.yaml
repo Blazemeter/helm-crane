@@ -78,8 +78,13 @@ spec:
     - name: NO_PROXY
       value: {{ .Values.proxy.no_proxy }}
     {{ end }}
-    image: "immnan/cranetest:latest"
-    imagePullPolicy: "Always"
+    {{ if .Values.imageOverride.enable }}
+    image: {{ .Values.imageOverride.testImage }}:{{ .Values.imageOverride.testTag }}
+    imagePullPolicy: "never"
+    {{ else }}
+    image: {{ .Values.image.testImage }}:{{ .Values.image.testTag }}
+    imagePullPolicy: "never"
+    {{ end -}}
   {{ with .Values.resourcesCrane -}}
     {{ if or (.requests.CPU) (.limits.CPU) (.limits.MEM) (.requests.MEM) (.requests.storage) (.limits.storage) }}
     resources:
