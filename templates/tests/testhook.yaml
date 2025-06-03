@@ -10,8 +10,8 @@ metadata:
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": before-hook-creation
-    "helm.sh/hook-container-name": cranetestctr
-    "sidecar.istio.io/inject": "false" 
+    "helm.sh/hook-container-name": cranetest-ctr
+    "sidecar.istio.io/inject": "false"
 spec:
   serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
   automountServiceAccountToken: true
@@ -25,7 +25,7 @@ spec:
     {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}
   {{ end }}  
   containers:
-  - name: cranetestctr
+  - name: cranetest-ctr
     securityContext:
       runAsUser: 1337
       runAsGroup: 1337
@@ -77,33 +77,19 @@ spec:
       {{ end }}
     - name: NO_PROXY
       value: {{ .Values.proxy.no_proxy }}
-    {{ end }}
+    {{ end -}}
     {{ if .Values.imageOverride.enable }}
     image: {{ .Values.imageOverride.testImage }}:{{ .Values.imageOverride.testTag }}
-    imagePullPolicy: "never"
+    imagePullPolicy: "Always"
     {{ else }}
     image: {{ .Values.image.testImage }}:{{ .Values.image.testTag }}
-    imagePullPolicy: "never"
-    {{ end -}}
-  {{ with .Values.resourcesCrane -}}
-    {{ if or (.requests.CPU) (.limits.CPU) (.limits.MEM) (.requests.MEM) (.requests.storage) (.limits.storage) }}
+    imagePullPolicy: "Always"
+    {{ end }}
     resources:
-      {{ if or (.requests.MEM) (.requests.CPU) (.requests.storage) }}  
       requests:
-        cpu: {{ .requests.CPU | default "100m" }}
-        memory: {{ .requests.MEM | default "256Mi" }}
-        {{ if .requests.storage }}
-        storage: {{ .requests.storage }}
-        {{ end -}}
-      {{ end -}}
-      {{ if or (.limits.MEM) (.limits.CPU) (.limits.storage) }} 
+        cpu: 100m
+        memory: 256Mi
       limits:
-        cpu: {{ .limits.CPU | default "200" }}  
-        memory: {{ .limits.MEM | default "512Mi" }}
-        {{ if .limits.storage }}
-        storage: {{ .limits.storage }}
-        {{ end -}}       
-      {{ end -}}
-    {{ end -}}
-  {{ end }}
+        cpu: 200m
+        memory: 512Mi 
   restartPolicy: "Never"
