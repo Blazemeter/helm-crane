@@ -27,7 +27,9 @@ image:
   tag: "latest-master"
   auto_update: true                             
   auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  pullPolicy: "Always"
+  pullPolicy: "Always"                    
+  testImage: "immnan/cranetest"           # Used for test-hook
+  testTag: "latest"  
 
 # Allows the override of the default image received from BZA for the container to run. Set the key to the original value (Example: apm-image:latest). Set the value to the new repository name with a tag. Extract the appropriate version number from 'admin/ship-stats'.
 imageOverride:
@@ -41,9 +43,11 @@ imageOverride:
   # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
   images: {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   pullPolicy: "Always"
+  testImage: "immnan/cranetest"          # Used for test-hook
+  testTag: "0.2.10"    
 
 
-  # Proxy configurations here, change enable to yes, followed by http/https configuration
+# Proxy configurations here, change enable to yes, followed by http/https configuration
 proxy:
   enable: no
  # If you have authentication required for your proxy, then you will need to add username:password@server:port
