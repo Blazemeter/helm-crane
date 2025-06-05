@@ -92,4 +92,10 @@ spec:
       limits:
         cpu: 200m
         memory: 512Mi 
+    volumeMounts:
+      - name: testhook-tmp
+        mountPath: /tmp/testhook    
+  volumes:
+    - name: testhook-tmp
+      emptyDir: {}
   restartPolicy: "Never"
