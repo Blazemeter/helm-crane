@@ -27,7 +27,9 @@ image:
   tag: "latest-master"
   auto_update: true                             
   auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  pullPolicy: "Always"
+  pullPolicy: "Always"                    
+  testImage: "immnan/cranetest"           # Used for test-hook
+  testTag: "latest"  
 
 # Allows the override of the default image received from BZA for the container to run. Set the key to the original value (Example: apm-image:latest). Set the value to the new repository name with a tag. Extract the appropriate version number from 'admin/ship-stats'.
 imageOverride:
@@ -41,9 +43,11 @@ imageOverride:
   # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
   images: {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   pullPolicy: "Always"
+  testImage: "immnan/cranetest"          # Used for test-hook
+  testTag: "0.2.10"    
 
 
-  # Proxy configurations here, change enable to yes, followed by http/https configuration
+# Proxy configurations here, change enable to yes, followed by http/https configuration
 proxy:
   enable: no
  # If you have authentication required for your proxy, then you will need to add username:password@server:port
@@ -220,3 +224,65 @@ secretProviderClass:
     name:       # (Optional) If not provided, will be linked with release name - see helm template
     readOnly:   # (Default: true) 
     path: /mnt/secrets  
+
+
+externalSecretsOperator:
+  enable: no
+#  useExistingSecretStore:  # If you want to use an existing secret store, add the name of the secret store here.
+#    name: #npd-blaze-secret-store
+  volume: 
+    name:       # (Optional) If not provided, will be linked with release name - see helm template
+    readOnly:   # Default: true 
+    path:       # Default: /mnt/secrets  
+
+  externalSecret: 
+    name: blaze-external-secret
+    refreshInterval: "15s"
+    target:
+      name: blazemeter-secrets-store     # Name of Kubernetes Secret to make
+    data:
+      - secretKey: ship-id     # New key to make
+        remoteRef:
+          key: ship-id         # Name of the Secret in Secrets Manager
+        envName: SHIP_ID       
+      - secretKey: harbour-id  # New key to make
+        remoteRef:
+          key: harbour-id      # Name of the Secret in Secrets Manager
+        envName: HARBOR_ID    
+      - secretKey: auth-token  # New key to make
+        remoteRef:
+          key: auth-token      # Name of the Secret in Secrets Manager
+        envName: AUTH_TOKEN   
+  
+  secretStore:
+    name: blaze-secret-store
+    provider:
+    # The provider can be aws, gcpsm, switch the enable flag to true for the provider you want to use.
+      aws:
+        enable: true
+        #role: iam-role   #USE IF REQUIRED.
+        service: SecretsManager
+        region: ap-southeast-2
+    # Chart wiill use JWT authentication to access the AWS Secrets Manager.
+    # The JWT will use the serviceAccount used in this chart
+    # Unless the below authSecretRef is enabled
+        authSecretRef:
+          enable: false
+          accessKeyID:
+            name: #awssm-secret
+            key:  #access-key
+          secretAccessKey:
+            name: #awssm-secret
+            key:  #secret-access-key
+
+      gcpsm:
+        enable: false
+        projectID: your-gcp-project-id
+      # Chart will use the Workload Identity to access the GCP Secret Manager.
+      # The Workload Identity will use the serviceAccount used in this chart
+      # Unless the below secretRef is enabled
+        secretRef:
+          enable: false
+          secretAccessKeySecretRef:
+            name: #gcpsm-secret
+            key:  #secret-access-credentials

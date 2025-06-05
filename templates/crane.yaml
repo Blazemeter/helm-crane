@@ -30,22 +30,31 @@ spec:
       {{ if .Values.nodeSelectorCrane.enable }}
       nodeSelector:
         {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 8 }}      
-      {{ end }}
+      {{ end -}}
       {{ if .Values.tolerationCrane.enable }}
       tolerations:
       {{ .Values.tolerationCrane.syntax | toYaml | nindent 8 }}
       {{ end }}
       containers:
       - env:
-        {{ if .Values.secretProviderClass.enable }} 
+        {{- if and ( .Values.secretProviderClass.enable ) ( not .Values.externalSecretsOperator.enable ) }} 
         {{- range .Values.secretProviderClass.secretObjects }}
         - name: {{ .envName }}
           valueFrom:
             secretKeyRef:
               name: {{ .secretName }}
               key: {{ (index .data 0).key }}
-        {{ end }}
-        {{- else }}        
+        {{ end -}}
+        {{ else if and (.Values.externalSecretsOperator.enable) ( not .Values.secretProviderClass.enable ) }}
+        {{- $root := . }}
+        {{ range .Values.externalSecretsOperator.externalSecret.data }}
+        - name: {{ .envName }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $root.Values.externalSecretsOperator.externalSecret.target.name }}
+              key: {{ .remoteRef.key }}
+        {{ end -}}
+        {{ else }}        
         - name: AUTH_TOKEN
           value: {{ .Values.env.authtoken }}
         - name: HARBOR_ID
@@ -78,20 +87,20 @@ spec:
           {{ if .Values.proxy.http_proxy }}
         - name: HTTP_PROXY
           value: {{ .Values.proxy.http_path }}
-          {{- end -}}
+          {{ end -}}
           {{ if .Values.proxy.https_proxy }}
         - name: HTTPS_PROXY
           value: {{ .Values.proxy.https_path }}
-          {{- end }}
+          {{ end }}
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy }}
         {{ end -}}
-        {{ if and (.Values.ca_bundle.enable) }} 
+        {{ if .Values.ca_bundle.enable }} 
         - name: REQUESTS_CA_BUNDLE
           value: {{ .Values.ca_bundle.volume.mount_path }}/{{ .Values.ca_bundle.request_ca_bundle }}
         - name: AWS_CA_BUNDLE
           value: {{ .Values.ca_bundle.volume.mount_path }}/{{ .Values.ca_bundle.aws_ca_bundle }}
-          {{ if eq .Values.gridProxy.enable false }}
+          {{ if not .Values.gridProxy.enable }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}
           {{ end -}}
@@ -103,16 +112,16 @@ spec:
           value: {{ .Values.gridProxy.volume.mount_path }}/{{ .Values.gridProxy.tlsKeyGrid }}
         - name: TLS_CERT_GRID
           value: {{ .Values.gridProxy.volume.mount_path }}/{{ .Values.gridProxy.tlsCertGrid }}
-          {{ if eq .Values.ca_bundle.enable false }}
+          {{ if not .Values.ca_bundle.enable }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
-          {{ end -}}      
+          {{ end -}}
         {{ end -}}
-        {{ if and ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) }}
+        {{ if and .Values.ca_bundle.enable .Values.gridProxy.enable }}
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}:TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
-        {{ end }}
-        {{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }}
+        {{ end -}}
+        {{ if and (.Values.istio_ingress.enable)  (not .Values.nginx_ingress.enable ) }}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: ISTIO
         - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
@@ -143,7 +152,7 @@ spec:
           value: 'true'
         - name: RUN_HEALTH_WEB_SERVICE
           value: 'true'
-        {{end -}}
+        {{ end -}}
         {{ if .Values.non_privilege_container.enable }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
@@ -230,7 +239,7 @@ spec:
           runAsGroup: {{ .Values.non_privilege_container.runAsGroup }} 
           runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
       {{ end -}}
-      {{ with .Values.probes }}
+      {{ with .Values.probes -}}
         {{ if .enable }}
         livenessProbe:
           httpGet:
@@ -253,24 +262,29 @@ spec:
           periodSeconds: {{ .readinessProbe.periodSeconds | default 15 }}
           successThreshold: {{ .readinessProbe.successThreshold | default 1 }}
           timeoutSeconds: {{ .readinessProbe.timeoutSeconds | default 10 }}
-        {{ end }}
-      {{ end }}      
-      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) }} 
+        {{ end -}}
+      {{ end -}}      
+      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) (.Values.externalSecretsOperator.enable)}} 
         volumeMounts:
           {{ if .Values.ca_bundle.enable }}
-        - name: {{ .Values.ca_bundle.volume.volume_name }}-mount
+        - name: {{ .Values.ca_bundle.volume.volume_name }}
           mountPath: {{ .Values.ca_bundle.volume.mount_path }}
           readOnly: {{ .Values.ca_bundle.volume.readOnly }}
           {{ end -}}
           {{ if .Values.gridProxy.enable }}
-        - name: {{ .Values.gridProxy.volume.volume_name }}-mount
+        - name: {{ .Values.gridProxy.volume.volume_name }}
           mountPath: {{ .Values.gridProxy.volume.mount_path }}
           readOnly: {{ .Values.gridProxy.volume.readOnly }}
-          {{ end }}
+          {{ end -}}
           {{ if .Values.secretProviderClass.enable }}
-        - name: {{ .Values.secretProviderClass.volume.name | default (printf "%s-volume-mount" .Release.Name) }} #npd-blaze-secret-store
+        - name: {{ .Values.secretProviderClass.volume.name | default (printf "%s-secrets-store-volume" .Release.Name) }} #npd-blaze-secret-store
           mountPath: {{ .Values.secretProviderClass.volume.path | default "/mnt/secrets" }}
           readOnly: {{ .Values.secretProviderClass.volume.readOnly | default true }}
+          {{ end -}}
+          {{ if .Values.externalSecretsOperator.enable }}
+        - name: {{ .Values.externalSecretsOperator.volume.name | default (printf "%s-externalsecrets-volume" .Release.Name) }}
+          mountPath: {{ .Values.externalSecretsOperator.volume.path | default "/mnt/secrets" }}
+          readOnly: {{ .Values.externalSecretsOperator.volume.readOnly | default true }}
           {{ end }}
       volumes:
           {{ if .Values.ca_bundle.enable }}
@@ -291,6 +305,11 @@ spec:
           volumeAttributes:
             secretProviderClass: {{ .Release.Name }}-secrets-store #non-prod-blaze-deployment-aws-secrets
           {{ end -}}        
+          {{ if .Values.externalSecretsOperator.enable }}
+      - name: {{ .Values.externalSecretsOperator.volume.name | default (printf "%s-externalsecrets-volume" .Release.Name) }}
+        secret:
+          secretName: {{ .Values.externalSecretsOperator.externalSecret.target.name }}
+          {{ end -}}            
       {{ end }}    
       restartPolicy: {{ .Values.deployment.restartPolicy }}
       terminationGracePeriodSeconds: 30

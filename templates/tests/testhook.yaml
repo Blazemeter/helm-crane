@@ -1,19 +1,31 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: cranetestpod
+  name: cranetesthook
   namespace: {{ .Release.Namespace }}
+  {{ if .Values.labelsCranePod.enable -}}
+  labels: 
+      {{ .Values.labelsCranePod.syntax | toYaml | nindent 4 }}
+  {{ end }}
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": before-hook-creation
-    "helm.sh/hook-container-name": cranetestctr
-    "sidecar.istio.io/inject": "false" 
+    "helm.sh/hook-container-name": cranetest-ctr
+    "sidecar.istio.io/inject": "false"
 spec:
   serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
   automountServiceAccountToken: true
   #ttlSecondsAfterFinished: 90
+  {{ if .Values.nodeSelectorCrane.enable }}
+  nodeSelector:
+    {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}      
+  {{ end -}}
+  {{ if .Values.nodeSelectorCrane.enable }}
+  tolerations:
+    {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}
+  {{ end }}  
   containers:
-  - name: cranetestctr
+  - name: cranetest-ctr
     securityContext:
       runAsUser: 1337
       runAsGroup: 1337
@@ -21,7 +33,7 @@ spec:
       runAsNonRoot: true
     env: 
     - name: WORKING_NAMESPACE
-      value: {{ .Release.Namespace | quote}}
+      value: {{ .Release.Namespace | quote }}
     - name: ROLE_NAME
       value: {{ .Release.Name }}-{{ .Values.deployment.role }}
     - name: ROLE_BINDING_NAME
@@ -37,7 +49,7 @@ spec:
       value: {{ .Values.istio_ingress.credentialName | quote }}
     - name: KUBERNETES_ISTIO_GATEWAY_NAME
       value: {{ .Values.istio_ingress.istio_gateway_name | quote }}        
-    {{ end }}
+    {{ end -}}
     {{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
     - name: SV_ENABLE
       value: "true"
@@ -45,22 +57,45 @@ spec:
       value: "INGRESS"
     - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
       value: {{ .Values.nginx_ingress.credentialName | quote }}
-    {{ end }}
+    {{ end -}}
     {{ if .Values.imageOverride.enable }}
     - name: DOCKER_REGISTRY
       value: {{ .Values.imageOverride.docker_registry | quote }}
     - name: AUTO_KUBERNETES_UPDATE
-    {{ else }}    
+    {{ else -}}    
     - name: DOCKER_REGISTRY
       value: {{ .Values.image.docker_registry | quote }}
-    {{ end }}          
-    image: "immnan/cranetest:0.2.8"
+    {{ end }}       
+    {{ if .Values.proxy.enable -}}
+      {{ if .Values.proxy.http_proxy }}
+    - name: HTTP_PROXY
+      value: {{ .Values.proxy.http_path }}
+      {{ end -}}
+      {{ if .Values.proxy.https_proxy }}
+    - name: HTTPS_PROXY
+      value: {{ .Values.proxy.https_path }}
+      {{ end }}
+    - name: NO_PROXY
+      value: {{ .Values.proxy.no_proxy }}
+    {{ end -}}
+    {{ if .Values.imageOverride.enable }}
+    image: {{ .Values.imageOverride.testImage }}:{{ .Values.imageOverride.testTag }}
     imagePullPolicy: "Always"
+    {{ else }}
+    image: {{ .Values.image.testImage }}:{{ .Values.image.testTag }}
+    imagePullPolicy: "Always"
+    {{ end }}
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        cpu: 100m
+        memory: 256Mi
       limits:
-        memory: "512Mi"
-        cpu: "250m"
+        cpu: 200m
+        memory: 512Mi 
+    volumeMounts:
+      - name: testhook-tmp
+        mountPath: /tmp/testhook    
+  volumes:
+    - name: testhook-tmp
+      emptyDir: {}
   restartPolicy: "Never"
