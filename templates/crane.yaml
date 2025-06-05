@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   labels:
     role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+    {{ if .Values.labelsCraneDeployment.enable -}}
+    {{ .Values.labelsCraneDeployment.syntax | toYaml | nindent 4 }}
+    {{ end }}
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -16,8 +19,8 @@ spec:
   template:
     metadata:
       labels:
-      {{ if .Values.labelsCrane.enable }}
-      {{ .Values.labelsCrane.syntax | toYaml | nindent 8 }}
+      {{ if .Values.labelsCranePod.enable -}}
+      {{ .Values.labelsCranePod.syntax | toYaml | nindent 8 }}
       {{ end }}
         role: {{ .Release.Name }}-{{ .Values.deployment.role }}
         crane: ready
@@ -34,20 +37,22 @@ spec:
       {{ end }}
       containers:
       - env:
-        {{ if .Values.env.secret_authtoken.enable }}
-        - name: AUTH_TOKEN
+        {{ if .Values.secretProviderClass.enable }} 
+        {{- range .Values.secretProviderClass.secretObjects }}
+        - name: {{ .envName }}
           valueFrom:
             secretKeyRef:
-              name: {{.Values.env.secret_authtoken.secretName }}
-              key: {{ .Values.env.secret_authtoken.secretKey }}
-        {{ else }}
+              name: {{ .secretName }}
+              key: {{ (index .data 0).key }}
+        {{ end }}
+        {{- else }}        
         - name: AUTH_TOKEN
           value: {{ .Values.env.authtoken }}
-        {{ end -}}
         - name: HARBOR_ID
           value: {{ .Values.env.harbour_id }}
         - name: SHIP_ID
           value: {{ .Values.env.ship_id }}
+        {{ end }}
         - name: CONTAINER_MANAGER_TYPE
           value: KUBERNETES
         {{ if .Values.imageOverride.enable }}
@@ -225,40 +230,47 @@ spec:
           runAsGroup: {{ .Values.non_privilege_container.runAsGroup }} 
           runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
       {{ end -}}
-      {{ if .Values.probes.enable }}
+      {{ with .Values.probes }}
+        {{ if .enable }}
         livenessProbe:
           httpGet:
             path: /healtz
-            port: {{ .Values.probes.livenessProbe.port | default 5000 }}
+            port: {{ .livenessProbe.port | default 5000 }}
             scheme: HTTP
-          failureThreshold: {{ .Values.probes.livenessProbe.failureThreshold | default 5 }}
-          initialDelaySeconds: {{ .Values.probes.livenessProbe.initialDelaySeconds | default 5 }}
-          periodSeconds: {{ .Values.probes.livenessProbe.periodSeconds | default 15 }}
-          successThreshold: {{ .Values.probes.livenessProbe.successThreshold | default 1 }}
-          timeoutSeconds: {{ .Values.probes.livenessProbe.timeoutSeconds | default 10 }}   
+          failureThreshold: {{ .livenessProbe.failureThreshold | default 5 }}
+          initialDelaySeconds: {{ .livenessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds: {{ .livenessProbe.periodSeconds | default 15 }}
+          successThreshold: {{ .livenessProbe.successThreshold | default 1 }}
+          timeoutSeconds: {{ .livenessProbe.timeoutSeconds | default 10 }}   
                 
         readinessProbe:
           httpGet:
             path: /healtz
-            port: {{ .Values.probes.readinessProbe.port | default 5000 }}
+            port: {{ .readinessProbe.port | default 5000 }}
             scheme: HTTP
-          failureThreshold: {{ .Values.probes.readinessProbe.failureThreshold | default 3 }}
-          initialDelaySeconds: {{ .Values.probes.readinessProbe.initialDelaySeconds | default 5 }}
-          periodSeconds: {{ .Values.probes.readinessProbe.periodSeconds | default 15 }}
-          successThreshold: {{ .Values.probes.readinessProbe.successThreshold | default 1 }}
-          timeoutSeconds: {{ .Values.probes.readinessProbe.timeoutSeconds | default 10 }}
+          failureThreshold: {{ .readinessProbe.failureThreshold | default 3 }}
+          initialDelaySeconds: {{ .readinessProbe.initialDelaySeconds | default 5 }}
+          periodSeconds: {{ .readinessProbe.periodSeconds | default 15 }}
+          successThreshold: {{ .readinessProbe.successThreshold | default 1 }}
+          timeoutSeconds: {{ .readinessProbe.timeoutSeconds | default 10 }}
+        {{ end }}
       {{ end }}      
-      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) }} 
+      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) }} 
         volumeMounts:
           {{ if .Values.ca_bundle.enable }}
-        - name: {{ .Values.ca_bundle.volume.volume_name }}
+        - name: {{ .Values.ca_bundle.volume.volume_name }}-mount
           mountPath: {{ .Values.ca_bundle.volume.mount_path }}
           readOnly: {{ .Values.ca_bundle.volume.readOnly }}
           {{ end -}}
           {{ if .Values.gridProxy.enable }}
-        - name: {{ .Values.gridProxy.volume.volume_name }}
+        - name: {{ .Values.gridProxy.volume.volume_name }}-mount
           mountPath: {{ .Values.gridProxy.volume.mount_path }}
           readOnly: {{ .Values.gridProxy.volume.readOnly }}
+          {{ end }}
+          {{ if .Values.secretProviderClass.enable }}
+        - name: {{ .Values.secretProviderClass.volume.name | default (printf "%s-volume-mount" .Release.Name) }} #npd-blaze-secret-store
+          mountPath: {{ .Values.secretProviderClass.volume.path | default "/mnt/secrets" }}
+          readOnly: {{ .Values.secretProviderClass.volume.readOnly | default true }}
           {{ end }}
       volumes:
           {{ if .Values.ca_bundle.enable }}
@@ -271,6 +283,14 @@ spec:
         configMap:
           name: {{ .Release.Name }}-configmap
           {{ end -}}
-      {{ end -}}    
+          {{ if .Values.secretProviderClass.enable }}
+      - name: {{ .Values.secretProviderClass.volume.name | default (printf "%s-secrets-store-volume" .Release.Name) }} 
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: {{ .Values.secretProviderClass.volume.readOnly | default true }}
+          volumeAttributes:
+            secretProviderClass: {{ .Release.Name }}-secrets-store #non-prod-blaze-deployment-aws-secrets
+          {{ end -}}        
+      {{ end }}    
       restartPolicy: {{ .Values.deployment.restartPolicy }}
       terminationGracePeriodSeconds: 30

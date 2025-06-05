@@ -4,19 +4,19 @@ deployment:
   role: "role"
   clusterrole: "clusterrole"
   serviceAccount:
-  # Specifies whether a ServiceAccount should be created. 
+  # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
     create: false
   # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name:
+    name: #sample-serviceAccount-name
+    annotations:
+      # This is a sample  annotation. You can add any annotations here.
+      # Comment out if not needed.
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
+      custom.annotation/key: custom-value    
   restartPolicy: "Always"
 
 env: 
-    # if you plan to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
-  secret_authtoken:
-    enable: no
-    secretName: "your-secretName"
-    secretKey: "auth-token"
-  # if secret is not enabled, please enter the AUTH_TOKEN below directly. 
+  # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver. 
   authtoken: "your-sample-auth-token"
   harbour_id: "your-sample-harbour-id"
   ship_id: "your-sample-ship-id"
@@ -106,7 +106,10 @@ nginx_ingress:
   web_expose_subdomain: "mydomain.local"  
 
 # Labels to add to crane and child resources created by Crane, must be in JSON format.
-labelsCrane:
+labelsCraneDeployment:
+  enable: no
+  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+labelsCranePod:
   enable: no
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 labelsExecutors:
@@ -176,3 +179,44 @@ probes:
     periodSeconds: 15
     successThreshold: 1
     timeoutSeconds: 10
+
+
+podDisruptionBudget:
+  enable: no
+  # min or max, disruptions can only support one. - https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  ## If both are specified, minAvailable is used.
+  minAvailable: 1
+  maxUnavailable: #5 
+  matchLabels: {"label_1": "label_1_value", "label_2": "label_2_value"}
+
+
+secretProviderClass:
+  enable: no
+  provider: aws
+  # This is in JSON, to allow users configure different spec, like: secretPath, secretKey, objectAlias, etc. 
+  objects: [{ "objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:harbour-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "harbour-id-opl"},{"objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:ship-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "ship-id-opl"}]
+  #secretObjects: [{ "data":[{"key":"harbour-id-key","objectName":"harbour-id-opl"}],"secretName":"harbour-id","type":"Opaque"},{"data":[{"key":"ship-id-key","objectName":"ship-id-opl"}],"secretName":"ship-id","type":"Opaque"}]
+  secretObjects:  
+  # Comment out the below section if you do not plan to create secrets in the namespace. 
+    - secretName: auth-token
+      type: Opaque
+      data:
+        - key: auth-token-key
+          objectName: auth-token-opl
+      envName: AUTH_TOKEN
+    - secretName: harbour-id
+      type: Opaque
+      data:
+        - key: harbour-id-key
+          objectName: harbour-id-opl
+      envName: HARBOR_ID
+    - secretName: ship-id
+      type: Opaque
+      data:
+        - key: ship-id-key
+          objectName: ship-id-opl
+      envName: SHIP_ID
+  volume: 
+    name:       # (Optional) If not provided, will be linked with release name - see helm template
+    readOnly:   # (Default: true) 
+    path: /mnt/secrets  

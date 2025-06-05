@@ -1,0 +1,16 @@
+{{ if .Values.podDisruptionBudget.enable }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{ if and (.Values.podDisruptionBudget.maxUnavailable) ( empty .Values.podDisruptionBudget.minAvailable) }}
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{ else }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  {{ end }}
+  selector:
+    matchLabels: 
+    {{ .Values.podDisruptionBudget.matchLabels | toYaml | nindent 8 }}
+{{ end }}
