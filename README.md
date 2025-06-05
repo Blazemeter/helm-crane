@@ -11,6 +11,7 @@ Deploy Blazemeter private location to your Kubernetes cluster using HELM chart. 
 2. A Kubernetes cluster
 3. Latest [Helm installed](https://helm.sh/docs/helm/helm_version/)
 4. The kubernetes cluster needs to fulfill [Blazemeter Private location requirements](https://help.blazemeter.com/docs/guide/private-locations-system-requirements.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____1)
+---
 
 
 ## [2.0] Generating Harbour_ID, Ship_ID and Auth_token in Blazemeter
@@ -446,7 +447,7 @@ externalSecretsOperator:
 - The chart will use the service account associated with the deployment for authentication unless `authSecretRef` (AWS) or `secretRef` (GCP) is enabled.
 - The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
 - If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
-
+---
 
 
 ## [5.0] Verify if everything is setup correctly
@@ -460,6 +461,9 @@ helm template <path-to-chart>
 
 This will print the template Helm will use to install this chart. Check the values and if something is missing, please make ammends.
 
+---
+
+
 ## [6.0] Installing the chart
 
 - Install the helm chart
@@ -468,28 +472,107 @@ helm install crane /path/to/chart --namespace <namespace name>
 ```
 **Here, crane is the name we are setting for the chart release**
 
+---
+
+
 
 ## [7.0] Testing the chart & k8s infrastructure
 
-- To verify the installation of our Helm chart run:
+After installing the chart, you can verify both the deployment and the underlying Kubernetes infrastructure using Helm’s built-in test hooks. This chart includes a test pod that checks for essential connectivity and configuration, ensuring your environment is ready for BlazeMeter workloads.
+
+### [7.1] Run the Helm test
+
+To execute the test:
+
 ```sh
-helm list -n <namespace name>
+helm test <release-name> -n <namespace>
 ```
-This will list all the Helm charts installed in the given namespace `-n`. 
-- To test the chart, simly run: 
-```sh
-helm test <release-name>
-```
-- You can specify the `--logs` flag to read the background check results. If the chart fails, the infrastructure is not fulfilling the requirements to run Blazemeter resources. Please contact your cloud/devOps team to assist.
+
+- Replace `<release-name>` with the name you used for your Helm release (e.g., `crane`).
+- Replace `<namespace>` with the namespace where you installed the chart.
+
+### [7.2] What does the test do?
+
+The test pod will:
+- Validate that the Cluster resources are suitable to run Crane & child deployment
+- Check for required roles and mappings.
+- Verify network connectivity and DNS resolution from within the cluster.
+- Validate if the required k8s resources are deployed to support crane and its functionalities
+
+
+### [7.3] Interpreting results
+
+- **Success:**  
+  If the test passes, you’ll see output similar to:
+  ```sh
+  NAME: crane
+  LAST DEPLOYED: Tue Jun  3 20:24:12 2025
+  NAMESPACE: default
+  STATUS: deployed
+  REVISION: 5
+  TEST SUITE:     cranetesthook
+  Last Started:   Tue Jun  3 20:24:24 2025
+  Last Completed: Tue Jun  3 20:24:30 2025
+  Phase:          Succeeded
+  ```
+  This means your chart and infrastructure are ready.
+
+- **Failure:**  
+  If the test fails, review the logs for details. The `--logs` flag would point to the issue that is causing the failure.
+  Common issues include missing secrets, network restrictions, or misconfigured values/specs. Address any reported issues and re-run the test.
+
+### [7.4] Additional tips
+
+- You can add the `--logs` flag to `helm test` to automatically print the test pod logs:
+  ```sh
+  helm test <release-name> --logs
+  ```
+- If the test pod is stuck or fails to start, check for k8s scheduler error (possible with third-party admission controllers), image pull errors, or missing configuration.
+
+If you continue to encounter issues, please contact your cloud or DevOps team for assistance. If this continues to ba an issue, please open a support ticket with Blazemeter support.
+
+---
 
 
 ## [8.0] Upgrading the existing chart
 
-- To Upgrade your existing chart, use the `helm upgrade` command
+To upgrade your existing Helm release to a new version of the chart, use the `helm upgrade` command. This allows you to apply new chart versions or updated configuration values without uninstalling and reinstalling.
+
+### [8.1] Basic upgrade command
+
 ```sh
-helm upgrade <release-name> /path/to/newchart -n <namespace> 
+helm upgrade <release-name> /path/to/newchart -n <namespace>
 ```
-- You can also specify the value file with `-v` flag followed by the path to `values.yaml` file. 
+- Replace `<release-name>` with the name of your Helm release (e.g., `crane`).
+- Replace `/path/to/newchart` with the path to the new or updated chart directory or `.tgz` file.
+- Replace `<namespace>` with the namespace where your release is installed.
+
+### [8.2] Upgrading with custom values
+
+If you have a custom `values.yaml` file, specify it with the `-f` flag:
+
+```sh
+helm upgrade <release-name> /path/to/newchart -n <namespace> -f /path/to/values.yaml
+```
+
+You can specify multiple `-f` flags to merge several values files.
+
+### [8.3] Additional tips
+
+- Before upgrading, you can preview the changes with:
+  ```sh
+  helm diff upgrade <release-name> /path/to/newchart -n <namespace> -f /path/to/values.yaml
+  ```
+  (Requires the [helm-diff plugin](https://github.com/databus23/helm-diff).)
+- If you want to force resource updates (for example, if only config or secrets changed), add `--force`:
+  ```sh
+  helm upgrade <release-name> /path/to/newchart -n <namespace> --force
+  ```
+- After upgrading, verify the deployment and run the Helm test as described in the previous section.
+
+If you encounter issues during upgrade, review the output for errors and consult the [Helm upgrade documentation](https://helm.sh/docs/helm/helm_upgrade/).
+
+---
 
 
 ## [9.0] Uninstalling the chart
@@ -498,6 +581,8 @@ helm upgrade <release-name> /path/to/newchart -n <namespace>
 ```sh
 helm uninstall <release-name> -n <namespace name>
 ```
+---
+
 
 
 ## [10.0] Changelog:
