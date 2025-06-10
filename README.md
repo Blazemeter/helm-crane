@@ -4,7 +4,7 @@
 
 Deploy Blazemeter private location to your Kubernetes cluster using HELM chart. The chart allows to make advanced/custom configurations to your Blazemeter private location deployment. 
 
-![Helm-crane](/Image.png)
+![Helm-crane](/logo.png)
 
 ## [1.0] Requirements
 1. A [BlazeMeter account](https://a.blazemeter.com/)

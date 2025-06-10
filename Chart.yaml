@@ -32,7 +32,7 @@ keywords:
   - Test Hook
   
 type: application
-icon: https://github.com/Blazemeter/helm-crane/raw/main/Image.png
+icon: https://github.com/Blazemeter/helm-crane/raw/main/logo.png
 #dependencies:
 # - name: nginx
 #    condition: .Values.installed
