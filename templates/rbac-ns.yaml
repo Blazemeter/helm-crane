@@ -1,7 +1,8 @@
+{{ if not .Values.deployment.role }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.deployment.role }}
+  name: {{ include "crane.roleName" . }}
   namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups: [""]
@@ -25,12 +26,12 @@ rules:
   resources: ["virtualservices", "gateways", "ingresses"]
   verbs: ["get", "list", "create", "delete", "patch", "update"]
 {{ end }}
-
 ---
+{{ end }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.deployment.role }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
+  name: {{ include "crane.roleName" . }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
 subjects:
 - kind: ServiceAccount
@@ -38,5 +39,5 @@ subjects:
   namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role 
-  name: {{ .Release.Name }}-{{ .Values.deployment.role }}
+  name: {{ include "crane.roleName" . }}
   apiGroup: rbac.authorization.k8s.io
