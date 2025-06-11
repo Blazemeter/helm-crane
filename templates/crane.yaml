@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+    role: {{ include "crane.roleName" . }}
     {{ if .Values.labelsCraneDeployment.enable -}}
     {{ .Values.labelsCraneDeployment.syntax | toYaml | nindent 4 }}
     {{ end }}
@@ -12,7 +12,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+      role: {{ include "crane.roleName" . }}
       crane: ready
   strategy:
     type: Recreate
@@ -22,7 +22,7 @@ spec:
       {{ if .Values.labelsCranePod.enable -}}
       {{ .Values.labelsCranePod.syntax | toYaml | nindent 8 }}
       {{ end }}
-        role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+        role: {{ include "crane.roleName" . }}
         crane: ready
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
@@ -311,5 +311,5 @@ spec:
           secretName: {{ .Values.externalSecretsOperator.externalSecret.target.name }}
           {{ end -}}            
       {{ end }}    
-      restartPolicy: {{ .Values.deployment.restartPolicy }}
+      restartPolicy: {{ .Values.deployment.restartPolicy | default "Always" }}
       terminationGracePeriodSeconds: 30
