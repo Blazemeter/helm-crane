@@ -35,37 +35,28 @@ spec:
     - name: WORKING_NAMESPACE
       value: {{ .Release.Namespace | quote }}
     - name: ROLE_NAME
-      value: {{ .Release.Name }}-{{ .Values.deployment.role }}
+      value: {{ include "crane.roleName" . }}
     - name: ROLE_BINDING_NAME
-      value: {{ .Release.Name }}-{{ .Values.deployment.role }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
+      value: {{ include "crane.roleName" . }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
     - name: SERVICE_ACCOUNT_NAME
       value: {{ template "blazemeter-crane.serviceAccountName" . }}
-    {{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }}
-    - name: SV_ENABLE
-      value: "true"
+    {{ if .Values.service_virtualization.enable -}}
+      {{ if eq .Values.service_virtualization.ingressType "istio" }}  
     - name: KUBERNETES_WEB_EXPOSE_TYPE
       value: "ISTIO"
-    - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-      value: {{ .Values.istio_ingress.credentialName | quote }}
     - name: KUBERNETES_ISTIO_GATEWAY_NAME
-      value: {{ .Values.istio_ingress.istio_gateway_name | quote }}        
-    {{ end -}}
-    {{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
-    - name: SV_ENABLE
-      value: "true"
+      value: {{ .Release.Name }}-gateway
+      {{ else if eq .Values.service_virtualization.ingressType "nginx" }}
     - name: KUBERNETES_WEB_EXPOSE_TYPE
       value: "INGRESS"
+      {{ end }}
+    - name: SV_ENABLE
+      value: "true"
     - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-      value: {{ .Values.nginx_ingress.credentialName | quote }}
-    {{ end -}}
-    {{ if .Values.imageOverride.enable }}
+      value: {{ .Values.service_virtualization.credentialName | quote }}
+    {{ end }}
     - name: DOCKER_REGISTRY
-      value: {{ .Values.imageOverride.docker_registry | quote }}
-    - name: AUTO_KUBERNETES_UPDATE
-    {{ else -}}    
-    - name: DOCKER_REGISTRY
-      value: {{ .Values.image.docker_registry | quote }}
-    {{ end }}       
+      value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
     {{ if .Values.proxy.enable -}}
       {{ if .Values.proxy.http_proxy }}
     - name: HTTP_PROXY
@@ -78,13 +69,8 @@ spec:
     - name: NO_PROXY
       value: {{ .Values.proxy.no_proxy }}
     {{ end -}}
-    {{ if .Values.imageOverride.enable }}
-    image: {{ .Values.imageOverride.testImage }}:{{ .Values.imageOverride.testTag }}
+    image: {{ .Values.imageOverride.testImage | default "immnan/cranetest"}}:{{ .Values.imageOverride.testTag | default "latest" }}
     imagePullPolicy: "Always"
-    {{ else }}
-    image: {{ .Values.image.testImage }}:{{ .Values.image.testTag }}
-    imagePullPolicy: "Always"
-    {{ end }}
     resources:
       requests:
         cpu: 100m
