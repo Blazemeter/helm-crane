@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+    role: {{ include "crane.roleName" . }}
     {{ if .Values.labelsCraneDeployment.enable -}}
     {{ .Values.labelsCraneDeployment.syntax | toYaml | nindent 4 }}
     {{ end }}
@@ -12,7 +12,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+      role: {{ include "crane.roleName" . }}
       crane: ready
   strategy:
     type: Recreate
@@ -22,7 +22,7 @@ spec:
       {{ if .Values.labelsCranePod.enable -}}
       {{ .Values.labelsCranePod.syntax | toYaml | nindent 8 }}
       {{ end }}
-        role: {{ .Release.Name }}-{{ .Values.deployment.role }}
+        role: {{ include "crane.roleName" . }}
         crane: ready
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
@@ -64,25 +64,14 @@ spec:
         {{ end }}
         - name: CONTAINER_MANAGER_TYPE
           value: KUBERNETES
-        {{ if .Values.imageOverride.enable }}
         - name: IMAGE_OVERRIDES
-          value: {{ .Values.imageOverride.images | toJson | quote }}
+          value: {{ .Values.imageOverride.executorImages | toJson | default "{}" | quote }}
         - name: DOCKER_REGISTRY
-          value: {{ .Values.imageOverride.docker_registry | quote }}
+          value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
         - name: AUTO_KUBERNETES_UPDATE
-          value: {{ .Values.imageOverride.auto_update | quote }}
+          value: {{ .Values.imageOverride.auto_update | default "true" | quote }}
         - name: AUTO_UPDATE_CONTAINERS_WHILE_RUNNING
-          value: {{ .Values.imageOverride.auto_update_running_containers | quote }}
-        {{ else }}    
-        - name: IMAGE_OVERRIDES
-          value: '{}'
-        - name: DOCKER_REGISTRY
-          value: {{ .Values.image.docker_registry | quote }}
-        - name: AUTO_KUBERNETES_UPDATE
-          value: {{ .Values.image.auto_update | quote }}
-        - name: AUTO_UPDATE_CONTAINERS_WHILE_RUNNING
-          value: {{ .Values.image.auto_update_running_containers | quote }}
-        {{ end -}}          
+          value: {{ .Values.imageOverride.auto_update_running_containers | default "false" | quote }}
         {{ if .Values.proxy.enable -}}
           {{ if .Values.proxy.http_proxy }}
         - name: HTTP_PROXY
@@ -121,37 +110,32 @@ spec:
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}:TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
         {{ end -}}
-        {{ if and (.Values.istio_ingress.enable)  (not .Values.nginx_ingress.enable ) }}
+        {{ if .Values.service_virtualization.enable -}}
+          {{ if eq .Values.service_virtualization.ingressType "istio" }}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: ISTIO
-        - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
-          value: {{ .Values.istio_ingress.web_expose_subdomain | quote }}
-        - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-          value: {{ .Values.istio_ingress.credentialName | quote }}
-        - name: KUBERNETES_SERVICE_USE_TYPE
-          value: CLUSTERIP
         - name: KUBERNETES_SERVICES_BLOCKING_GET
           value: "true"
         - name: KUBERNETES_ISTIO_GATEWAY_NAME
-          value: {{ .Values.istio_ingress.istio_gateway_name | quote }}
-        {{ end -}}
-        {{ if and (.Values.nginx_ingress.enable)  (eq .Values.istio_ingress.enable false)}}
+          value: {{ .Release.Name }}-gateway
+          {{ else if eq .Values.service_virtualization.ingressType "nginx" }}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: INGRESS
         - name: KUBERNETES_INGRESS_CLASS
           value: "nginx"
-        - name: KUBERNETES_SERVICE_USE_TYPE
-          value: CLUSTERIP
-        - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
-          value: {{ .Values.nginx_ingress.web_expose_subdomain | quote }}
-        - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-          value: {{ .Values.nginx_ingress.credentialName | quote }}
         - name: PARALLEL_HANDLERS_COUNT
           value: '50'
         - name: USE_PARALLEL_HANDLER
           value: 'true'
         - name: RUN_HEALTH_WEB_SERVICE
           value: 'true'
+          {{ end }}
+        - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
+          value: {{ .Values.service_virtualization.web_expose_subdomain | quote }}
+        - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+          value: {{ .Values.service_virtualization.credentialName | quote }}
+        - name: KUBERNETES_SERVICE_USE_TYPE
+          value: CLUSTERIP
         {{ end -}}
         {{ if .Values.non_privilege_container.enable }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
@@ -201,13 +185,8 @@ spec:
         - name: TLS_KEY_GRID
           value: {{ .Values.gridProxy.tlsKeyGrid | quote }}
         {{ end -}}
-        {{ if .Values.imageOverride.enable }} 
-        image: {{ .Values.imageOverride.image }}:{{ .Values.imageOverride.tag }}
-        imagePullPolicy: {{ .Values.imageOverride.pullPolicy }}
-        {{ else }}
-        image: {{ .Values.image.image }}:{{ .Values.image.tag }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{ end -}}
+        image: {{ .Values.imageOverride.craneImage | default (printf "gcr.io/verdant-bulwark-278/blazemeter/crane") }}:{{ .Values.imageOverride.tag | default "latest-master"}}
+        imagePullPolicy: {{ .Values.imageOverride.pullPolicy | default "Always" }}
         name: crane-container
         {{ with .Values.resourcesCrane -}}
         {{ if or (.requests.CPU) (.limits.CPU) (.limits.MEM) (.requests.MEM) (.requests.storage) (.limits.storage) }}
@@ -310,6 +289,6 @@ spec:
         secret:
           secretName: {{ .Values.externalSecretsOperator.externalSecret.target.name }}
           {{ end -}}            
-      {{ end }}    
-      restartPolicy: {{ .Values.deployment.restartPolicy }}
+      {{ end }}
+      restartPolicy: {{ .Values.deployment.restartPolicy | default "Always" }}
       terminationGracePeriodSeconds: 30

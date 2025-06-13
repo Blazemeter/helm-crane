@@ -1,19 +1,18 @@
 
 deployment:
-  # This is the name of roles and clusterroles created by the chart.
-  role: "role"
-  clusterrole: "clusterrole"
+                     # This is the name of existing roles and clusterroles to use, defaults to releaseName-role and releaseName-clusterrole
+  role:              # Mention if you wish to use the existing role in the namespace
+  clusterrole:       # Mention if you wish to use the existing clusterrole
   serviceAccount:
-  # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
+                     # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
     create: false
-  # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name: #sample-serviceAccount-name
+                     # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
+    name:            # sample-serviceAccount-name
     annotations:
-      # This is a sample  annotation. You can add any annotations here.
-      # Comment out if not needed.
+                     # This is a sample  annotation. You can add any annotations here. Comment out if not needed.                    
       eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
       custom.annotation/key: custom-value    
-  restartPolicy: "Always"
+  restartPolicy:     # Defaults to Always as recommended
 
 env: 
   # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver. 
@@ -21,42 +20,30 @@ env:
   harbour_id: "your-sample-harbour-id"
   ship_id: "your-sample-ship-id"
 
-image:   
-  docker_registry: "gcr.io/verdant-bulwark-278"  #default registry for Blazemeter crane (DO NOT CHANGE)
-  image: "gcr.io/verdant-bulwark-278/blazemeter/crane"  #default image for Blazemeter crane (DO NOT CHANGE)
-  tag: "latest-master"
-  auto_update: true                             
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  pullPolicy: "Always"                    
-  testImage: "immnan/cranetest"           # Used for test-hook
-  testTag: "latest"  
-
 # Allows the override of the default image received from BZA for the container to run. Set the key to the original value (Example: apm-image:latest). Set the value to the new repository name with a tag. Extract the appropriate version number from 'admin/ship-stats'.
 imageOverride:
-  enable: no
-  #If imageOverride is enabled, also make sure to change/modify the docker_registry as well as image path below.
-  docker_registry: "gcr.io/<custom-registry>"
-  image: "gcr.io/<custom-registry>/blazemeter/crane"
-  tag: "latest-master"
-  auto_update: true
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
-  images: {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
-  pullPolicy: "Always"
-  testImage: "immnan/cranetest"          # Used for test-hook
-  testTag: "0.2.10"    
-
+                                          # Add the details below to override the default image used by Crane and default configuration.
+  docker_registry:                        # Example: "gcr.io/<custom-registry>"
+  craneImage:                             # Example: "gcr.io/<custom-registry>/blazemeter/crane"
+  tag:                                    # Default: "latest-master"
+  auto_update:                            # Default: true
+  auto_update_running_containers: false   # Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
+                                          # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
+  executorImages:                         # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
+  pullPolicy:                             # Default: "Always"
+  testImage:                              # Default: "immnan/cranetest", used for test-hook
+  testTag:                                # Default: "latest"
 
 # Proxy configurations here, change enable to yes, followed by http/https configuration
 proxy:
   enable: no
- # If you have authentication required for your proxy, then you will need to add username:password@server:port
+              # If you have authentication required for your proxy, then you will need to add username:password@server:port
   http_proxy: yes
   http_path: "http://server:port" 
 
   https_proxy: yes
   https_path: "https://server:port"  
-#  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
+              # The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 
 # Configure CA Bundle here - Change enable: yes
@@ -92,22 +79,17 @@ non_privilege_container:
   runAsGroup: 1337
   runAsUser: 1337
 
-# enable Istio-Ingress if this Private location is going to run mock-services
-# Follow the below guide till you have created a secret in istio-system namespace called wildcard-credential.
-# https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
 
-istio_ingress: 
-  enable: no
-  credentialName: "wildcard-credential"
-  web_expose_subdomain: "mydomain.local"
-  istio_gateway_name: "bzm-gateway"
+# Enable the service_virtualization if this Private location is going to run service-virtualisation or formerly called: mock-services
+# Select the ingressType as nginx or istio, depending on your cluster ingress setup.
+# Follow Blazemeter guide for more information: https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html
 
-# We can enable nginx-ingress instead of istio-ingress, currently, the chart expects nginx-ingress to be pre-installed in the cluster. 
-# Follow Blazemeter guide for more information on installing nginx-ingress.
-nginx_ingress:
+service_virtualization: 
   enable: no
-  credentialName: "wildcard-credential"
-  web_expose_subdomain: "mydomain.local"  
+  ingressType:          # nginx or istio 
+  credentialName:       # "wildcard-credential"
+  web_expose_subdomain: # "mydomain.local"
+
 
 # Labels to add to crane and child resources created by Crane, must be in JSON format.
 labelsCraneDeployment:
@@ -199,7 +181,7 @@ secretProviderClass:
   provider: aws
   # This is in JSON, to allow users configure different spec, like: secretPath, secretKey, objectAlias, etc. 
   objects: [{ "objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:harbour-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "harbour-id-opl"},{"objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:ship-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "ship-id-opl"}]
-  #secretObjects: [{ "data":[{"key":"harbour-id-key","objectName":"harbour-id-opl"}],"secretName":"harbour-id","type":"Opaque"},{"data":[{"key":"ship-id-key","objectName":"ship-id-opl"}],"secretName":"ship-id","type":"Opaque"}]
+  # secretObjects: [{ "data":[{"key":"harbour-id-key","objectName":"harbour-id-opl"}],"secretName":"harbour-id","type":"Opaque"},{"data":[{"key":"ship-id-key","objectName":"ship-id-opl"}],"secretName":"ship-id","type":"Opaque"}]
   secretObjects:  
   # Comment out the below section if you do not plan to create secrets in the namespace. 
     - secretName: auth-token
@@ -228,8 +210,6 @@ secretProviderClass:
 
 externalSecretsOperator:
   enable: no
-#  useExistingSecretStore:  # If you want to use an existing secret store, add the name of the secret store here.
-#    name: #npd-blaze-secret-store
   volume: 
     name:       # (Optional) If not provided, will be linked with release name - see helm template
     readOnly:   # Default: true 
