@@ -212,35 +212,30 @@ non_privilege_container:
 
 
 
-### [4.6] Installing Istio based crane for mock service deployment within the k8s cluster
-- If this OPL/Private location is going to run mock services using istio-ingress, make changes to the following part of the `values` file. Change `enable` to `yes` and this will automatically setup istio-ingress for this crane deployment. This will allow outside traffic to access the service-virtualisation pod. However, make sure istio is already installed and configured as per the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6) 
+### [4.6] Enabling Service Virtualisation (Mock Services)
+
+If your Private Location will run service-virtualisation (mock services), enable the `service_virtualization` section in your `values.yaml` file. This allows you to expose mock services using either Istio or NGINX ingress controllers.
 
 ```yaml
-istio_ingress: 
-  enable: no
+service_virtualization: 
+  enable: yes
+  ingressType: nginx         # or istio, depending on your cluster setup
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
-  istio_gateway_name: "bzm-gateway"
-```
-*You can either use istio-ingress or nginx-ingress for mock service deployment. However, you cannot use both at the same time.* 
-
-
-
-### [4.7] Installing Nginx Ingress-based crane for mock service deployment 
-- If this OPL/Private location is going to run mock services using nginx-ingress, make changes to following part of the `values` file. Change the `enable` to `yes` and this will automatically set up nginx-ingress for this installation, which will allow outside traffic to access the mock-service pod. However, make sure nginx is already installed and configured. [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6)
-
-```yaml
-nginx_ingress:
-  enable: yes
-  credentialName: "wildcard-credential"
-  web_expose_subdomain: "mydomain.local" 
 ```
 
-*You can either use istio-ingress or nginx-ingress for mock service deployment. However, you cannot use both at the same time.* 
+- **enable**: Set to `yes` to activate service virtualisation.
+- **ingressType**: Choose `nginx` or `istio` based on your ingress controller.
+- **credentialName**: Name of the credential (e.g., wildcard certificate) to use.
+- **web_expose_subdomain**: Subdomain to expose mock services.
+
+> **Note:**  
+> Only one ingress type can be enabled at a time. Ensure the corresponding ingress controller (NGINX or Istio) is installed and configured in your cluster.  
+> For more details, see the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html).
 
 
 
-### [4.9] Configure deployment to support child pods to inherit labels from the crane
+### [4.7] Configure deployment to support child pods to inherit labels from the crane
 
 - If you require a certain set of labels as part of the deployment of crane and it's child resources, we can use these `labels` values. These labels can be set for crane as well as the child pods. Add labels in a JSON format as per the example. 
 ```yaml
@@ -255,7 +250,7 @@ labelsExecutors:
 
 
 
-### [4.12] Configure deployment to support for tolerations 
+### [4.8] Configure deployment to support for tolerations 
 
 - The configuration is used to specify the tolerations for crane and child pods. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
 ```yaml
@@ -270,7 +265,7 @@ tolerationExecutors:
 
 
 
-### [4.10] Configure deployment to support node selector for crane & child resources
+### [4.9] Configure deployment to support node selector for crane & child resources
 - The configuration is used to specify the node selector for crane and child pods. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
 ```yaml
 nodeSelectorCrane:
@@ -284,7 +279,7 @@ nodeSelectorExecutor:
 
 
 
-### [4.11] Configure resources limits and requests for the crane & child resources.
+### [4.10] Configure resources limits and requests for the crane & child resources.
 
 - If you require a CPU, MEM or EphemeralStorage limits/requests to be applied to crane and its child resources, we can use this `resourcesCrane` or `resourcesExecutors` value. The values in `resourcesCrane` values will be applied to crane deployment, while the values in `resourcesExecutors` will be applied to the child resources. You can either use one of them or both. Add required values in the below value section in the values.yaml file.
 
@@ -314,7 +309,7 @@ resourcesExecutors:
 ```
 
 
-### [4.12] Configure the Pod Disruption Budget
+### [4.11] Configure the Pod Disruption Budget
 
 A [Pod Disruption Budget (PDB)](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) ensures that a minimum number of pods remain available during voluntary disruptions (such as node drains or cluster upgrades). You can configure a PDB for the Crane deployment by enabling the following settings in your `values.yaml` file.
 
@@ -337,7 +332,7 @@ podDisruptionBudget:
 
 
 
-### [4.13] Configure SecretProviderClass
+### [4.12] Configure SecretProviderClass
 
 The [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/topics/introduction.html) resource is used with the [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/) to mount secrets, keys, or certificates from external secret management systems (such as Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault) into Kubernetes pods as files or Kubernetes secrets.
 
@@ -385,7 +380,7 @@ secretProviderClass:
 
 
 
-### [4.14] Configure ExternalSecrets Operator
+### [4.13] Configure ExternalSecrets Operator
 
 The [ExternalSecrets Operator](https://external-secrets.io/) allows you to synchronize secrets from external secret management systems (such as AWS Secrets Manager or Google Cloud Secret Manager) into Kubernetes secrets. This integration is useful if you want your Crane deployment to automatically fetch and manage secrets from your external provider.
 
