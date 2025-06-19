@@ -50,8 +50,6 @@ spec:
     - name: KUBERNETES_WEB_EXPOSE_TYPE
       value: "INGRESS"
       {{ end }}
-    - name: SV_ENABLE
-      value: "true"
     - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
       value: {{ .Values.service_virtualization.credentialName | quote }}
     {{ end }}
@@ -69,7 +67,7 @@ spec:
     - name: NO_PROXY
       value: {{ .Values.proxy.no_proxy }}
     {{ end -}}
-    image: {{ .Values.imageOverride.testImage | default "immnan/cranetest"}}:{{ .Values.imageOverride.testTag | default "latest" }}
+    image: {{ .Values.imageOverride.testImage | default "gcr.io/verdant-bulwark-278/cranehook"}}:{{ .Values.imageOverride.testTag | default "latest" }}
     imagePullPolicy: "Always"
     resources:
       requests:
