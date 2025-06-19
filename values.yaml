@@ -15,10 +15,10 @@ deployment:
   restartPolicy:     # Defaults to Always as recommended
 
 env: 
-  # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver. 
-  authtoken: "your-sample-auth-token"
-  harbour_id: "your-sample-harbour-id"
-  ship_id: "your-sample-ship-id"
+  # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
+  authtoken: 
+  harbour_id: 
+  ship_id: 
 
 # Allows the override of the default image received from BZA for the container to run. Set the key to the original value (Example: apm-image:latest). Set the value to the new repository name with a tag. Extract the appropriate version number from 'admin/ship-stats'.
 imageOverride:
@@ -45,7 +45,7 @@ imageOverride:
   # blazemeter/charmander/chrome_128.0.6613.137:latest:          # "pathToYourRepo/charmander/chrome_128.0.6613.137:version"
 
   pullPolicy:                             # Default: "Always"
-  testImage:                              # Default: "immnan/cranetest", used for test-hook
+  testImage:                              # Default: "gcr.io/verdant-bulwark-278/cranehook", used for test-hook
   testTag:                                # Default: "latest"
 
 # Proxy configurations here, change enable to yes, followed by http/https configuration
