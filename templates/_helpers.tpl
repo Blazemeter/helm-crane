@@ -27,3 +27,22 @@
 {{- printf "%s-clusterrole" .Release.Name }}
 {{- end }}
 {{- end }}
+
+# This helper function returns the imageOverrides as a JSON object if set. 
+{{- define "helm-crane.imageOverridesJson" -}}
+{{- $overrides := .Values.imageOverride.executorImages | default dict -}}
+{{- $nonEmpty := dict -}}
+{{- range $k, $v := $overrides -}}
+  {{- if $v -}}
+    {{- $_ := set $nonEmpty $k $v -}}
+  {{- end -}}
+{{- end -}}
+{{- if eq (len $nonEmpty) 0 -}}
+{}
+{{- else -}}
+{ {{- $first := true -}}
+{{- range $k, $v := $nonEmpty -}}
+{{- if not $first }}, {{- end -}}"{{ $k }}": "{{ $v }}"{{- $first = false -}}
+{{- end -}} }
+{{- end -}}
+{{- end -}}

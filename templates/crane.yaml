@@ -65,7 +65,7 @@ spec:
         - name: CONTAINER_MANAGER_TYPE
           value: KUBERNETES
         - name: IMAGE_OVERRIDES
-          value: {{ .Values.imageOverride.executorImages | toJson | default "{}" | quote }}
+          value: {{ include "helm-crane.imageOverridesJson" . | indent 4 | toJson }}
         - name: DOCKER_REGISTRY
           value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
         - name: AUTO_KUBERNETES_UPDATE
@@ -131,9 +131,9 @@ spec:
           value: 'true'
           {{ end }}
         - name: KUBERNETES_WEB_EXPOSE_SUB_DOMAIN
-          value: {{ .Values.service_virtualization.web_expose_subdomain | quote }}
+          value: {{ .Values.service_virtualization.web_expose_subdomain | default "mydomain.local" | quote }}
         - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-          value: {{ .Values.service_virtualization.credentialName | quote }}
+          value: {{ .Values.service_virtualization.credentialName | default "wildcard-credential" | quote }}
         - name: KUBERNETES_SERVICE_USE_TYPE
           value: CLUSTERIP
         {{ end -}}
