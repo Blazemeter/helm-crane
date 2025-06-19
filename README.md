@@ -127,25 +127,41 @@ image:
 *Note: Do not change the default Blazemeter registry, image or tag values here, use the `imageOverride` section to override the default settings.*
 
 
-### [4.3] Configuring the image override settings
+### [4.2] Configuring Image Overrides
 
-- You can override the default image settings by adding the `imageOverride` section in the `values.yaml` file by switching the `enable` to `yes`. Replace the `docker_registry` and `image` values with the custom registry and image path.
+The chart supports overriding the default images used for Crane and its components through the `imageOverride` section in your `values.yaml` file. This allows you to specify custom registries, images, tags, and pull policies for all relevant containers.
 
-- Similarly, replace the path:`pathToYourRepo` with the custom image path and available version tag in your private repository. Please refer the commented example in the below snippet. Similary, if the `auto-update` is not a desired option, it can be set to `false`, which will disable the auto-update for crane and its components. Similarly, the `pull` policy can be changed to `Always` or `IfNotPresent` as per the requirement.
-
+Example configuration:
 ```yaml
 imageOverride:
-  enable: no
-  #If imageOverride is enabled, also make sure to change/modify the docker_registry as well as image path below.
   docker_registry: "gcr.io/<custom-registry>"
-  image: "gcr.io/<custom-registry>/blazemeter/crane"
+  craneImage: "gcr.io/<custom-registry>/blazemeter/crane"
   tag: "latest-master"
   auto_update: true
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
-  images: {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
+  auto_update_running_containers: false
+  executorImages:
+    taurus-cloud:latest: "pathToYourRepo/taurus-cloud:version"
+    torero:latest: "pathToYourRepo/torero:version"
+    blazemeter/service-mock:latest: "pathToYourRepo/service-mock:version"
+    blazemeter/mock-pc-service:latest: "pathToYourRepo/mock-pc-service:version"
+    blazemeter/sv-bridge:latest: "pathToYourRepo/sv-bridge:version"
+    blazemeter/doduo:latest: "pathToYourRepo/doduo:version"
   pullPolicy: "Always"
+  testImage: "gcr.io/verdant-bulwark-278/cranehook"
+  testTag: "latest"
 ```
+
+- **docker_registry**: Custom Docker registry for all images.
+- **craneImage**: Path to the Crane image.
+- **tag**: Image tag to use.
+- **auto_update**: Enable or disable automatic updates.
+- **auto_update_running_containers**: Control auto-update for running containers.
+- **executorImages**: Map of executor/component images to override.
+- **pullPolicy**: Image pull policy (`Always`, `IfNotPresent`, etc.).
+- **testImage** and **testTag**: Image and tag for the test hook.
+
+**Note:**  
+> If you do not need to override images, you can leave this section commented or empty, and the chart will use the default images provided by BlazeMeter.
 
 
 ### [4.4] Adding Proxy config details
@@ -229,7 +245,7 @@ service_virtualization:
 - **credentialName**: Name of the credential (e.g., wildcard certificate) to use.
 - **web_expose_subdomain**: Subdomain to expose mock services.
 
-> **Note:**  
+ **Note:**  
 > Only one ingress type can be enabled at a time. Ensure the corresponding ingress controller (NGINX or Istio) is installed and configured in your cluster.  
 > For more details, see the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html).
 
