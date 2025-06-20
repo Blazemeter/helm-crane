@@ -112,16 +112,6 @@ externalSecretsOperator:
 
 ---
 
-**Summary Table:**
-
-| Method                | Where to set credentials?         | Section in values.yaml      |
-|-----------------------|-----------------------------------|----------------------------|
-| Plaintext (default)   | `env.authtoken`, `harbour_id`, `ship_id` | `env`                      |
-| SecretProviderClass   | External secret store             | `secretProviderClass`      |
-| ExternalSecretsOperator | External secret store           | `externalSecretsOperator`  |
-
----
-
 **Important:**  
 - Only set credentials in one place. If both `env` and a secret integration are set, the secret integration takes precedence.
 - Do **not** commit sensitive values to version control.
