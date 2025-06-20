@@ -69,63 +69,64 @@ tar -xvf helm-crane(version).tgz
 - Open the `values` file to apply configurations as per your deployment requirements. 
 
 ### [4.1] Adding the basic/required configurations
-- Add the Harbour_ID, Ship_ID and Auth_token in the `values.yaml` file.  `harbour_id`, `ship_id` and `authtoken` are the one we aquired earlier see: [2.0](#20-generating-harbour_id-ship_id-and-auth_token-in-blazemeter)
 
+Before installing the chart, you must provide your BlazeMeter `harbour_id`, `ship_id`, and `authtoken` in the `values.yaml` file. These values are required for the Crane deployment to register and authenticate with BlazeMeter.  
+Refer to [2.0](#20-generating-harbour_id-ship_id-and_auth_token-in-blazemeter) for instructions on how to obtain these values.
+
+**Example:**
 ```yaml
-env: 
-  # if you plan to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
-  secret_authtoken:
-    enable: no
-    secretName: "your-secretName"
-    secretKey: "authtoken"
-  authtoken:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
-  harbour_id: "MY_SAMPLE_HARBOURID"
-  ship_id: "MY_SAMPLE_SHIPID"
+env:
+  authtoken:  "YOUR_AUTH_TOKEN"
+  harbour_id: "YOUR_HARBOUR_ID"
+  ship_id:    "YOUR_SHIP_ID"
 ```
 
-- If you require the AUTH_TOKEN for any crane installation to be secret/secure, the ENV values for AUTH_TOKEN can be inherited from the k8s secret. You will need to make changes to `secret_authtoken` part of the `values` file. In that case, the `authtoken` value will be ignored. Make sure the cluster/namespace has the secret applied in the following format:
+- Replace the example values above with your actual credentials.
 
-```YAML
-apiVersion: v1
-kind: Secret
-metadata:
-  name: <your-secretName>
-  namespace: <namespace name>
-type: Opaque
-data:
-  authtoken: ZjIzZjU0ZTIwODk5ZWYwYzgzYmJkMzZmYzU3ODlhNzc3ODJjYTY1YjJjODIzZTMyMjY3NDcxM2QzZTc3Mzg2Yw==
-```
+#### Using Kubernetes Secrets or External Secret Managers
 
-- Additionally, you can now configure the deployment settings, like non-default serviceAccount, role & clusterrole name and restart policy in the below section of the `values` file.
+If you want to keep your credentials secure and **not** store them directly in `values.yaml`, you can use one of the following integrations:
+
+- **SecretProviderClass** (CSI Driver)
+- **ExternalSecrets Operator**
+
+When either of these integrations is enabled (`secretProviderClass.enable: yes` or `externalSecretsOperator.enable: yes`), the `env.authtoken`, `env.harbour_id`, and `env.ship_id` values in `values.yaml` will be ignored, and the credentials will be sourced from your external secret store.
+
+**Example:**
 ```yaml
-deployment:
-  # This is the name of roles and clusterroles created by the chart.
-  role: "roleCrane"
-  clusterrole: "cluster-roleCrane"
-  serviceAccount:
-  # Specifies whether a ServiceAccount should be created. 
-    create: false
-  # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name:
-  restartPolicy: "Always"
+secretProviderClass:
+  enable: yes
+  provider: aws
+  # ...other configuration...
 ```
-
-### [4.2] Configuring the default image settings
-
-- You can configure the settings for image pull-policy, auto-update, etc. in the `image` values. If the `auto-update` is not a desired option, it can be set to `false`, which will disable the auto-update for crane and its components. Similarly, the `pull` policy can be changed to `Always` or `IfNotPresent` as per the requirement. If the cluster cache is configured to preserve the images for longer duration, changing the pull policy is desirable. 
-
+or
 ```yaml
-image:   
-  docker_registry: "gcr.io/verdant-bulwark-278"  #default registry for Blazemeter crane (DO NOT CHANGE)
-  image: "gcr.io/verdant-bulwark-278/blazemeter/crane"  #default image for Blazemeter crane (DO NOT CHANGE)
-  tag: "latest-master"
-  auto_update: true                             
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  pullPolicy: "Always"
+externalSecretsOperator:
+  enable: yes
+  # ...other configuration...
 ```
 
-*Note: Do not change the default Blazemeter registry, image or tag values here, use the `imageOverride` section to override the default settings.*
+> **Note:**  
+> - If you use a secret manager, ensure your secret keys and environment variable mappings are correct in the relevant section.
+> - See [4.12](#412-configure-secretproviderclass) and [4.13](#413-configure-externalsecrets-operator) for detailed configuration examples.
 
+---
+
+**Summary Table:**
+
+| Method                | Where to set credentials?         | Section in values.yaml      |
+|-----------------------|-----------------------------------|----------------------------|
+| Plaintext (default)   | `env.authtoken`, `harbour_id`, `ship_id` | `env`                      |
+| SecretProviderClass   | External secret store             | `secretProviderClass`      |
+| ExternalSecretsOperator | External secret store           | `externalSecretsOperator`  |
+
+---
+
+**Important:**  
+- Only set credentials in one place. If both `env` and a secret integration are set, the secret integration takes precedence.
+- Do **not** commit sensitive values to version control.
+
+---
 
 ### [4.2] Configuring Image Overrides
 
@@ -164,7 +165,7 @@ imageOverride:
 > If you do not need to override images, you can leave this section commented or empty, and the chart will use the default images provided by BlazeMeter.
 
 
-### [4.4] Adding Proxy config details
+### [4.3] Adding Proxy config details
 - If the [proxy](https://help.blazemeter.com/docs/guide/private-locations-optional-installation-step-configure-agents-to-use-corporate-proxy.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____10#h_4a05699b-fb2d-4d9b-933d-11b5e3befaca) needs to be configured, change the value for `enable` to `yes`. Add the configuration for `http_proxy` or/and `https_proxy`. Make sure the values are set to `yes` before adding the proxy `path`, as shown below:
 
 ```yaml
@@ -173,11 +174,12 @@ proxy:
   http_proxy: yes
   http_path: "http://server:port" 
   https_proxy: yes
+  https_path: "https://server:port"  
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 ```
 
 
-### [4.5] Adding CA certificates
+### [4.4] Adding CA certificates (only configure if required, & for service virtualisation only)
 
 - If you plan to configure the Kubernetes installation to use [CA certificates](https://help.blazemeter.com/docs/guide/private-locations-optional-installation-step-configure-kubernetes-agent-to-use-ca-bundle.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____12), make changes to the following section of the values.yaml file:
   -  Change the `enable` to `yes`
@@ -195,7 +197,7 @@ ca_bundle:
 ```
 
 
-### [4.6] Adding gridProxy configuration
+### [4.5] Adding gridProxy configuration (only configure if required, & for GUI functional testing only)
 
 - If you plan to configure your crane installation to use [gridProxy](https://help.blazemeter.com/docs/guide/functional-run-gridproxy-over-https.htm?Highlight=grid%20proxy), make changes to the following section of the `values.yaml` file. Grid Proxy enables you to run Selenium functional tests in BlazeMeter without using a local server. You can run Grid Proxy over the HTTPS protocol using the following methods:
 
@@ -214,7 +216,7 @@ gridProxy:
 ```
 
 
-### [4.5] Deploying Non_priviledge container - NON_ROOT deployment. 
+### [4.6] Deploying Non_priviledge container - NON_ROOT deployment. 
 - If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to the following part of the `values` file. Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge. You can ammend the runAsGroup and runAsUser to any value of your choice. We can only have same user/groupId for both crane and child resources.
 
 ```YAML
@@ -228,7 +230,7 @@ non_privilege_container:
 
 
 
-### [4.6] Enabling Service Virtualisation (Mock Services)
+### [4.7] Enabling Service Virtualisation (Mock Services)
 
 If your Private Location will run service-virtualisation (mock services), enable the `service_virtualization` section in your `values.yaml` file. This allows you to expose mock services using either Istio or NGINX ingress controllers.
 
@@ -251,7 +253,7 @@ service_virtualization:
 
 
 
-### [4.7] Configure deployment to support child pods to inherit labels from the crane
+### [4.8] Configure deployment to support child pods to inherit labels from the crane
 
 - If you require a certain set of labels as part of the deployment of crane and it's child resources, we can use these `labels` values. These labels can be set for crane as well as the child pods. Add labels in a JSON format as per the example. 
 ```yaml
@@ -266,7 +268,7 @@ labelsExecutors:
 
 
 
-### [4.8] Configure deployment to support for tolerations 
+### [4.9] Configure deployment to support for tolerations 
 
 - The configuration is used to specify the tolerations for crane and child pods. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
 ```yaml
@@ -281,7 +283,7 @@ tolerationExecutors:
 
 
 
-### [4.9] Configure deployment to support node selector for crane & child resources
+### [4.10] Configure deployment to support node selector for crane & child resources
 - The configuration is used to specify the node selector for crane and child pods. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
 ```yaml
 nodeSelectorCrane:
@@ -295,7 +297,7 @@ nodeSelectorExecutor:
 
 
 
-### [4.10] Configure resources limits and requests for the crane & child resources.
+### [4.11] Configure resources limits and requests for the crane & child resources.
 
 - If you require a CPU, MEM or EphemeralStorage limits/requests to be applied to crane and its child resources, we can use this `resourcesCrane` or `resourcesExecutors` value. The values in `resourcesCrane` values will be applied to crane deployment, while the values in `resourcesExecutors` will be applied to the child resources. You can either use one of them or both. Add required values in the below value section in the values.yaml file.
 
@@ -325,7 +327,7 @@ resourcesExecutors:
 ```
 
 
-### [4.11] Configure the Pod Disruption Budget
+### [4.12] Configure the Pod Disruption Budget
 
 A [Pod Disruption Budget (PDB)](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) ensures that a minimum number of pods remain available during voluntary disruptions (such as node drains or cluster upgrades). You can configure a PDB for the Crane deployment by enabling the following settings in your `values.yaml` file.
 
@@ -348,7 +350,7 @@ podDisruptionBudget:
 
 
 
-### [4.12] Configure SecretProviderClass
+### [4.13] Configure SecretProviderClass
 
 The [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/topics/introduction.html) resource is used with the [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/) to mount secrets, keys, or certificates from external secret management systems (such as Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault) into Kubernetes pods as files or Kubernetes secrets.
 
@@ -396,7 +398,7 @@ secretProviderClass:
 
 
 
-### [4.13] Configure ExternalSecrets Operator
+### [4.14] Configure ExternalSecrets Operator
 
 The [ExternalSecrets Operator](https://external-secrets.io/) allows you to synchronize secrets from external secret management systems (such as AWS Secrets Manager or Google Cloud Secret Manager) into Kubernetes secrets. This integration is useful if you want your Crane deployment to automatically fetch and manage secrets from your external provider.
 
