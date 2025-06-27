@@ -73,16 +73,16 @@ spec:
         - name: AUTO_UPDATE_CONTAINERS_WHILE_RUNNING
           value: {{ .Values.imageOverride.auto_update_running_containers | default "false" | quote }}
         {{ if .Values.proxy.enable -}}
-          {{ if .Values.proxy.http_proxy }}
+          {{ if ne .Values.proxy.http_path "" }}
         - name: HTTP_PROXY
           value: {{ .Values.proxy.http_path }}
           {{ end -}}
-          {{ if .Values.proxy.https_proxy }}
+          {{ if ne .Values.proxy.https_path "" }}
         - name: HTTPS_PROXY
           value: {{ .Values.proxy.https_path }}
           {{ end }}
         - name: NO_PROXY
-          value: {{ .Values.proxy.no_proxy }}
+          value: {{ .Values.proxy.no_proxy | default "kubernetes.default,127.0.0.1,localhost"}}
         {{ end -}}
         {{ if .Values.ca_bundle.enable }} 
         - name: REQUESTS_CA_BUNDLE

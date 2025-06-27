@@ -56,16 +56,16 @@ spec:
     - name: DOCKER_REGISTRY
       value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
     {{ if .Values.proxy.enable -}}
-      {{ if .Values.proxy.http_proxy }}
+      {{ if ne .Values.proxy.http_path "" }}
     - name: HTTP_PROXY
       value: {{ .Values.proxy.http_path }}
       {{ end -}}
-      {{ if .Values.proxy.https_proxy }}
+      {{ if ne .Values.proxy.https_path "" }}
     - name: HTTPS_PROXY
       value: {{ .Values.proxy.https_path }}
       {{ end }}
     - name: NO_PROXY
-      value: {{ .Values.proxy.no_proxy }}
+      value: {{ .Values.proxy.no_proxy | default "kubernetes.default,127.0.0.1,localhost"}}
     {{ end -}}
     image: {{ .Values.imageOverride.testImage | default "gcr.io/verdant-bulwark-278/cranehook"}}:{{ .Values.imageOverride.testTag | default "latest" }}
     imagePullPolicy: "Always"
