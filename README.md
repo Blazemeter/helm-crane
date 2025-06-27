@@ -110,7 +110,6 @@ externalSecretsOperator:
 > - If you use a secret manager, ensure your secret keys and environment variable mappings are correct in the relevant section.
 > - See [4.12](#412-configure-secretproviderclass) and [4.13](#413-configure-externalsecrets-operator) for detailed configuration examples.
 
----
 
 **Important:**  
 - Only set credentials in one place. If both `env` and a secret integration are set, the secret integration takes precedence.
@@ -590,7 +589,7 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
-- 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Minor bug fixes and template enhancements.
+- 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Simplified the image override usage. Incorporationo of ingress setup & usage in one single config. Other minor bug fixes and template enhancements.
 - 1.3.1 - Readiness and Liveness probes are now added. 
 - 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource (CPU & MEM) limit/requests are now configurable for crane and child resources and also for ephemeral storage. Simplified nesting and values configuration. The chart can now work with non-default serviceAccount. Tolerations, nodeSelector and labels can be declared for Crane and child resources separately, with Major fixes & calibrations.
 - 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
