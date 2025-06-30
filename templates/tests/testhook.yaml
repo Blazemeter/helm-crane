@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: cranetesthook
+  name: cranehook
   namespace: {{ .Release.Namespace }}
-  {{ if .Values.labelsCranePod.enable -}}
+  {{ if .Values.labelsCranePod.enable | default false -}}
   labels: 
       {{ .Values.labelsCranePod.syntax | toYaml | nindent 4 }}
   {{ end }}
@@ -16,7 +16,7 @@ spec:
   serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
   automountServiceAccountToken: true
   #ttlSecondsAfterFinished: 90
-  {{ if .Values.nodeSelectorCrane.enable }}
+  {{ if .Values.nodeSelectorCrane.enable | default false }}
   nodeSelector:
     {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}      
   {{ end -}}
@@ -25,7 +25,7 @@ spec:
     {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}
   {{ end }}  
   containers:
-  - name: cranetest-ctr
+  - name: cranehook-ctr
     securityContext:
       runAsUser: 1337
       runAsGroup: 1337
@@ -40,7 +40,7 @@ spec:
       value: {{ include "crane.roleName" . }}-binding-{{ template "blazemeter-crane.serviceAccountName" . }}
     - name: SERVICE_ACCOUNT_NAME
       value: {{ template "blazemeter-crane.serviceAccountName" . }}
-    {{ if .Values.service_virtualization.enable -}}
+    {{ if .Values.service_virtualization.enable | default false -}}
       {{ if eq .Values.service_virtualization.ingressType "istio" }}  
     - name: KUBERNETES_WEB_EXPOSE_TYPE
       value: "ISTIO"
@@ -55,7 +55,7 @@ spec:
     {{ end }}
     - name: DOCKER_REGISTRY
       value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
-    {{ if .Values.proxy.enable -}}
+    {{ if .Values.proxy.enable | default false -}}
       {{ if ne .Values.proxy.http_path "" }}
     - name: HTTP_PROXY
       value: {{ .Values.proxy.http_path }}

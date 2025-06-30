@@ -38,7 +38,7 @@ roleRef:
   name:  test-hookrole
   apiGroup: rbac.authorization.k8s.io
 
-{{ if eq .Values.service_virtualization.type "istio" }}
+{{- if eq ((.Values.service_virtualization | default dict).type | default "") "istio" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
