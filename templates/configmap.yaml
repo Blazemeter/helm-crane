@@ -1,4 +1,4 @@
-{{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) }} 
+{{ if or ( .Values.ca_bundle.enable | default false  ) ( .Values.gridProxy.enable | default false ) }} 
 apiVersion: v1
 kind: ConfigMap
 metadata:

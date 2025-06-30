@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     role: {{ include "crane.roleName" . }}
-    {{ if .Values.labelsCraneDeployment.enable -}}
+    {{ if .Values.labelsCraneDeployment.enable | default false -}}
     {{ .Values.labelsCraneDeployment.syntax | toYaml | nindent 4 }}
     {{ end }}
   name: {{ .Release.Name }}
@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-      {{ if .Values.labelsCranePod.enable -}}
+      {{ if .Values.labelsCranePod.enable | default false -}}
       {{ .Values.labelsCranePod.syntax | toYaml | nindent 8 }}
       {{ end }}
         role: {{ include "crane.roleName" . }}
@@ -27,17 +27,17 @@ spec:
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
-      {{ if .Values.nodeSelectorCrane.enable }}
+      {{ if .Values.nodeSelectorCrane.enable | default false }}
       nodeSelector:
         {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 8 }}      
       {{ end -}}
-      {{ if .Values.tolerationCrane.enable }}
+      {{ if .Values.tolerationCrane.enable | default false }}
       tolerations:
       {{ .Values.tolerationCrane.syntax | toYaml | nindent 8 }}
       {{ end }}
       containers:
       - env:
-        {{- if and ( .Values.secretProviderClass.enable ) ( not .Values.externalSecretsOperator.enable ) }} 
+        {{- if and ( .Values.secretProviderClass.enable | default false ) ( not .Values.externalSecretsOperator.enable | default false) }} 
         {{- range .Values.secretProviderClass.secretObjects }}
         - name: {{ .envName }}
           valueFrom:
@@ -45,7 +45,7 @@ spec:
               name: {{ .secretName }}
               key: {{ (index .data 0).key }}
         {{ end -}}
-        {{ else if and (.Values.externalSecretsOperator.enable) ( not .Values.secretProviderClass.enable ) }}
+        {{ else if and (.Values.externalSecretsOperator.enable | default false) ( not .Values.secretProviderClass.enable | default false) }}
         {{- $root := . }}
         {{ range .Values.externalSecretsOperator.externalSecret.data }}
         - name: {{ .envName }}
@@ -72,7 +72,7 @@ spec:
           value: {{ .Values.imageOverride.auto_update | default "true" | quote }}
         - name: AUTO_UPDATE_CONTAINERS_WHILE_RUNNING
           value: {{ .Values.imageOverride.auto_update_running_containers | default "false" | quote }}
-        {{ if .Values.proxy.enable -}}
+        {{ if .Values.proxy.enable | default false -}}
           {{ if ne .Values.proxy.http_path "" }}
         - name: HTTP_PROXY
           value: {{ .Values.proxy.http_path }}
@@ -84,7 +84,7 @@ spec:
         - name: NO_PROXY
           value: {{ .Values.proxy.no_proxy | default "kubernetes.default,127.0.0.1,localhost"}}
         {{ end -}}
-        {{ if .Values.ca_bundle.enable }} 
+        {{ if .Values.ca_bundle.enable | default false }} 
         - name: REQUESTS_CA_BUNDLE
           value: {{ .Values.ca_bundle.volume.mount_path }}/{{ .Values.ca_bundle.request_ca_bundle }}
         - name: AWS_CA_BUNDLE
@@ -110,7 +110,7 @@ spec:
         - name: KUBERNETES_CA_BUNDLE_MOUNT
           value: REQUESTS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.request_ca_bundle }}:AWS_CA_BUNDLE={{ .Release.Name }}-configmap={{ .Values.ca_bundle.aws_ca_bundle }}:TLS_KEY_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsKeyGrid }}:TLS_CERT_GRID={{ .Release.Name }}-configmap={{ .Values.gridProxy.tlsCertGrid }}
         {{ end -}}
-        {{ if .Values.service_virtualization.enable -}}
+        {{ if .Values.service_virtualization.enable | default false -}}
           {{ if eq .Values.service_virtualization.ingressType "istio" }}
         - name: KUBERNETES_WEB_EXPOSE_TYPE
           value: ISTIO
@@ -137,19 +137,19 @@ spec:
         - name: KUBERNETES_SERVICE_USE_TYPE
           value: CLUSTERIP
         {{ end -}}
-        {{ if .Values.non_privilege_container.enable }}
+        {{ if .Values.non_privilege_container.enable | default false }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
         {{ end -}}
-        {{ if .Values.labelsExecutors.enable }}
+        {{ if .Values.labelsExecutors.enable | default false }}
         - name: KUBERNETES_LABELS
           value: {{ .Values.labelsExecutors.syntax | toJson | quote }}
         {{ end -}}
-        {{ if .Values.tolerationExecutors.enable }}
+        {{ if .Values.tolerationExecutors.enable | default false }}
         - name: KUBERNETES_TOLERATIONS_JSON
           value: {{ .Values.tolerationExecutors.syntax | toJson | quote }}
         {{ end -}}
-        {{ if .Values.nodeSelectorExecutor.enable }}
+        {{ if .Values.nodeSelectorExecutor.enable | default false }}
         - name: KUBERNETES_NODE_SELECTOR_JSON
           value: {{ .Values.nodeSelectorExecutor.syntax | toJson | quote }}
         {{ end -}}
@@ -177,7 +177,7 @@ spec:
         - name: KUBERNETES_REQUESTS_EPHEMERAL_STORAGE
           value: {{ .Values.resourcesExecutors.requests.storage| quote }}
         {{ end -}}
-        {{ if .Values.gridProxy.enable }}
+        {{ if .Values.gridProxy.enable | default false}}
         - name: DODUO_PORT
           value: {{ .Values.gridProxy.doduoPort | quote }}
         - name: TLS_CERT_GRID
@@ -209,7 +209,7 @@ spec:
           {{ end -}}
         {{ end -}}
         {{ end -}}
-        {{ if .Values.non_privilege_container.enable }}  
+        {{ if .Values.non_privilege_container.enable | default false}}  
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -219,7 +219,7 @@ spec:
           runAsUser: {{ .Values.non_privilege_container.runAsUser }}        
       {{ end -}}
       {{ with .Values.probes -}}
-        {{ if .enable }}
+        {{ if .enable | default true }}
         livenessProbe:
           httpGet:
             path: /healtz
@@ -243,7 +243,7 @@ spec:
           timeoutSeconds: {{ .readinessProbe.timeoutSeconds | default 10 }}
         {{ end -}}
       {{ end -}}      
-      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) (.Values.externalSecretsOperator.enable)}} 
+      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) (.Values.externalSecretsOperator.enable) | default false }} 
         volumeMounts:
           {{ if .Values.ca_bundle.enable }}
         - name: {{ .Values.ca_bundle.volume.volume_name }}
