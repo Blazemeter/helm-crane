@@ -1,4 +1,4 @@
-{{ if  eq .Values.service_virtualization.ingressType "istio" }}
+{{ if  eq .Values.service_virtualization.ingressType "istio" | default "" }}
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
