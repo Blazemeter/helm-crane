@@ -31,13 +31,14 @@ imageOverride:
                                           # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
   #executorImages:                        # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   executorImages:
-    taurus-cloud:latest:                  # "pathToYourRepo/taurus-cloud:version"
-    torero:latest:                        # "pathToYourRepo/torero:version"
+    blazemeter/crane:latest:              # "pathToYourRepo/crane:version"
+    blazemeter/taurus-cloud:latest:       # "pathToYourRepo/taurus-cloud:version"
+    blazemeter/torero:latest:             # "pathToYourRepo/torero:version"
     blazemeter/service-mock:latest:       # "pathToYourRepo/service-mock:version"
     blazemeter/sv-bridge:latest:          # "pathToYourRepo/sv-bridge:version"
     blazemeter/doduo:latest:              # "pathToYourRepo/doduo:version"
     blazemeter/proxy-recorder:latest:     # "pathToYourRepo/proxy-recorder:version"
-    apm-image:latest:                     # "pathToYourRepo/apm-image:version"    
+    blazemeter/apm-image:latest:          # "pathToYourRepo/apm-image:version"
   # CHECK VERSION IN THE RSS FEED  
   # blazemeter/charmander/microsoftedge_128.0.2739.81:latest:    # "pathToYourRepo/charmander/microsoftedge_128.0.2739.81:version"
   # blazemeter/charmander/safari_15.0:latest:                    # "pathToYourRepo/charmander/safari_15.0:version"
