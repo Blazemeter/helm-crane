@@ -152,36 +152,36 @@ resourcesExecutors:
     storage: #1024
 
 
-#Configure Liveness & Readiness Probes
+#Configure Liveness & Readiness Probes, defaults are used, if not specified. See commented values below. 
 probes:
   enable: yes
   livenessProbe:
     httpGet:
       path: /healtz
-      port: 5000
+      port:              # 5000
       scheme: HTTP
-    failureThreshold: 5
-    initialDelaySeconds: 5
-    periodSeconds: 15
-    successThreshold: 1
-    timeoutSeconds: 10  
+    failureThreshold:    # 5
+    initialDelaySeconds: # 5
+    periodSeconds:       # 15
+    successThreshold:    # 1
+    timeoutSeconds:      # 10  
 
   readinessProbe:
     httpGet:
       path: /healtz
-      port: 5000
+      port:              # 5000
       scheme: HTTP
-    failureThreshold: 3
-    initialDelaySeconds: 5
-    periodSeconds: 15
-    successThreshold: 1
-    timeoutSeconds: 10
+    failureThreshold:    # 3
+    initialDelaySeconds: # 5
+    periodSeconds:       # 15
+    successThreshold:    # 1
+    timeoutSeconds:      # 10
 
 
 podDisruptionBudget:
   enable: no
   # min or max, disruptions can only support one. - https://kubernetes.io/docs/tasks/run-application/configure-pdb/
-  ## If both are specified, minAvailable is used.
+  # If both are specified, minAvailable is used.
   minAvailable: 1
   maxUnavailable: #5 
   matchLabels: {"label_1": "label_1_value", "label_2": "label_2_value"}
