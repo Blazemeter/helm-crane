@@ -8,8 +8,8 @@
     {{- default (include "blazemeter-crane.fullname" .) .Values.deployment.serviceAccount.name -}}
 {{- else }}
     {{- default "default" .Values.deployment.serviceAccount.name -}}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 # Return the role name: use .Values.deployment.role if set, else use the default {{ .Release.Name }}-role.
 {{- define "crane.roleName" }}
