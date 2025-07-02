@@ -106,9 +106,9 @@ externalSecretsOperator:
   # ...other configuration...
 ```
 
-> **Note:**  
-> - If you use a secret manager, ensure your secret keys and environment variable mappings are correct in the relevant section.
-> - See [4.12](#412-configure-secretproviderclass) and [4.13](#413-configure-externalsecrets-operator) for detailed configuration examples.
+**Notes:**  
+>- If you use a secret manager, ensure your secret keys and environment variable mappings are correct in the relevant section.
+>- See [4.14](#414-configure-secretproviderclass) and [4.15](#415-configure-externalsecrets-operator) for detailed configuration examples.
 
 
 **Important:**  
@@ -117,7 +117,49 @@ externalSecretsOperator:
 
 ---
 
-### [4.2] Configuring Image Overrides
+### [4.2] Configuring Deployment Options
+
+The `.Values.deployment` section in `values.yaml` controls how the main Crane deployment is created, including service account, RBAC roles, and restart policy of the deployment (should it fails).
+
+**Example:**
+```yaml
+deployment:
+  role:                # (Optional) Name of an existing Role to use in the namespace. If not set, defaults to <releaseName>-role.
+  clusterrole:         # (Optional) Name of an existing ClusterRole to use. If not set, defaults to <releaseName>-clusterrole.
+  serviceAccount:
+    create: false      # Set to true to create a new ServiceAccount, or false to use an existing one.
+    name:              # (Optional) Name of the ServiceAccount to use. Leave empty to use the default.
+    annotations:       # (Optional) Annotations to add to the ServiceAccount.
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
+      custom.annotation/key: custom-value
+  restartPolicy:       # (Optional) Pod restart policy. Defaults to "Always".
+```
+
+- `role`: Use an existing Kubernetes Role for RBAC. Leave empty to let the chart create one.
+- `clusterrole`: Use an existing ClusterRole for cluster-wide permissions. Leave empty to let the chart create one.
+- `serviceAccount.create`: If `true`, the chart creates a new ServiceAccount. If `false`, you must specify an existing ServiceAccount in `serviceAccount.name`. 
+- `serviceAccount.name`: Name of the ServiceAccount to use. If empty, the default ServiceAccount is used.
+- `serviceAccount.annotations`: Add custom annotations (e.g., for IAM roles or workload identity).
+- `restartPolicy`: Pod restart policy (`Always`, `OnFailure`, or `Never`). Defaults to `Always`.
+
+**Notes:**
+- If your cluster uses IAM roles for service accounts (IRSA) or workload identity, add the required annotations under `serviceAccount.annotations`.
+- If `create: false`, the chart will not create or modify the existing ServiceAccount, and the annotations in values.yaml will be ignored.
+- If you want to use pre-existing RBAC roles, specify their names in `role` and `clusterrole`.
+- For most installations, you can leave these fields at their defaults unless you have specific security or compliance requirements.
+
+**Example for creating a new ServiceAccount with a custom IAM role:**
+```yaml
+deployment:
+  serviceAccount:
+    create: true
+    name: my-existing-sa
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/my-crane-role
+```
+
+
+### [4.3] Configuring Image Overrides
 
 The chart supports overriding the default images used for Crane and its components through the `imageOverride` section in your `values.yaml` file. This allows you to specify custom registries, images, tags, and pull policies for all relevant containers.
 
@@ -151,22 +193,32 @@ imageOverride:
 - **testImage** and **testTag**: Image and tag for the test hook.
 
 **Note:**  
-> If you do not need to override images, you can leave this section commented or empty, and the chart will use the default images provided by BlazeMeter.
+>- If you do not need to override images, you can leave this section commented or empty, and the chart will use the default images provided by BlazeMeter.
 
 
-### [4.3] Adding Proxy config details
-- If the [proxy](https://help.blazemeter.com/docs/guide/private-locations-optional-installation-step-configure-agents-to-use-corporate-proxy.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____10#h_4a05699b-fb2d-4d9b-933d-11b5e3befaca) needs to be configured, change the value for `enable` to `yes`. Add the configuration for `http_proxy` or/and `https_proxy`. 
+### [4.4] Configure Proxy Settings
 
+If your environment requires the use of a proxy, you can enable and configure proxy settings for the Crane deployment. Set `enable` to `yes` and provide the relevant proxy URLs in your `values.yaml` file.
+
+Example configuration:
 ```yaml
 proxy:
   enable: yes
-  http_path: "http://server:port" 
-  https_path: "https://server:port"  
+  http_path: "http://your-http-proxy:port"
+  https_path: "https://your-https-proxy:port"
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 ```
 
+- **enable**: Set to `yes` to activate proxy configuration.
+- **http_path**: (Optional) HTTP proxy URL.
+- **https_path**: (Optional) HTTPS proxy URL.
+- **no_proxy**: (Optional) Comma-separated list of hosts or domains that should bypass the proxy.
 
-### [4.4] Adding CA certificates (only configure if required, & for service virtualisation only)
+**Note:**  
+>- Only set the proxy values if your cluster requires outbound traffic to go through a proxy. The `no_proxy` field helps exclude internal or local addresses (defaults to "kubernetes.default,127.0.0.1,localhost")
+
+
+### [4.5] Adding CA certificates (only configure if required, & for service virtualisation only)
 
 - If you plan to configure the Kubernetes installation to use [CA certificates](https://help.blazemeter.com/docs/guide/private-locations-optional-installation-step-configure-kubernetes-agent-to-use-ca-bundle.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____12), make changes to the following section of the values.yaml file:
   -  Change the `enable` to `yes`
@@ -184,7 +236,7 @@ ca_bundle:
 ```
 
 
-### [4.5] Adding gridProxy configuration (only configure if required, & for GUI functional testing only)
+### [4.6] Adding gridProxy configuration (only configure if required, & for GUI functional testing only)
 
 - If you plan to configure your crane installation to use [gridProxy](https://help.blazemeter.com/docs/guide/functional-run-gridproxy-over-https.htm?Highlight=grid%20proxy), make changes to the following section of the `values.yaml` file. Grid Proxy enables you to run Selenium functional tests in BlazeMeter without using a local server. You can run Grid Proxy over the HTTPS protocol using the following methods:
 
@@ -203,21 +255,21 @@ gridProxy:
 ```
 
 
-### [4.6] Deploying Non_priviledge container - NON_ROOT deployment. 
-- If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to the following part of the `values` file. Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge. You can ammend the runAsGroup and runAsUser to any value of your choice. We can only have same user/groupId for both crane and child resources.
+### [4.7] Deploying Non_privilege container - NON_ROOT deployment. 
+- If you plan to deploy the Blazemeter crane as a non_privileged installation, make changes to the following part of the `values` file. Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_privilege. You can amend the runAsGroup and runAsUser to any value of your choice. We can only have same user/groupId for both crane and child resources.
 
-```YAML
+```yaml
 non_privilege_container:
   enable: no
   runAsGroup: 1337
   runAsUser: 1337
 ```
+**Note:**  
+>- Non-root deployment requires an additional feature to be enabled at account level, please contact support for enabling this feature.*
 
-*Non-root deployment requires an additional feature to be enabled at account level, please contact support for enabling this feature.*
 
 
-
-### [4.7] Enabling Service Virtualisation (Mock Services)
+### [4.8] Enabling Service Virtualisation (Mock Services)
 
 If your Private Location will run service-virtualisation (mock services), enable the `service_virtualization` section in your `values.yaml` file. This allows you to expose mock services using either Istio or NGINX ingress controllers.
 
@@ -234,15 +286,15 @@ service_virtualization:
 - **credentialName**: Name of the credential (e.g., wildcard certificate) to use.
 - **web_expose_subdomain**: Subdomain to expose mock services.
 
- **Note:**  
-> Only one ingress type can be enabled at a time. Ensure the corresponding ingress controller (NGINX or Istio) is installed and configured in your cluster.  
-> For more details, see the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html).
+**Note:**  
+>- Only one ingress type can be enabled at a time. Ensure the corresponding ingress controller (NGINX or Istio) is installed and configured in your cluster.  
+>- For more details, see the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html).
 
 
 
-### [4.8] Configure deployment to support child pods to inherit labels from the crane
+### [4.9] Configure deployment to support child resources to inherit labels from the crane
 
-- If you require a certain set of labels as part of the deployment of crane and it's child resources, we can use these `labels` values. These labels can be set for crane as well as the child pods. Add labels in a JSON format as per the example. 
+- If you require a certain set of labels as part of the deployment of crane and it's child resources, we can use these `labels` values. These labels can be set for crane as well as the child resources. Add labels in a JSON format as per the example. 
 ```yaml
 labelsCrane:
   enable: no
@@ -251,13 +303,13 @@ labelsExecutors:
   enable: no 
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
-*Note: `labelsCrane` is for labels declared for crane and `labelsExecutors` is for labels declared for child pods.*
+*Note: `labelsCrane` is for labels declared for crane and `labelsExecutors` is for labels declared for child resources.*
 
 
 
-### [4.9] Configure deployment to support for tolerations 
+### [4.10] Configure deployment to support for tolerations 
 
-- The configuration is used to specify the tolerations for crane and child pods. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
+- The configuration is used to specify the tolerations for crane and child resources. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
 ```yaml
 tolerationCrane: 
   enable: no
@@ -266,12 +318,13 @@ tolerationExecutors:
   enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 ```
-*Note: `tolerationCrane` is for tolerations declared for crane and `tolerationExecutors` is for tolerations declared for child pods.*
+**Note:** 
+>- `tolerationCrane` is for tolerations declared for crane and `tolerationExecutors` is for tolerations declared for child resources.*
 
 
 
-### [4.10] Configure deployment to support node selector for crane & child resources
-- The configuration is used to specify the node selector for crane and child pods. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
+### [4.11] Configure deployment to support node selector for crane & child resources
+- The configuration is used to specify the node selector for crane and child resources. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
 ```yaml
 nodeSelectorCrane:
   enable: no
@@ -280,41 +333,50 @@ nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
-*Note: `nodeSelectorCrane` is for node selectors declared for crane and `nodeSelectorExecutor` is for node selectors declared for child pods.*
+**Note:** 
+>- `nodeSelectorCrane` is for node selectors declared for crane and `nodeSelectorExecutor` is for node selectors declared for child resources.*
 
 
 
-### [4.11] Configure resources limits and requests for the crane & child resources.
+### [4.12] Configure resource limits and requests for Crane & child resources
 
-- If you require a CPU, MEM or EphemeralStorage limits/requests to be applied to crane and its child resources, we can use this `resourcesCrane` or `resourcesExecutors` value. The values in `resourcesCrane` values will be applied to crane deployment, while the values in `resourcesExecutors` will be applied to the child resources. You can either use one of them or both. Add required values in the below value section in the values.yaml file.
+You can specify CPU, memory, and ephemeral storage resource requests and limits for both the Crane deployment and its child resources. Use the `resourcesCrane` section for the main Crane deployment, and `resourcesExecutors` for child resources (executors/agents).
+
+Add or update the following in your `values.yaml` file:
 
 ```yaml
-# CPU & Memory limits & requests for resources for crane deployment. You can also specify ephemeral storage requests for the crane.
+# Resource requests and limits for the Crane deployment.
 resourcesCrane:  
   requests:     
     CPU: 250m
     MEM: 512Mi 
-    storage: #100
+    storage: 100      # Ephemeral storage in MB (optional)
   limits:
-    CPU: #1 
-    MEM: #2Gi
-    storage: #1024    # This is in MB
+    CPU: 1            # Example: 1 core
+    MEM: 2Gi
+    storage: 1024     # Ephemeral storage in MB (optional)
 
-# CPU & Memory limits & requests for resources created by agent. You can also specify ephemeral storage limits for the child resources.
+# Resource requests and limits for child resources (executors/agents).
 resourcesExecutors: 
   requests:           
     CPU: 1000m        
-    MEM: 4096         # This value should be an integer unlike other values that supports k8s standard for declaring resource limits/requests.
-    storage: #100     # This is in MB
+    MEM: 4096         # This value should be an integer (Mi), unlike other values that support k8s standard notation.
+    storage: 100      # Ephemeral storage in MB (optional)
   limits:
-    CPU: #2
-    MEM: #8Gi
-    storage: #1024
-
+    CPU: 2
+    MEM: 8Gi
+    storage: 1024
 ```
 
+**Notes:**
+>- `resourcesCrane` applies to the main Crane deployment.
+>- `resourcesExecutors` applies to child resources created by the agent.
+>- For `resourcesExecutors`, the `MEM` value should be an integer (in Mi), not a string (e.g., `4096` not `4096Mi`).
+>- The `storage` field is optional and represents ephemeral storage in MB.
+>- If you do not need to set resource limits or requests, you can omit these sections or leave them
 
-### [4.12] Configure the Pod Disruption Budget
+
+### [4.13] Configure the Pod Disruption Budget
 
 A [Pod Disruption Budget (PDB)](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) ensures that a minimum number of pods remain available during voluntary disruptions (such as node drains or cluster upgrades). You can configure a PDB for the Crane deployment by enabling the following settings in your `values.yaml` file.
 
@@ -332,12 +394,12 @@ podDisruptionBudget:
   matchLabels: {"app": "crane"}
 ```
 
-**Notes:**
-- If you do not require a PDB, leave `enable` as `no`.
+**Note:**
+>- If you do not require a PDB, leave `enable` as `no`.
 
 
 
-### [4.13] Configure SecretProviderClass
+### [4.14] Configure SecretProviderClass
 
 The [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/topics/introduction.html) resource is used with the [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/) to mount secrets, keys, or certificates from external secret management systems (such as Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault) into Kubernetes pods as files or Kubernetes secrets.
 
@@ -379,13 +441,13 @@ secretProviderClass:
 ```
 
 **Notes:**
-- You can specify as many as you need in the same map/slice fashion. The chart is designed to loop over these items. 
-- The `parameters` and `secretObjects` fields should be customized based on your secrets provider and use case.
-- If you do not require SecretProviderClass integration, leave `enable` as `no`.
+>- You can specify as many as you need in the same map/slice fashion. The chart is designed to loop over these items. 
+>- The `parameters` and `secretObjects` fields should be customized based on your secrets provider and use case.
+>- If you do not require SecretProviderClass integration, leave `enable` as `no`.
 
 
 
-### [4.14] Configure ExternalSecrets Operator
+### [4.15] Configure ExternalSecrets Operator
 
 The [ExternalSecrets Operator](https://external-secrets.io/) allows you to synchronize secrets from external secret management systems (such as AWS Secrets Manager or Google Cloud Secret Manager) into Kubernetes secrets. This integration is useful if you want your Crane deployment to automatically fetch and manage secrets from your external provider.
 
@@ -443,10 +505,10 @@ externalSecretsOperator:
 ```
 
 **Notes:**
-- Only enable the provider you intend to use (`aws` or `gcpsm`), please raise a support ticket if you'd like to use `azure` of some other vault. As currently the chart is only designed to work with aws or gcp.
-- The chart will use the service account associated with the deployment for authentication unless `authSecretRef` (AWS) or `secretRef` (GCP) is enabled.
-- The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
-- If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
+>- Only enable the provider you intend to use (`aws` or `gcpsm`), please raise a support ticket if you'd like to use `azure` of some other vault. As currently the chart is only designed to work with aws or gcp.
+>- The chart will use the service account associated with the deployment for authentication unless `authSecretRef` (AWS) or `secretRef` (GCP) is enabled.
+>- The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
+>- If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
 ---
 
 
@@ -459,7 +521,7 @@ helm lint <path-to-chart>
 helm template <path-to-chart>
 ```
 
-This will print the template Helm will use to install this chart. Check the values and if something is missing, please make ammends.
+This will print the template Helm will use to install this chart. Check the values and if something is missing, please make amends.
 
 ---
 
@@ -529,7 +591,7 @@ The test pod will:
   ```
 - If the test pod is stuck or fails to start, check for k8s scheduler error (possible with third-party admission controllers), image pull errors, or missing configuration.
 
-If you continue to encounter issues, please contact your cloud or DevOps team for assistance. If this continues to ba an issue, please open a support ticket with Blazemeter support.
+If you continue to encounter issues, please contact your cloud or DevOps team for assistance.
 
 ---
 
@@ -587,14 +649,14 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
-- 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Simplified the image override usage. Incorporationo of ingress setup & usage in one single config. Other minor bug fixes and template enhancements.
+- 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Simplified the image override usage. Incorporation of ingress setup & usage in one single config. Other minor bug fixes and template enhancements. Extended documentations on chart usage. 
 - 1.3.1 - Readiness and Liveness probes are now added. 
 - 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource (CPU & MEM) limit/requests are now configurable for crane and child resources and also for ephemeral storage. Simplified nesting and values configuration. The chart can now work with non-default serviceAccount. Tolerations, nodeSelector and labels can be declared for Crane and child resources separately, with Major fixes & calibrations.
 - 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
 - 1.2.2 - Chart now supports gridProxy deployment configurations
 - 1.2.1 - Chart now supports node selectors and tolerations
 - 1.2.0 - Chart now supports service virtualisation deployment using nginx-ingress
-- 1.1.0 - Chart now supports inheriting labels and resourcelimits to child pods from crane environment
+- 1.1.0 - Chart now supports inheriting labels and resourcelimits to child resources from crane environment
 - 1.0.1 - The AUTH_TOKEN can now be inherited from a secret
 - 1.0.0 - Now supports service virtualisation deployment using istio-ingress
 - 0.1.3 - Supports configuration for non_proviledge container deployment, also added a license
