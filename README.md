@@ -269,7 +269,7 @@ non_privilege_container:
 
 
 
-### [4.8] Enabling Service Virtualisation (Mock Services)
+### [4.8] Configure deployment to support Service Virtualisation (Mock Services)
 
 If your Private Location will run service-virtualisation (mock services), enable the `service_virtualization` section in your `values.yaml` file. This allows you to expose mock services using either Istio or NGINX ingress controllers.
 
@@ -292,18 +292,38 @@ service_virtualization:
 
 
 
-### [4.9] Configure deployment to support child resources to inherit labels from the crane
+### [4.9] Configuring Labels for Crane and Child Resources
 
-- If you require a certain set of labels as part of the deployment of crane and it's child resources, we can use these `labels` values. These labels can be set for crane as well as the child resources. Add labels in a JSON format as per the example. 
+You can add custom labels to the main Crane deployment, crane pod and its child resources (such as executor pods) using the following sections in your `values.yaml` file. This is useful for organizing, tracking, or applying policies to your resources.
+
+There are three label sections:
+- `labelsCraneDeployment`: Labels for the main Crane Deployment resource.
+- `labelsCranePod`: Labels for the Crane Pod.
+- `labelsExecutors`: Labels for child resources (executors/agents).
+
+Each section has:
+- `enable`: Set to `yes` to apply the labels.
+- `syntax`: Provide your labels in JSON format.
+
+**Example configuration:**
 ```yaml
-labelsCrane:
-  enable: no
-  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+labelsCraneDeployment:
+  enable: yes
+  syntax: {"environment": "prod", "team": "qa"}
+
+labelsCranePod:
+  enable: yes
+  syntax: {"purpose": "loadtest", "owner": "devops"}
+
 labelsExecutors:
-  enable: no 
-  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+  enable: yes
+  syntax: {"type": "executor", "region": "us-east-1"}
 ```
-*Note: `labelsCrane` is for labels declared for crane and `labelsExecutors` is for labels declared for child resources.*
+
+**Notes:**
+>- Use these sections to ensure your Crane deployment and all related resources are labeled according to your organization’s standards
+>- These labels are added in addition to any default labels set by the helm chart and Blazemeter.
+>- If `enable` is set to `no`, labels will not be applied for that resource type.
 
 
 
@@ -318,6 +338,7 @@ tolerationExecutors:
   enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 ```
+
 **Note:** 
 >- `tolerationCrane` is for tolerations declared for crane and `tolerationExecutors` is for tolerations declared for child resources.*
 
@@ -333,6 +354,7 @@ nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
+
 **Note:** 
 >- `nodeSelectorCrane` is for node selectors declared for crane and `nodeSelectorExecutor` is for node selectors declared for child resources.*
 

@@ -15,7 +15,7 @@ deployment:
   restartPolicy:     # Defaults to Always as recommended
 
 env: 
-  # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
+# if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
   authtoken: 
   harbour_id: 
   ship_id: 
@@ -29,7 +29,8 @@ imageOverride:
   auto_update:                            # Default: true
   auto_update_running_containers:         # Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
                                           # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
-  #executorImages:                        # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
+  pullPolicy:                             # Default: "Always"
+  #executorImages:                       # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   executorImages:
     blazemeter/crane:latest:              # "pathToYourRepo/crane:version"
     blazemeter/taurus-cloud:latest:       # "pathToYourRepo/taurus-cloud:version"
@@ -45,7 +46,6 @@ imageOverride:
   # blazemeter/charmander/firefox_128.0:latest:                  # "pathToYourRepo/charmander/firefox_128.0:version" 
   # blazemeter/charmander/chrome_128.0.6613.137:latest:          # "pathToYourRepo/charmander/chrome_128.0.6613.137:version"
 
-  pullPolicy:                             # Default: "Always"
   testImage:                              # Default: "gcr.io/verdant-bulwark-278/cranehook", used for test-hook
   testTag:                                # Default: "latest"
 
@@ -193,9 +193,8 @@ secretProviderClass:
   provider: aws
   # This is in JSON, to allow users configure different spec, like: secretPath, secretKey, objectAlias, etc. 
   objects: [{ "objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:harbour-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "harbour-id-opl"},{"objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:ship-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "ship-id-opl"}]
-  # secretObjects: [{ "data":[{"key":"harbour-id-key","objectName":"harbour-id-opl"}],"secretName":"harbour-id","type":"Opaque"},{"data":[{"key":"ship-id-key","objectName":"ship-id-opl"}],"secretName":"ship-id","type":"Opaque"}]
   secretObjects:  
-  # Comment out the below section if you do not plan to create secrets in the namespace. 
+  # Comment out the below section if you do not plan to create secrets in the namespace.
     - secretName: auth-token
       type: Opaque
       data:
