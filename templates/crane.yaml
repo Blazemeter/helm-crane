@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
   labels:
     role: {{ include "crane.roleName" . }}
-    {{ if .Values.labelsCraneDeployment.enable | default false -}}
-    {{ .Values.labelsCraneDeployment.syntax | toYaml | nindent 4 }}
+    {{ if .Values.labelsCrane.enable | default false -}}
+    {{ .Values.labelsCrane.syntax | toYaml | nindent 4 }}
     {{ end }}
   name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
@@ -19,8 +19,8 @@ spec:
   template:
     metadata:
       labels:
-      {{ if .Values.labelsCranePod.enable | default false -}}
-      {{ .Values.labelsCranePod.syntax | toYaml | nindent 8 }}
+      {{ if .Values.labelsCrane.enable | default false -}}
+      {{ .Values.labelsCrane.syntax | toYaml | nindent 8 }}
       {{ end }}
         role: {{ include "crane.roleName" . }}
         crane: ready

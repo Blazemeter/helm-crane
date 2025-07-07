@@ -297,8 +297,7 @@ service_virtualization:
 You can add custom labels to the main Crane deployment, crane pod and its child resources (such as executor pods) using the following sections in your `values.yaml` file. This is useful for organizing, tracking, or applying policies to your resources.
 
 There are three label sections:
-- `labelsCraneDeployment`: Labels for the main Crane Deployment resource.
-- `labelsCranePod`: Labels for the Crane Pod.
+- `labelsCrane`: Labels for the Crane Pod & deployment.
 - `labelsExecutors`: Labels for child resources (executors/agents).
 
 Each section has:
@@ -307,11 +306,7 @@ Each section has:
 
 **Example configuration:**
 ```yaml
-labelsCraneDeployment:
-  enable: yes
-  syntax: {"environment": "prod", "team": "qa"}
-
-labelsCranePod:
+labelsCrane:
   enable: yes
   syntax: {"purpose": "loadtest", "owner": "devops"}
 
