@@ -471,7 +471,6 @@ The [ExternalSecrets Operator](https://external-secrets.io/) allows you to synch
 You can enable and configure the ExternalSecrets Operator for the Crane deployment by updating the following section in your `values.yaml` file:
 
 - **Enable ExternalSecrets Operator**: Set `enable` to `yes` to activate the integration.
-- **useExistingSecretStore**: (Optional) Reference an existing SecretStore by name.
 - **volume**: (Optional) Configure the volume name, mount path, and readOnly flag for mounting secrets.
 - **externalSecret**: Configure the ExternalSecret resource:
   - `name`: Name of the ExternalSecret resource.
@@ -481,36 +480,43 @@ You can enable and configure the ExternalSecrets Operator for the Crane deployme
 - **secretStore**: Configure the SecretStore resource:
   - `name`: Name of the SecretStore.
   - `provider`: Configure your secrets provider (e.g., AWS or GCP).
-    - **AWS**: Set `enable` for `aws` to `true`, specify `service` and `region`, and optionally configure `role` or `authSecretRef` for authentication.
-    - **GCP**: Set `enable` for `gcpcm` to `true`, specify `projectID`, and optionally configure `secretRef` for authentication.
+    - **AWS**: Set `enable` for `aws` to `true`, specify `service` and `region`.
+      - **authSecretRef**: (Optional) Use this if you want to authenticate to AWS using static credentials (not recommended for production).  
+        - `accessKeyID`: Reference to a Kubernetes Secret containing your AWS access key ID.
+        - `secretAccessKey`: Reference to a Kubernetes Secret containing your AWS secret access key.
+        - If `authSecretRef.enable` is `false`, the chart will use the service account associated with the deployment (recommended).
+    - **GCP**: Set `enable` for `gcpsm` to `true`, specify `projectID`.
+      - **secretRef**: (Optional) Use this if you want to authenticate to GCP using a static service account key.
+        - `secretAccessKeySecretRef`: Reference to a Kubernetes Secret containing your GCP credentials.
+        - If `secretRef.enable` is `false`, the chart will use Workload Identity with the service account (recommended).
 
-For example, we are using: 
+**Example configuration:**
 ```yaml
 externalSecretsOperator:
-  enable: no
+  enable: yes
   volume: 
-    name:       # (Optional) If not provided, will be linked with release name - see helm template
-    readOnly:   # Default: true 
-    path:       # Default: /mnt/secrets  
+    name: my-secrets-volume
+    readOnly: true
+    path: /mnt/secrets  
 
   externalSecret: 
     name: blaze-external-secret
     refreshInterval: "15s"
     target:
-      name: blazemeter-secrets-store     # Name of Kubernetes Secret to make
+      name: blazemeter-secrets-store
     data:
-      - secretKey: ship-id     # New key to make
+      - secretKey: ship-id
         remoteRef:
-          key: ship-id         # Name of the Secret in Secrets Manager
-        envName: SHIP_ID       
-      - secretKey: harbour-id  # New key to make
+          key: ship-id
+        envName: SHIP_ID
+      - secretKey: harbour-id
         remoteRef:
-          key: harbour-id      # Name of the Secret in Secrets Manager
-        envName: HARBOR_ID     
-      - secretKey: auth-token  # New key to make
+          key: harbour-id
+        envName: HARBOR_ID
+      - secretKey: auth-token
         remoteRef:
-          key: auth-token      # Name of the Secret in Secrets Manager
-        envName: AUTH_TOKEN      
+          key: auth-token
+        envName: AUTH_TOKEN
   
   secretStore:
     name: blaze-secret-store
@@ -519,13 +525,34 @@ externalSecretsOperator:
         enable: true
         service: SecretsManager
         region: ap-southeast-2
+        # Optionally configure authentication using static credentials:
+        authSecretRef:
+          enable: false
+          accessKeyID:
+            name: # awssm-secret
+            key:  # access-key
+          secretAccessKey:
+            name: # awssm-secret
+            key:  # secret-access-key
+      gcpsm:
+        enable: false
+        projectID: your-gcp-project-id
+        # Optionally configure authentication using a static service account key:
+        secretRef:
+          enable: false
+          secretAccessKeySecretRef:
+            name: # gcpsm-secret
+            key:  # secret-access-credentials
 ```
 
 **Notes:**
->- Only enable the provider you intend to use (`aws` or `gcpsm`), please raise a support ticket if you'd like to use `azure` of some other vault. As currently the chart is only designed to work with aws or gcp.
->- The chart will use the service account associated with the deployment for authentication unless `authSecretRef` (AWS) or `secretRef` (GCP) is enabled.
->- The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
->- If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
+- Only enable the provider you intend to use (`aws` or `gcpsm`). For other providers (such as Azure), please contact support.
+- The chart will use the service account associated with the deployment for authentication unless `authSecretRef` (AWS) or `secretRef` (GCP) is enabled.
+- `authSecretRef` and `secretRef` allow you to reference Kubernetes secrets for static credentials, but using IAM roles (AWS) or Workload Identity (GCP) is recommended for production.
+- The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
+- If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
+- For more details, see the [ExternalSecrets Operator documentation](https://external-secrets.io/).
+
 ---
 
 
