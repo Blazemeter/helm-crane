@@ -3,9 +3,9 @@ kind: Pod
 metadata:
   name: cranehook
   namespace: {{ .Release.Namespace }}
-  {{ if .Values.labelsCranePod.enable | default false -}}
+  {{ if .Values.labelsCrane.enable | default false -}}
   labels: 
-      {{ .Values.labelsCranePod.syntax | toYaml | nindent 4 }}
+      {{ .Values.labelsCrane.syntax | toYaml | nindent 4 }}
   {{ end }}
   annotations:
     "helm.sh/hook": test
