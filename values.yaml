@@ -272,5 +272,5 @@ externalSecretsOperator:
         secretRef:
           enable: false
           secretAccessKeySecretRef:
-            name: #gcpsm-secret
-            key:  #secret-access-credentials
+            name: gcpsm-secret
+            key:  secret-access-credentials
