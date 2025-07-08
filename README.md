@@ -528,21 +528,7 @@ externalSecretsOperator:
         # Optionally configure authentication using static credentials:
         authSecretRef:
           enable: false
-          accessKeyID:
-            name: # awssm-secret
-            key:  # access-key
-          secretAccessKey:
-            name: # awssm-secret
-            key:  # secret-access-key
-      gcpsm:
-        enable: false
-        projectID: your-gcp-project-id
-        # Optionally configure authentication using a static service account key:
-        secretRef:
-          enable: false
-          secretAccessKeySecretRef:
-            name: # gcpsm-secret
-            key:  # secret-access-credentials
+#  ---- <Rest of the config> ----
 ```
 
 **Notes:**
