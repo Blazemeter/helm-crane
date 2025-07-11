@@ -495,9 +495,9 @@ You can enable and configure the ExternalSecrets Operator for the Crane deployme
 externalSecretsOperator:
   enable: yes
   volume: 
-    name: my-secrets-volume
-    readOnly: true
-    path: /mnt/secrets  
+    name: 
+    readOnly: 
+    path: 
 
   externalSecret: 
     name: blaze-external-secret
