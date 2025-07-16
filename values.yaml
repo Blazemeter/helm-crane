@@ -30,7 +30,7 @@ imageOverride:
   auto_update_running_containers:         # Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
                                           # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
   pullPolicy:                             # Default: "Always"
-  #executorImages:                       # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
+  #executorImages:                        # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   executorImages:
     blazemeter/crane:latest:              # "pathToYourRepo/crane:version"
     blazemeter/taurus-cloud:latest:       # "pathToYourRepo/taurus-cloud:version"
@@ -105,7 +105,7 @@ service_virtualization:
 
 # Labels to add to crane and child resources created by Crane, must be in JSON format.
 labelsCrane:
-  enable: yes
+  enable: no
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 labelsExecutors:
   enable: no 
