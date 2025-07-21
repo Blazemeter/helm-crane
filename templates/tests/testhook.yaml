@@ -37,7 +37,7 @@ spec:
     - name: ROLE_NAME
       value: {{ include "crane.roleName" . }}
     - name: ROLE_BINDING_NAME
-      value: {{ include "crane.roleName" . }}binding-{{ template "blazemeter-crane.serviceAccountName" . }}-{{ now | unixEpoch }}
+      value: {{ include "crane.roleName" . }}binding-{{ template "blazemeter-crane.serviceAccountName" . }}-{{ .Release.Name }}
     - name: SERVICE_ACCOUNT_NAME
       value: {{ template "blazemeter-crane.serviceAccountName" . }}
     {{ if .Values.service_virtualization.enable | default false -}}
