@@ -30,7 +30,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "crane.roleName" . }}binding-{{ template "blazemeter-crane.serviceAccountName" . }}-{{ .Release.Name }}
+  name: {{ include "crane.roleName" . }}binding-{{ template "blazemeter-crane.serviceAccountName" . }}-{{ now | unixEpoch }}
   namespace: {{ .Release.Namespace }}
 subjects:
 - kind: ServiceAccount
