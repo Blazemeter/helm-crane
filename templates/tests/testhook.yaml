@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cranehook
+  namespace: {{ .Release.Namespace }}
+  {{ if .Values.labelsCrane.enable | default false -}}
+  labels: 
+      {{ .Values.labelsCrane.syntax | toYaml | nindent 4 }}
+  {{ end }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-container-name": cranetest-ctr
+    "sidecar.istio.io/inject": "false"
+spec:
+  serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
+  automountServiceAccountToken: true
+  #ttlSecondsAfterFinished: 90
+  {{ if .Values.nodeSelectorCrane.enable | default false }}
+  nodeSelector:
+    {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}      
+  {{ end -}}
+  {{ if .Values.nodeSelectorCrane.enable }}
+  tolerations:
+    {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}
+  {{ end }}  
+  containers:
+  - name: cranehook-ctr
+    securityContext:
+      runAsUser: 1337
+      runAsGroup: 1337
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+    env: 
+    - name: WORKING_NAMESPACE
+      value: {{ .Release.Namespace | quote }}
+    - name: ROLE_NAME
+      value: {{ include "crane.roleName" . }}
+    - name: ROLE_BINDING_NAME
+      value: {{ include "crane.roleName" . }}binding-{{ template "blazemeter-crane.serviceAccountName" . }}-{{ .Release.Name }}
+    - name: SERVICE_ACCOUNT_NAME
+      value: {{ template "blazemeter-crane.serviceAccountName" . }}
+    {{ if .Values.service_virtualization.enable | default false -}}
+      {{ if eq .Values.service_virtualization.ingressType "istio" }}  
+    - name: KUBERNETES_WEB_EXPOSE_TYPE
+      value: "ISTIO"
+    - name: KUBERNETES_ISTIO_GATEWAY_NAME
+      value: {{ .Release.Name }}-gateway
+      {{ else if eq .Values.service_virtualization.ingressType "nginx" }}
+    - name: KUBERNETES_WEB_EXPOSE_TYPE
+      value: "INGRESS"
+      {{ end }}
+    - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+      value: {{ .Values.service_virtualization.credentialName | quote }}
+    {{ end }}
+    - name: DOCKER_REGISTRY
+      value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
+    {{ if .Values.proxy.enable | default false -}}
+      {{ if ne .Values.proxy.http_path "" }}
+    - name: HTTP_PROXY
+      value: {{ .Values.proxy.http_path }}
+      {{ end -}}
+      {{ if ne .Values.proxy.https_path "" }}
+    - name: HTTPS_PROXY
+      value: {{ .Values.proxy.https_path }}
+      {{ end }}
+    - name: NO_PROXY
+      value: {{ .Values.proxy.no_proxy | default "kubernetes.default,127.0.0.1,localhost"}}
+    {{ end -}}
+    image: {{ .Values.imageOverride.testImage | default "gcr.io/verdant-bulwark-278/cranehook"}}:{{ .Values.imageOverride.testTag | default "latest" }}
+    imagePullPolicy: "Always"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi 
+    volumeMounts:
+      - name: testhook-tmp
+        mountPath: /tmp/testhook    
+  volumes:
+    - name: testhook-tmp
+      emptyDir: {}
+  restartPolicy: "Never"

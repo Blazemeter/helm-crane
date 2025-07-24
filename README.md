@@ -4,13 +4,14 @@
 
 Deploy Blazemeter private location to your Kubernetes cluster using HELM chart. The chart allows to make advanced/custom configurations to your Blazemeter private location deployment. 
 
-![Helm-crane](/Image.png)
+![Helm-crane](/logo.png)
 
 ## [1.0] Requirements
 1. A [BlazeMeter account](https://a.blazemeter.com/)
 2. A Kubernetes cluster
 3. Latest [Helm installed](https://helm.sh/docs/helm/helm_version/)
 4. The kubernetes cluster needs to fulfill [Blazemeter Private location requirements](https://help.blazemeter.com/docs/guide/private-locations-system-requirements.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____1)
+---
 
 
 ## [2.0] Generating Harbour_ID, Ship_ID and Auth_token in Blazemeter
@@ -67,99 +68,157 @@ tar -xvf helm-crane(version).tgz
 
 - Open the `values` file to apply configurations as per your deployment requirements. 
 
-#### [4.1] Adding the basic/required configurations
-- Add the Harbour_ID, Ship_ID and Auth_token in the `values.yaml` file.  `harbour_id`, `ship_id` and `authtoken` are the one we aquired earlier see: [2.0](#20-generating-harbour_id-ship_id-and-auth_token-in-blazemeter)
+### [4.1] Adding the basic/required configurations
 
+Before installing the chart, you must provide your BlazeMeter `harbour_id`, `ship_id`, and `authtoken` in the `values.yaml` file. These values are required for the Crane deployment to register and authenticate with BlazeMeter.  
+Refer to [2.0](#20-generating-harbour_id-ship_id-and_auth_token-in-blazemeter) for instructions on how to obtain these values.
+
+**Example:**
 ```yaml
-env: 
-  # if you plan to pass the AUTH_TOKEN through secret in the crane ENV variables set secret to yes and add secret name and key
-  secret_authtoken:
-    enable: no
-    secretName: "your-secretName"
-    secretKey: "authtoken"
-  authtoken:  "MY_SAMPLE_TOKEN-shfowh243owijoidh243o2nosIOIJONo2414"
-  harbour_id: "MY_SAMPLE_HARBOURID"
-  ship_id: "MY_SAMPLE_SHIPID"
+env:
+  authtoken:  "YOUR_AUTH_TOKEN"
+  harbour_id: "YOUR_HARBOUR_ID"
+  ship_id:    "YOUR_SHIP_ID"
 ```
 
-- If you require the AUTH_TOKEN for any crane installation to be secret/secure, the ENV values for AUTH_TOKEN can be inherited from the k8s secret. You will need to make changes to `secret_authtoken` part of the `values` file. In that case, the `authtoken` value will be ignored. Make sure the cluster/namespace has the secret applied in the following format:
+- Replace the example values above with your actual credentials.
 
-```YAML
-apiVersion: v1
-kind: Secret
-metadata:
-  name: <your-secretName>
-  namespace: <namespace name>
-type: Opaque
-data:
-  authtoken: ZjIzZjU0ZTIwODk5ZWYwYzgzYmJkMzZmYzU3ODlhNzc3ODJjYTY1YjJjODIzZTMyMjY3NDcxM2QzZTc3Mzg2Yw==
+#### Using Kubernetes Secrets or External Secret Managers
+
+If you want to keep your credentials secure and **not** store them directly in `values.yaml`, you can use one of the following integrations:
+
+- **SecretProviderClass** (CSI Driver)
+- **ExternalSecrets Operator**
+
+When either of these integrations is enabled (`secretProviderClass.enable: yes` or `externalSecretsOperator.enable: yes`), the `env.authtoken`, `env.harbour_id`, and `env.ship_id` values in `values.yaml` will be ignored, and the credentials will be sourced from your external secret store.
+
+**Example:**
+```yaml
+secretProviderClass:
+  enable: yes
+  provider: aws
+  # ...other configuration...
+```
+or
+```yaml
+externalSecretsOperator:
+  enable: yes
+  # ...other configuration...
 ```
 
-- Additionally, you can now configure the deployment settings, like non-default serviceAccount, role & clusterrole name and restart policy in the below section of the `values` file.
+**Notes:**  
+>- If you use a secret manager, ensure your secret keys and environment variable mappings are correct in the relevant section.
+>- See [4.14](#414-configure-secretproviderclass) and [4.15](#415-configure-externalsecrets-operator) for detailed configuration examples.
+
+
+**Important:**  
+- Only set credentials in one place. If both `env` and a secret integration are set, the secret integration takes precedence.
+- Do **not** commit sensitive values to version control.
+
+---
+
+### [4.2] Configuring Deployment Options
+
+The `.Values.deployment` section in `values.yaml` controls how the main Crane deployment is created, including service account, RBAC roles, and restart policy of the deployment (should it fails).
+
+**Example:**
 ```yaml
 deployment:
-  # This is the name of roles and clusterroles created by the chart.
-  role: "roleCrane"
-  clusterrole: "cluster-roleCrane"
+  role:                # (Optional) Name of an existing Role to use in the namespace. If not set, defaults to <releaseName>-role.
+  clusterrole:         # (Optional) Name of an existing ClusterRole to use. If not set, defaults to <releaseName>-clusterrole.
   serviceAccount:
-  # Specifies whether a ServiceAccount should be created. 
-    create: false
-  # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name:
-  restartPolicy: "Always"
+    create: false      # Set to true to create a new ServiceAccount, or false to use an existing one.
+    name:              # (Optional) Name of the ServiceAccount to use. Leave empty to use the default.
+    annotations:       # (Optional) Annotations to add to the ServiceAccount.
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
+      custom.annotation/key: custom-value
+  restartPolicy:       # (Optional) Pod restart policy. Defaults to "Always".
 ```
 
-#### [4.2] Configuring the default image settings
+- `role`: Use an existing Kubernetes Role for RBAC. Leave empty to let the chart create one.
+- `clusterrole`: Use an existing ClusterRole for cluster-wide permissions. Leave empty to let the chart create one.
+- `serviceAccount.create`: If `true`, the chart creates a new ServiceAccount. If `false`, you must specify an existing ServiceAccount in `serviceAccount.name`. 
+- `serviceAccount.name`: Name of the ServiceAccount to use. If empty, the default ServiceAccount is used.
+- `serviceAccount.annotations`: Add custom annotations (e.g., for IAM roles or workload identity).
+- `restartPolicy`: Pod restart policy (`Always`, `OnFailure`, or `Never`). Defaults to `Always`.
 
-- You can configure the settings for image pull-policy, auto-update, etc. in the `image` values. If the `auto-update` is not a desired option, it can be set to `false`, which will disable the auto-update for crane and its components. Similarly, the `pull` policy can be changed to `Always` or `IfNotPresent` as per the requirement. If the cluster cache is configured to preserve the images for longer duration, changing the pull policy is desirable. 
+**Notes:**
+- If your cluster uses IAM roles for service accounts (IRSA) or workload identity, add the required annotations under `serviceAccount.annotations`.
+- If `create: false`, the chart will not create or modify the existing ServiceAccount, and the annotations in values.yaml will be ignored.
+- If you want to use pre-existing RBAC roles, specify their names in `role` and `clusterrole`.
+- For most installations, you can leave these fields at their defaults unless you have specific security or compliance requirements.
 
+**Example for creating a new ServiceAccount with a custom IAM role:**
 ```yaml
-image:   
-  docker_registry: "gcr.io/verdant-bulwark-278"  #default registry for Blazemeter crane (DO NOT CHANGE)
-  image: "gcr.io/verdant-bulwark-278/blazemeter/crane"  #default image for Blazemeter crane (DO NOT CHANGE)
-  tag: "latest-master"
-  auto_update: true                             
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  pullPolicy: "Always"
+deployment:
+  serviceAccount:
+    create: true
+    name: my-existing-sa
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/my-crane-role
 ```
 
-*Note: Do not change the default Blazemeter registry, image or tag values here, use the `imageOverride` section to override the default settings.*
 
+### [4.3] Configuring Image Overrides
 
-#### [4.3] Configuring the image override settings
+The chart supports overriding the default images used for Crane and its components through the `imageOverride` section in your `values.yaml` file. This allows you to specify custom registries, images, tags, and pull policies for all relevant containers.
 
-- You can override the default image settings by adding the `imageOverride` section in the `values.yaml` file by switching the `enable` to `yes`. Replace the `docker_registry` and `image` values with the custom registry and image path.
-
-- Similarly, replace the path:`pathToYourRepo` with the custom image path and available version tag in your private repository. Please refer the commented example in the below snippet. Similary, if the `auto-update` is not a desired option, it can be set to `false`, which will disable the auto-update for crane and its components. Similarly, the `pull` policy can be changed to `Always` or `IfNotPresent` as per the requirement.
-
+Example configuration:
 ```yaml
 imageOverride:
-  enable: no
-  #If imageOverride is enabled, also make sure to change/modify the docker_registry as well as image path below.
   docker_registry: "gcr.io/<custom-registry>"
-  image: "gcr.io/<custom-registry>/blazemeter/crane"
+  craneImage: "gcr.io/<custom-registry>/blazemeter/crane"
   tag: "latest-master"
   auto_update: true
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
-  images: {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
+  auto_update_running_containers: false
+  executorImages:
+    taurus-cloud:latest: "pathToYourRepo/taurus-cloud:version"
+    torero:latest: "pathToYourRepo/torero:version"
+    blazemeter/service-mock:latest: "pathToYourRepo/service-mock:version"
+    blazemeter/mock-pc-service:latest: "pathToYourRepo/mock-pc-service:version"
+    blazemeter/sv-bridge:latest: "pathToYourRepo/sv-bridge:version"
+    blazemeter/doduo:latest: "pathToYourRepo/doduo:version"
   pullPolicy: "Always"
+  testImage: "gcr.io/verdant-bulwark-278/cranehook"
+  testTag: "latest"
 ```
 
+- **docker_registry**: Custom Docker registry for all images.
+- **craneImage**: Path to the Crane image.
+- **tag**: Image tag to use.
+- **auto_update**: Enable or disable automatic updates.
+- **auto_update_running_containers**: Control auto-update for running containers.
+- **executorImages**: Map of executor/component images to override.
+- **pullPolicy**: Image pull policy (`Always`, `IfNotPresent`, etc.).
+- **testImage** and **testTag**: Image and tag for the test hook.
 
-#### [4.4] Adding Proxy config details
-- If the [proxy](https://help.blazemeter.com/docs/guide/private-locations-optional-installation-step-configure-agents-to-use-corporate-proxy.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____10#h_4a05699b-fb2d-4d9b-933d-11b5e3befaca) needs to be configured, change the value for `enable` to `yes`. Add the configuration for `http_proxy` or/and `https_proxy`. Make sure the values are set to `yes` before adding the proxy `path`, as shown below:
+**Note:**  
+>- If you do not need to override images, you can leave this section commented or empty, and the chart will use the default images provided by BlazeMeter.
 
+
+### [4.4] Configure Proxy Settings
+
+If your environment requires the use of a proxy, you can enable and configure proxy settings for the Crane deployment. Set `enable` to `yes` and provide the relevant proxy URLs in your `values.yaml` file.
+
+Example configuration:
 ```yaml
 proxy:
   enable: yes
-  http_proxy: yes
-  http_path: "http://server:port" 
-  https_proxy: yes
+  http_path: "http://your-http-proxy:port"
+  https_path: "https://your-https-proxy:port"
   no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 ```
 
-#### [4.5] Adding CA certificates
+- **enable**: Set to `yes` to activate proxy configuration.
+- **http_path**: (Optional) HTTP proxy URL.
+- **https_path**: (Optional) HTTPS proxy URL.
+- **no_proxy**: (Optional) Comma-separated list of hosts or domains that should bypass the proxy.
+
+**Note:**  
+>- Only set the proxy values if your cluster requires outbound traffic to go through a proxy. The `no_proxy` field helps exclude internal or local addresses (defaults to "kubernetes.default,127.0.0.1,localhost")
+
+
+### [4.5] Adding CA certificates (only configure if required, & for service virtualisation only)
 
 - If you plan to configure the Kubernetes installation to use [CA certificates](https://help.blazemeter.com/docs/guide/private-locations-optional-installation-step-configure-kubernetes-agent-to-use-ca-bundle.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____12), make changes to the following section of the values.yaml file:
   -  Change the `enable` to `yes`
@@ -176,7 +235,8 @@ ca_bundle:
     readOnly: true
 ```
 
-#### [4.6] Adding gridProxy configuration
+
+### [4.6] Adding gridProxy configuration (only configure if required, & for GUI functional testing only)
 
 - If you plan to configure your crane installation to use [gridProxy](https://help.blazemeter.com/docs/guide/functional-run-gridproxy-over-https.htm?Highlight=grid%20proxy), make changes to the following section of the `values.yaml` file. Grid Proxy enables you to run Selenium functional tests in BlazeMeter without using a local server. You can run Grid Proxy over the HTTPS protocol using the following methods:
 
@@ -195,62 +255,76 @@ gridProxy:
 ```
 
 
+### [4.7] Deploying Non_privilege container - NON_ROOT deployment. 
+- If you plan to deploy the Blazemeter crane as a non_privileged installation, make changes to the following part of the `values` file. Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_privilege. You can amend the runAsGroup and runAsUser to any value of your choice. We can only have same user/groupId for both crane and child resources.
 
-#### [4.5] Deploying Non_priviledge container - NON_ROOT deployment. 
-- If you plan to deploy the Blazemeter crane as a non_Priviledged installation, make changes to the following part of the `values` file. Change the `enable` to `yes` and this will automatically run the deployment and consecutive pods as Non_root/Non_priviledge. You can ammend the runAsGroup and runAsUser to any value of your choice. We can only have same user/groupId for both crane and child resources.
-
-```YAML
+```yaml
 non_privilege_container:
   enable: no
   runAsGroup: 1337
   runAsUser: 1337
 ```
+**Note:**  
+>- Non-root deployment requires an additional feature to be enabled at account level, please contact support for enabling this feature.*
 
-*Non-root deployment requires an additional feature to be enabled at account level, please contact support for enabling this feature.*
 
 
-#### [4.6] Installing Istio based crane for mock service deployment within the k8s cluster
-- If this OPL/Private location is going to run mock services using istio-ingress, make changes to the following part of the `values` file. Change `enable` to `yes` and this will automatically setup istio-ingress for this crane deployment. This will allow outside traffic to access the service-virtualisation pod. However, make sure istio is already installed and configured as per the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6) 
+### [4.8] Configure deployment to support Service Virtualisation (Mock Services)
+
+If your Private Location will run service-virtualisation (mock services), enable the `service_virtualization` section in your `values.yaml` file. This allows you to expose mock services using either Istio or NGINX ingress controllers.
 
 ```yaml
-istio_ingress: 
-  enable: no
+service_virtualization: 
+  enable: yes
+  ingressType: nginx         # or istio, depending on your cluster setup
   credentialName: "wildcard-credential"
   web_expose_subdomain: "mydomain.local"
-  istio_gateway_name: "bzm-gateway"
-```
-*You can either use istio-ingress or nginx-ingress for mock service deployment. However, you cannot use both at the same time.* 
-
-
-#### [4.7] Installing Nginx Ingress-based crane for mock service deployment 
-- If this OPL/Private location is going to run mock services using nginx-ingress, make changes to following part of the `values` file. Change the `enable` to `yes` and this will automatically set up nginx-ingress for this installation, which will allow outside traffic to access the mock-service pod. However, make sure nginx is already installed and configured. [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html?tocpath=Private%20Locations%7CInstallation%20of%20Private%20Locations%7C_____6)
-
-```yaml
-nginx_ingress:
-  enable: yes
-  credentialName: "wildcard-credential"
-  web_expose_subdomain: "mydomain.local" 
 ```
 
-*You can either use istio-ingress or nginx-ingress for mock service deployment. However, you cannot use both at the same time.* 
+- **enable**: Set to `yes` to activate service virtualisation.
+- **ingressType**: Choose `nginx` or `istio` based on your ingress controller.
+- **credentialName**: Name of the credential (e.g., wildcard certificate) to use.
+- **web_expose_subdomain**: Subdomain to expose mock services.
+
+**Note:**  
+>- Only one ingress type can be enabled at a time. Ensure the corresponding ingress controller (NGINX or Istio) is installed and configured in your cluster.  
+>- For more details, see the [Blazemeter guide](https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html).
 
 
-#### [4.9] Configure deployment to support child pods to inherit labels from the crane
 
-- If you require a certain set of labels as part of the deployment of crane and it's child resources, we can use these `labels` values. These labels can be set for crane as well as the child pods. Add labels in a JSON format as per the example. 
+### [4.9] Configuring Labels for Crane and Child Resources
+
+You can add custom labels to the main Crane deployment, crane pod and its child resources (such as executor pods) using the following sections in your `values.yaml` file. This is useful for organizing, tracking, or applying policies to your resources.
+
+There are three label sections:
+- `labelsCrane`: Labels for the Crane Pod & deployment.
+- `labelsExecutors`: Labels for child resources (executors/agents).
+
+Each section has:
+- `enable`: Set to `yes` to apply the labels.
+- `syntax`: Provide your labels in JSON format.
+
+**Example configuration:**
 ```yaml
 labelsCrane:
-  enable: no
-  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+  enable: yes
+  syntax: {"purpose": "loadtest", "owner": "devops"}
+
 labelsExecutors:
-  enable: no 
-  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+  enable: yes
+  syntax: {"type": "executor", "region": "us-east-1"}
 ```
-*Note: `labelsCrane` is for labels declared for crane and `labelsExecutors` is for labels declared for child pods.*
 
-#### [4.12] Configure deployment to support for tolerations 
+**Notes:**
+>- Use these sections to ensure your Crane deployment and all related resources are labeled according to your organization’s standards
+>- These labels are added in addition to any default labels set by the helm chart and Blazemeter.
+>- If `enable` is set to `no`, labels will not be applied for that resource type.
 
-- The configuration is used to specify the tolerations for crane and child pods. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
+
+
+### [4.10] Configure deployment to support for tolerations 
+
+- The configuration is used to specify the tolerations for crane and child resources. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
 ```yaml
 tolerationCrane: 
   enable: no
@@ -259,11 +333,14 @@ tolerationExecutors:
   enable: no
   syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 ```
-*Note: `tolerationCrane` is for tolerations declared for crane and `tolerationExecutors` is for tolerations declared for child pods.*
+
+**Note:** 
+>- `tolerationCrane` is for tolerations declared for crane and `tolerationExecutors` is for tolerations declared for child resources.*
 
 
-#### [4.10] Configure deployment to support node selector for crane & child resources
-- The configuration is used to specify the node selector for crane and child pods. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
+
+### [4.11] Configure deployment to support node selector for crane & child resources
+- The configuration is used to specify the node selector for crane and child resources. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
 ```yaml
 nodeSelectorCrane:
   enable: no
@@ -272,37 +349,198 @@ nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
 ```
-*Note: `nodeSelectorCrane` is for node selectors declared for crane and `nodeSelectorExecutor` is for node selectors declared for child pods.*
+
+**Note:** 
+>- `nodeSelectorCrane` is for node selectors declared for crane and `nodeSelectorExecutor` is for node selectors declared for child resources.*
 
 
-#### [4.11] Configure resources limits and requests for the crane & child resources.
 
-- If you require a CPU, MEM or EphemeralStorage limits/requests to be applied to crane and its child resources, we can use this `resourcesCrane` or `resourcesExecutors` value. The values in `resourcesCrane` values will be applied to crane deployment, while the values in `resourcesExecutors` will be applied to the child resources. You can either use one of them or both. Add required values in the below value section in the values.yaml file.
+### [4.12] Configure resource limits and requests for Crane & child resources
+
+You can specify CPU, memory, and ephemeral storage resource requests and limits for both the Crane deployment and its child resources. Use the `resourcesCrane` section for the main Crane deployment, and `resourcesExecutors` for child resources (executors/agents).
+
+Add or update the following in your `values.yaml` file:
 
 ```yaml
-# CPU & Memory limits & requests for resources for crane deployment. You can also specify ephemeral storage requests for the crane.
+# Resource requests and limits for the Crane deployment.
 resourcesCrane:  
   requests:     
     CPU: 250m
     MEM: 512Mi 
-    storage: #100
+    storage: 100      # Ephemeral storage in MB (optional)
   limits:
-    CPU: #1 
-    MEM: #2Gi
-    storage: #1024    # This is in MB
+    CPU: 1            # Example: 1 core
+    MEM: 2Gi
+    storage: 1024     # Ephemeral storage in MB (optional)
 
-# CPU & Memory limits & requests for resources created by agent. You can also specify ephemeral storage limits for the child resources.
+# Resource requests and limits for child resources (executors/agents).
 resourcesExecutors: 
   requests:           
     CPU: 1000m        
-    MEM: 4096         # This value should be an integer unlike other values that supports k8s standard for declaring resource limits/requests.
-    storage: #100     # This is in MB
+    MEM: 4096         # This value should be an integer (Mi), unlike other values that support k8s standard notation.
+    storage: 100      # Ephemeral storage in MB (optional)
   limits:
-    CPU: #2
-    MEM: #8Gi
-    storage: #1024
-
+    CPU: 2
+    MEM: 8Gi
+    storage: 1024
 ```
+
+**Notes:**
+>- `resourcesCrane` applies to the main Crane deployment.
+>- `resourcesExecutors` applies to child resources created by the agent.
+>- For `resourcesExecutors`, the `MEM` value should be an integer (in Mi), not a string (e.g., `4096` not `4096Mi`).
+>- The `storage` field is optional and represents ephemeral storage in MB.
+>- If you do not need to set resource limits or requests, you can omit these sections or leave them
+
+
+### [4.13] Configure the Pod Disruption Budget
+
+A [Pod Disruption Budget (PDB)](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) ensures that a minimum number of pods remain available during voluntary disruptions (such as node drains or cluster upgrades). You can configure a PDB for the Crane deployment by enabling the following settings in your `values.yaml` file.
+
+- **Enable PDB**: Set `enable` to `yes` to activate the PDB.
+- **minAvailable / maxUnavailable**: Specify either `minAvailable` (minimum pods that must be available) or `maxUnavailable` (maximum pods that can be unavailable). If both are set, `minAvailable` takes precedence.
+- **matchLabels**: You can then specify the labels to match pods for the PDB.
+
+Example configuration:
+```yaml
+podDisruptionBudget:
+  enable: yes
+  # Only one of minAvailable or maxUnavailable should be set.
+  minAvailable: 1
+  # maxUnavailable: 1
+  matchLabels: {"app": "crane"}
+```
+
+**Note:**
+>- If you do not require a PDB, leave `enable` as `no`.
+
+
+
+### [4.14] Configure SecretProviderClass
+
+The [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/topics/introduction.html) resource is used with the [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/) to mount secrets, keys, or certificates from external secret management systems (such as Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault) into Kubernetes pods as files or Kubernetes secrets.
+
+You can enable and configure SecretProviderClass for the Crane deployment by updating the following section in your `values.yaml` file:
+
+- **Enable SecretProviderClass**: Set `enable` to `yes` to activate the integration.
+- **provider**: Specify the external secrets provider (e.g., `azure`, `aws`, `vault`).
+- **objects**: Add a list of provider-specific objects (such as secrets, alias or keys, etc.)
+- **secretObjects**: (Optional) Define Kubernetes secrets to be created from the mounted content.
+- **envName**: This is not a standard parameter in secretProviderClass, however, you are required to put in the env variable the specific secret is going to replace/populate. 
+
+Example configuration:
+```yaml
+secretProviderClass:
+  enable: yes
+  provider: aws
+  # This is in JSON, to allow users configure different spec, like: secretPath, secretKey, objectAlias, etc. 
+  objects: [{ "objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:harbour-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "harbour-id-opl"},{"objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:ship-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "ship-id-opl"}]
+  secretObjects:  
+  # Comment out the below section if you do not plan to create secrets in the namespace. 
+    - secretName: auth-token
+      type: Opaque
+      data:
+        - key: auth-token-key
+          objectName: auth-token-opl
+      envName: AUTH_TOKEN
+    - secretName: harbour-id
+      type: Opaque
+      data:
+        - key: harbour-id-key
+          objectName: harbour-id-opl
+      envName: HARBOR_ID
+    - secretName: ship-id
+      type: Opaque
+      data:
+        - key: ship-id-key
+          objectName: ship-id-opl
+      envName: SHIP_ID
+```
+
+**Notes:**
+>- You can specify as many as you need in the same map/slice fashion. The chart is designed to loop over these items. 
+>- The `parameters` and `secretObjects` fields should be customized based on your secrets provider and use case.
+>- If you do not require SecretProviderClass integration, leave `enable` as `no`.
+
+
+
+### [4.15] Configure ExternalSecrets Operator
+
+The [ExternalSecrets Operator](https://external-secrets.io/) allows you to synchronize secrets from external secret management systems (such as AWS Secrets Manager or Google Cloud Secret Manager) into Kubernetes secrets. This integration is useful if you want your Crane deployment to automatically fetch and manage secrets from your external provider.
+
+You can enable and configure the ExternalSecrets Operator for the Crane deployment by updating the following section in your `values.yaml` file:
+
+- **Enable ExternalSecrets Operator**: Set `enable` to `yes` to activate the integration.
+- **volume**: (Optional) Configure the volume name, mount path, and readOnly flag for mounting secrets.
+- **externalSecret**: Configure the ExternalSecret resource:
+  - `name`: Name of the ExternalSecret resource.
+  - `refreshInterval`: How often the operator should refresh the secret.
+  - `target.name`: Name of the Kubernetes Secret to create.
+  - `data`: List of secrets to fetch, mapping `secretKey` (Kubernetes key) to `remoteRef.key` (external secret name) and `envName` (environment variable to populate).
+- **secretStore**: Configure the SecretStore resource:
+  - `name`: Name of the SecretStore.
+  - `provider`: Configure your secrets provider (e.g., AWS or GCP).
+    - **AWS**: Set `enable` for `aws` to `true`, specify `service` and `region`.
+      - **authSecretRef**: (Optional) Use this if you want to authenticate to AWS using static credentials (not recommended for production).  
+        - `accessKeyID`: Reference to a Kubernetes Secret containing your AWS access key ID.
+        - `secretAccessKey`: Reference to a Kubernetes Secret containing your AWS secret access key.
+        - If `authSecretRef.enable` is `false`, the chart will use the service account associated with the deployment (recommended).
+    - **GCP**: Set `enable` for `gcpsm` to `true`, specify `projectID`.
+      - **secretRef**: (Optional) Use this if you want to authenticate to GCP using a static service account key.
+        - `secretAccessKeySecretRef`: Reference to a Kubernetes Secret containing your GCP credentials.
+        - If `secretRef.enable` is `false`, the chart will use Workload Identity with the service account (recommended).
+
+**Example configuration:**
+```yaml
+externalSecretsOperator:
+  enable: yes
+  volume: 
+    name: 
+    readOnly: 
+    path: 
+
+  externalSecret: 
+    name: blaze-external-secret
+    refreshInterval: "15s"
+    target:
+      name: blazemeter-secrets-store
+    data:
+      - secretKey: ship-id
+        remoteRef:
+          key: ship-id
+        envName: SHIP_ID
+      - secretKey: harbour-id
+        remoteRef:
+          key: harbour-id
+        envName: HARBOR_ID
+      - secretKey: auth-token
+        remoteRef:
+          key: auth-token
+        envName: AUTH_TOKEN
+  
+  secretStore:
+    name: blaze-secret-store
+    provider:
+      aws:
+        enable: true
+        service: SecretsManager
+        region: ap-southeast-2
+        # Optionally configure authentication using static credentials:
+        authSecretRef:
+          enable: false
+#  ---- <Rest of the config> ----
+```
+
+**Notes:**
+- Only enable the provider you intend to use (`aws` or `gcpsm`). For other providers (such as Azure), please contact support.
+- The chart will use the service account associated with the deployment for authentication unless `authSecretRef` (AWS) or `secretRef` (GCP) is enabled.
+- `authSecretRef` and `secretRef` allow you to reference Kubernetes secrets for static credentials, but using IAM roles (AWS) or Workload Identity (GCP) is recommended for production.
+- The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
+- If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
+- For more details, see the [ExternalSecrets Operator documentation](https://external-secrets.io/).
+
+---
+
 
 ## [5.0] Verify if everything is setup correctly
 
@@ -313,7 +551,10 @@ helm lint <path-to-chart>
 helm template <path-to-chart>
 ```
 
-This will print the template Helm will use to install this chart. Check the values and if something is missing, please make ammends.
+This will print the template Helm will use to install this chart. Check the values and if something is missing, please make amends.
+
+---
+
 
 ## [6.0] Installing the chart
 
@@ -321,41 +562,131 @@ This will print the template Helm will use to install this chart. Check the valu
 ```sh
 helm install crane /path/to/chart --namespace <namespace name>
 ```
-**Here, crane is the name we are setting for the chart on our system. Make sure the namespace is declared here.**
+**Here, crane is the name we are setting for the chart release**
+
+---
 
 
-## [7.0] Verify the chart installation
 
-- To verify the installation of our Helm chart run:
+## [7.0] Testing the chart & k8s infrastructure
+
+After installing the chart, you can verify both the deployment and the underlying Kubernetes infrastructure using Helm’s built-in test hooks. This chart includes a test pod that checks for essential connectivity and configuration, ensuring your environment is ready for BlazeMeter workloads.
+
+### [7.1] Run the Helm test
+
+To execute the test:
+
 ```sh
-helm list -n <namespace name>
+helm test <release-name> -n <namespace>
 ```
-This will list all the Helm charts installed in the given namespace `-n`. 
 
-## [8.0] Uninstalling the chart
+- Replace `<release-name>` with the name you used for your Helm release (e.g., `crane`).
+- Replace `<namespace>` with the namespace where you installed the chart.
+
+### [7.2] What does the test do?
+
+The test pod will:
+- Validate that the Cluster resources are suitable to run Crane & child deployment
+- Check for required roles and mappings.
+- Verify network connectivity and DNS resolution from within the cluster.
+- Validate if the required k8s resources are deployed to support crane and its functionalities
+
+
+### [7.3] Interpreting results
+
+- **Success:**  
+  If the test passes, you’ll see output similar to:
+  ```sh
+  NAME: crane
+  LAST DEPLOYED: Tue Jun  3 20:24:12 2025
+  NAMESPACE: default
+  STATUS: deployed
+  REVISION: 5
+  TEST SUITE:     cranetesthook
+  Last Started:   Tue Jun  3 20:24:24 2025
+  Last Completed: Tue Jun  3 20:24:30 2025
+  Phase:          Succeeded
+  ```
+  This means your chart and infrastructure are ready.
+
+- **Failure:**  
+  If the test fails, review the logs for details. The `--logs` flag would point to the issue that is causing the failure.
+  Common issues include missing secrets, network restrictions, or misconfigured values/specs. Address any reported issues and re-run the test.
+
+### [7.4] Additional tips
+
+- You can add the `--logs` flag to `helm test` to automatically print the test pod logs:
+  ```sh
+  helm test <release-name> --logs
+  ```
+- If the test pod is stuck or fails to start, check for k8s scheduler error (possible with third-party admission controllers), image pull errors, or missing configuration.
+
+If you continue to encounter issues, please contact your cloud or DevOps team for assistance.
+
+---
+
+
+## [8.0] Upgrading the existing chart
+
+To upgrade your existing Helm release to a new version of the chart, use the `helm upgrade` command. This allows you to apply new chart versions or updated configuration values without uninstalling and reinstalling.
+
+### [8.1] Basic upgrade command
+
+```sh
+helm upgrade <release-name> /path/to/newchart -n <namespace>
+```
+- Replace `<release-name>` with the name of your Helm release (e.g., `crane`).
+- Replace `/path/to/newchart` with the path to the new or updated chart directory or `.tgz` file.
+- Replace `<namespace>` with the namespace where your release is installed.
+
+### [8.2] Upgrading with custom values
+
+If you have a custom `values.yaml` file, specify it with the `-f` flag:
+
+```sh
+helm upgrade <release-name> /path/to/newchart -n <namespace> -f /path/to/values.yaml
+```
+
+You can specify multiple `-f` flags to merge several values files.
+
+### [8.3] Additional tips
+
+- Before upgrading, you can preview the changes with:
+  ```sh
+  helm diff upgrade <release-name> /path/to/newchart -n <namespace> -f /path/to/values.yaml
+  ```
+  (Requires the [helm-diff plugin](https://github.com/databus23/helm-diff).)
+- If you want to force resource updates (for example, if only config or secrets changed), add `--force`:
+  ```sh
+  helm upgrade <release-name> /path/to/newchart -n <namespace> --force
+  ```
+- After upgrading, verify the deployment and run the Helm test as described in the previous section.
+
+If you encounter issues during upgrade, review the output for errors and consult the [Helm upgrade documentation](https://helm.sh/docs/helm/helm_upgrade/).
+
+---
+
+
+## [9.0] Uninstalling the chart
 
 - To uninstall the Helm chart run:
 ```sh
 helm uninstall <release-name> -n <namespace name>
 ```
+---
 
-## [9.0] Recommendations
 
-It is recommended to install this Helm chart onto the auto-scalable cluster for example - [EKS](https://aws.amazon.com/eks/), [GKE](https://cloud.google.com/kubernetes-engine) or [AKS](https://azure.microsoft.com/en-in/products/kubernetes-service/#:~:text=Azure%20Kubernetes%20Service%20(AKS)%20offers,edge%2C%20and%20multicloud%20Kubernetes%20clusters.). 
-
-However, make sure you are scaling the nodes, as it is not recommended to go with EKS Fargate or GKE Autopilot, as these autoscaling methods are not supported/tested for Blazemeter crane deployments. 
-
-Therefore, ***always go with Node autoscaling***
 
 ## [10.0] Changelog:
 
+- 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Simplified the image override usage. Incorporation of ingress setup & usage in one single config. Other minor bug fixes and template enhancements. Extended documentations on chart usage. 
 - 1.3.1 - Readiness and Liveness probes are now added. 
 - 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource (CPU & MEM) limit/requests are now configurable for crane and child resources and also for ephemeral storage. Simplified nesting and values configuration. The chart can now work with non-default serviceAccount. Tolerations, nodeSelector and labels can be declared for Crane and child resources separately, with Major fixes & calibrations.
 - 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
 - 1.2.2 - Chart now supports gridProxy deployment configurations
 - 1.2.1 - Chart now supports node selectors and tolerations
 - 1.2.0 - Chart now supports service virtualisation deployment using nginx-ingress
-- 1.1.0 - Chart now supports inheriting labels and resourcelimits to child pods from crane environment
+- 1.1.0 - Chart now supports inheriting labels and resourcelimits to child resources from crane environment
 - 1.0.1 - The AUTH_TOKEN can now be inherited from a secret
 - 1.0.0 - Now supports service virtualisation deployment using istio-ingress
 - 0.1.3 - Supports configuration for non_proviledge container deployment, also added a license

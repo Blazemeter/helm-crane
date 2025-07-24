@@ -1,8 +1,8 @@
-{{ if and (.Values.istio_ingress.enable)  (eq .Values.nginx_ingress.enable false) }} 
+{{ if  eq .Values.service_virtualization.ingressType "istio" | default "" }}
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: {{ .Values.istio_ingress.istio_gateway_name }}
+  name: {{ .Release.Name }}-gateway
   namespace : {{ .Release.Namespace }}
 spec:
   selector:
@@ -23,7 +23,7 @@ spec:
     tls:
       mode: SIMPLE
       # This must be located in the "istio-system" namespace
-      credentialName: {{ .Values.istio_ingress.credentialName }}
+      credentialName: {{ .Values.service_virtualization.credentialName }}
   - port:
       number: 15443
       name: https-15443

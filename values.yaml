@@ -1,59 +1,62 @@
 
 deployment:
-  # This is the name of roles and clusterroles created by the chart.
-  role: "role"
-  clusterrole: "clusterrole"
+                     # This is the name of existing roles and clusterroles to use, defaults to releaseName-role and releaseName-clusterrole
+  role:              # Mention if you wish to use the existing role in the namespace
+  clusterrole:       # Mention if you wish to use the existing clusterrole
   serviceAccount:
-  # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
+                     # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
     create: false
-  # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name: #sample-serviceAccount-name
+                     # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
+    name:            # sample-serviceAccount-name
     annotations:
-      # This is a sample  annotation. You can add any annotations here.
-      # Comment out if not needed.
+                     # This is a sample  annotation. You can add any annotations here. Comment out if not needed.                    
       eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
       custom.annotation/key: custom-value    
-  restartPolicy: "Always"
+  restartPolicy:     # Defaults to Always as recommended
 
 env: 
-  # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver. 
-  authtoken: "your-sample-auth-token"
-  harbour_id: "your-sample-harbour-id"
-  ship_id: "your-sample-ship-id"
-
-image:   
-  docker_registry: "gcr.io/verdant-bulwark-278"  #default registry for Blazemeter crane (DO NOT CHANGE)
-  image: "gcr.io/verdant-bulwark-278/blazemeter/crane"  #default image for Blazemeter crane (DO NOT CHANGE)
-  tag: "latest-master"
-  auto_update: true                             
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  pullPolicy: "Always"
+# if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
+  authtoken: 
+  harbour_id: 
+  ship_id: 
 
 # Allows the override of the default image received from BZA for the container to run. Set the key to the original value (Example: apm-image:latest). Set the value to the new repository name with a tag. Extract the appropriate version number from 'admin/ship-stats'.
 imageOverride:
-  enable: no
-  #If imageOverride is enabled, also make sure to change/modify the docker_registry as well as image path below.
-  docker_registry: "gcr.io/<custom-registry>"
-  image: "gcr.io/<custom-registry>/blazemeter/crane"
-  tag: "latest-master"
-  auto_update: true
-  auto_update_running_containers: false   #Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
-  # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
-  images: {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
-  pullPolicy: "Always"
+                                          # Add the details below to override the default image used by Crane and default configuration.
+  docker_registry:                        # Example: "gcr.io/<custom-registry>"
+  craneImage:                             # Example: "gcr.io/<custom-registry>/blazemeter/crane"
+  tag:                                    # Default: "latest-master"
+  auto_update:                            # Default: true
+  auto_update_running_containers:         # Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
+                                          # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
+  pullPolicy:                             # Default: "Always"
+  #executorImages:                        # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
+  executorImages:
+    blazemeter/crane:latest:              # "pathToYourRepo/crane:version"
+    blazemeter/taurus-cloud:latest:       # "pathToYourRepo/taurus-cloud:version"
+    blazemeter/torero:latest:             # "pathToYourRepo/torero:version"
+    blazemeter/service-mock:latest:       # "pathToYourRepo/service-mock:version"
+    blazemeter/sv-bridge:latest:          # "pathToYourRepo/sv-bridge:version"
+    blazemeter/doduo:latest:              # "pathToYourRepo/doduo:version"
+    blazemeter/proxy-recorder:latest:     # "pathToYourRepo/proxy-recorder:version"
+    blazemeter/apm-image:latest:          # "pathToYourRepo/apm-image:version"
+  # CHECK VERSION IN THE RSS FEED  
+  # blazemeter/charmander/microsoftedge_128.0.2739.81:latest:    # "pathToYourRepo/charmander/microsoftedge_128.0.2739.81:version"
+  # blazemeter/charmander/safari_15.0:latest:                    # "pathToYourRepo/charmander/safari_15.0:version"
+  # blazemeter/charmander/firefox_128.0:latest:                  # "pathToYourRepo/charmander/firefox_128.0:version" 
+  # blazemeter/charmander/chrome_128.0.6613.137:latest:          # "pathToYourRepo/charmander/chrome_128.0.6613.137:version"
 
+  testImage:                              # Default: "gcr.io/verdant-bulwark-278/cranehook", used for test-hook
+  testTag:                                # Default: "latest"
 
-  # Proxy configurations here, change enable to yes, followed by http/https configuration
+# Proxy configurations here, change enable to yes, followed by http/https configuration
 proxy:
   enable: no
- # If you have authentication required for your proxy, then you will need to add username:password@server:port
-  http_proxy: yes
-  http_path: "http://server:port" 
-
-  https_proxy: yes
-  https_path: "https://server:port"  
-#  The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
-  no_proxy: "kubernetes.default,127.0.0.1,localhost,myHostname.com"
+  # If you have authentication required for your proxy, then you will need to add username:password@server:port
+  http_path:     # "http://server:port" 
+  https_path:    # "https://server:port"  
+  # The NO_PROXY settings for 127.0.0.1 and localhost (provided below) are required for the Service Virtualization integration and transaction-based Mock Services to work. If you do not enable any HTTP_PROXY or HTTPS_PROXY settings, you can skip the NO_PROXY setting.
+  no_proxy:      # "kubernetes.default,127.0.0.1,localhost,myHostname.com"
 
 # Configure CA Bundle here - Change enable: yes
 # Add these certifates to the chart main directory, for example: we have placed certificate.crt in the chart main directory.
@@ -88,28 +91,20 @@ non_privilege_container:
   runAsGroup: 1337
   runAsUser: 1337
 
-# enable Istio-Ingress if this Private location is going to run mock-services
-# Follow the below guide till you have created a secret in istio-system namespace called wildcard-credential.
-# https://guide.blazemeter.com/hc/en-us/articles/20206158935953-Installing-a-BlazeMeter-Agent-for-Kubernetes-Mock-Services#h_01F68B8GZSBKE9A9G7TMK105F7
 
-istio_ingress: 
-  enable: no
-  credentialName: "wildcard-credential"
-  web_expose_subdomain: "mydomain.local"
-  istio_gateway_name: "bzm-gateway"
+# Enable the service_virtualization if this Private location is going to run service-virtualisation or formerly called: mock-services
+# Select the ingressType as nginx or istio, depending on your cluster ingress setup.
+# Follow Blazemeter guide for more information: https://help.blazemeter.com/docs/guide/private-locations-install-blazemeter-agent-for-kubernetes-for-mock-services.html
 
-# We can enable nginx-ingress instead of istio-ingress, currently, the chart expects nginx-ingress to be pre-installed in the cluster. 
-# Follow Blazemeter guide for more information on installing nginx-ingress.
-nginx_ingress:
+service_virtualization: 
   enable: no
-  credentialName: "wildcard-credential"
-  web_expose_subdomain: "mydomain.local"  
+  ingressType:          # nginx or istio 
+  credentialName:       # "wildcard-credential"
+  web_expose_subdomain: # "mydomain.local"
+
 
 # Labels to add to crane and child resources created by Crane, must be in JSON format.
-labelsCraneDeployment:
-  enable: no
-  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
-labelsCranePod:
+labelsCrane:
   enable: no
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 labelsExecutors:
@@ -155,36 +150,36 @@ resourcesExecutors:
     storage: #1024
 
 
-#Configure Liveness & Readiness Probes
+#Configure Liveness & Readiness Probes, defaults are used, if not specified. See commented values below. 
 probes:
   enable: yes
   livenessProbe:
     httpGet:
       path: /healtz
-      port: 5000
+      port:              # 5000
       scheme: HTTP
-    failureThreshold: 5
-    initialDelaySeconds: 5
-    periodSeconds: 15
-    successThreshold: 1
-    timeoutSeconds: 10  
+    failureThreshold:    # 5
+    initialDelaySeconds: # 5
+    periodSeconds:       # 15
+    successThreshold:    # 1
+    timeoutSeconds:      # 10  
 
   readinessProbe:
     httpGet:
       path: /healtz
-      port: 5000
+      port:              # 5000
       scheme: HTTP
-    failureThreshold: 3
-    initialDelaySeconds: 5
-    periodSeconds: 15
-    successThreshold: 1
-    timeoutSeconds: 10
+    failureThreshold:    # 3
+    initialDelaySeconds: # 5
+    periodSeconds:       # 15
+    successThreshold:    # 1
+    timeoutSeconds:      # 10
 
 
 podDisruptionBudget:
   enable: no
   # min or max, disruptions can only support one. - https://kubernetes.io/docs/tasks/run-application/configure-pdb/
-  ## If both are specified, minAvailable is used.
+  # If both are specified, minAvailable is used.
   minAvailable: 1
   maxUnavailable: #5 
   matchLabels: {"label_1": "label_1_value", "label_2": "label_2_value"}
@@ -195,9 +190,8 @@ secretProviderClass:
   provider: aws
   # This is in JSON, to allow users configure different spec, like: secretPath, secretKey, objectAlias, etc. 
   objects: [{ "objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:harbour-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "harbour-id-opl"},{"objectName": "arn:aws:secretsmanager:ap-southeast-2:{{AWS ACCOUNT}}:secret:ship-id-{{dummy}}","objectType": "secretsmanager","objectAlias": "ship-id-opl"}]
-  #secretObjects: [{ "data":[{"key":"harbour-id-key","objectName":"harbour-id-opl"}],"secretName":"harbour-id","type":"Opaque"},{"data":[{"key":"ship-id-key","objectName":"ship-id-opl"}],"secretName":"ship-id","type":"Opaque"}]
   secretObjects:  
-  # Comment out the below section if you do not plan to create secrets in the namespace. 
+  # Comment out the below section if you do not plan to create secrets in the namespace.
     - secretName: auth-token
       type: Opaque
       data:
@@ -220,3 +214,63 @@ secretProviderClass:
     name:       # (Optional) If not provided, will be linked with release name - see helm template
     readOnly:   # (Default: true) 
     path: /mnt/secrets  
+
+
+externalSecretsOperator:
+  enable: no
+  volume: 
+    name:       # (Optional) If not provided, will be linked with release name - see helm template
+    readOnly:   # Default: true 
+    path:       # Default: /mnt/secrets  
+
+  externalSecret: 
+    name: blaze-external-secret
+    refreshInterval: "15s"
+    target:
+      name: blazemeter-secrets-store     # Name of Kubernetes Secret to make
+    data:
+      - secretKey: ship-id     # New key to make
+        remoteRef:
+          key: ship-id         # Name of the Secret in Secrets Manager
+        envName: SHIP_ID       
+      - secretKey: harbour-id  # New key to make
+        remoteRef:
+          key: harbour-id      # Name of the Secret in Secrets Manager
+        envName: HARBOR_ID    
+      - secretKey: auth-token  # New key to make
+        remoteRef:
+          key: auth-token      # Name of the Secret in Secrets Manager
+        envName: AUTH_TOKEN   
+  
+  secretStore:
+    name: blaze-secret-store
+    provider:
+    # The provider can be aws, gcpsm, switch the enable flag to true for the provider you want to use.
+      aws:
+        enable: true
+        #role: iam-role   #USE IF REQUIRED.
+        service: SecretsManager
+        region: ap-southeast-2
+    # Chart wiill use JWT authentication to access the AWS Secrets Manager.
+    # The JWT will use the serviceAccount used in this chart
+    # Unless the below authSecretRef is enabled
+        authSecretRef:
+          enable: false
+          accessKeyID:
+            name: #awssm-secret
+            key:  #access-key
+          secretAccessKey:
+            name: #awssm-secret
+            key:  #secret-access-key
+
+      gcpsm:
+        enable: false
+        projectID: your-gcp-project-id
+      # Chart will use the Workload Identity to access the GCP Secret Manager.
+      # The Workload Identity will use the serviceAccount used in this chart
+      # Unless the below secretRef is enabled
+        secretRef:
+          enable: false
+          secretAccessKeySecretRef:
+            name: gcpsm-secret
+            key:  secret-access-credentials
