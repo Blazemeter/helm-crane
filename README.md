@@ -679,17 +679,8 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
+- 1.4.1 - Added default values for secret wildcard credential for test-hook. Fixed minor condition handling for istio-based test-hook role configuration. No changes to main chart functionality.
 - 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Simplified the image override usage. Incorporation of ingress setup & usage in one single config. Other minor bug fixes and template enhancements. Extended documentations on chart usage. 
 - 1.3.1 - Readiness and Liveness probes are now added. 
 - 1.3.0 - Chart can support image-override configuration. gridProxy is in working configuration. Resource (CPU & MEM) limit/requests are now configurable for crane and child resources and also for ephemeral storage. Simplified nesting and values configuration. The chart can now work with non-default serviceAccount. Tolerations, nodeSelector and labels can be declared for Crane and child resources separately, with Major fixes & calibrations.
-- 1.2.3 - Chart can work with resource requests & limits, similarly the ephemeral storage requests & limits can be configured.
-- 1.2.2 - Chart now supports gridProxy deployment configurations
-- 1.2.1 - Chart now supports node selectors and tolerations
-- 1.2.0 - Chart now supports service virtualisation deployment using nginx-ingress
-- 1.1.0 - Chart now supports inheriting labels and resourcelimits to child resources from crane environment
-- 1.0.1 - The AUTH_TOKEN can now be inherited from a secret
-- 1.0.0 - Now supports service virtualisation deployment using istio-ingress
-- 0.1.3 - Supports configuration for non_proviledge container deployment, also added a license
-- 0.1.2 - Supports Proxy, CA_certs as an additional configuration of Blazemeter crane deployment
-- 0.1.1 - Support proxy as an additional configurable aspect of Blazemeter crane deployment 
-- 0.1.0 - Supports standard - vanilla Blazemeter crane deployment (no proxy or CA_Bundle configurable)
+- **Anything below 1.3.0 - UNSUPPORTED**
