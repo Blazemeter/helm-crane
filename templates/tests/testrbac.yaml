@@ -16,9 +16,6 @@ rules:
 - apiGroups: ["networking.k8s.io"]
   resources: ["ingresses"]
   verbs: ["get", "list"]
-- apiGroups: ["networking.istio.io"]
-  resources: ["virtualservices", "destinationrules", "gateways", "serviceentries"]
-  verbs: ["get", "list"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -38,7 +35,7 @@ roleRef:
   name:  test-hookrole
   apiGroup: rbac.authorization.k8s.io
 
-{{- if eq ((.Values.service_virtualization | default dict).type | default "") "istio" }}
+{{- if eq ((.Values.service_virtualization | default dict).ingressType | default "") "istio" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
