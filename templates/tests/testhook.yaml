@@ -12,6 +12,9 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation
     "helm.sh/hook-container-name": cranetest-ctr
     "sidecar.istio.io/inject": "false"
+    {{ if .Values.annotationsCrane.enable | default false -}}
+    {{ .Values.annotationsCrane.syntax | toYaml | nindent 4 }}
+    {{ end }}
 spec:
   serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
   automountServiceAccountToken: true
@@ -20,9 +23,9 @@ spec:
   nodeSelector:
     {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}      
   {{ end -}}
-  {{ if .Values.nodeSelectorCrane.enable }}
+  {{ if .Values.tolerationCrane.enable }}
   tolerations:
-    {{ .Values.nodeSelectorCrane.syntax | toYaml | nindent 4 }}
+    {{ .Values.tolerationCrane.syntax | toYaml | nindent 4 }}
   {{ end }}  
   containers:
   - name: cranehook-ctr
