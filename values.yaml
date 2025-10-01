@@ -108,7 +108,7 @@ labelsCrane:
   enable: no
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 labelsExecutors:
-  enable: no 
+  enable: no
   syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
 
 #Set to specify the tolerations for the crane and child resources. Must be in JSON format.
@@ -126,6 +126,18 @@ nodeSelectorCrane:
 nodeSelectorExecutor:
   enable: no
   syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
+
+
+# Used to add annotations to the Crane and it's child resources. Must be in JSON format. 
+# "cluster-autoscaler.kubernetes.io/safe-to-evict" is set to 'false' by default for child resources.
+
+annotationsCrane:
+  enable: no
+  syntax:  {"custom_annotation1": "value1", "custom_annotation2": "value2"}
+annotationsExecutor:
+  enable: no
+  syntax:  {"custom_annotation1": "value1", "custom_annotation2": "value2"}
+
 
 # CPU & Memory limits & requests for resources for crane deployment.  You can also specify ephemeral storage limits for the crane.
 resourcesCrane:  
