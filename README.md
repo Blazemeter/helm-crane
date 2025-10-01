@@ -539,8 +539,54 @@ externalSecretsOperator:
 - If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
 - For more details, see the [ExternalSecrets Operator documentation](https://external-secrets.io/).
 
----
 
+### [4.16] Configure Custom Annotations
+
+You can add custom annotations to the main Crane deployment and its child resources (such as executor pods) using the annotations sections in your `values.yaml` file. This is useful for integrating with cluster autoscaler, admission controllers, monitoring systems, service meshes like Istio, or other Kubernetes tools that rely on pod annotations.
+
+There are two annotation sections:
+- `annotationsCrane`: Annotations for the Crane Pod.
+- `annotationsExecutor`: Annotations for child resources (executors/agents).
+
+Each section has:
+- `enable`: Set to `yes` to apply the annotations.
+- `syntax`: Provide your annotations in JSON format.
+
+**Common use cases examples:**
+
+1. Istio Service Mesh Integration:
+```yaml
+annotationsCrane:
+  enable: yes
+  syntax: {"sidecar.istio.io/inject": "true", "sidecar.istio.io/proxyCPU": "100m", "sidecar.istio.io/proxyMemory": "128Mi"}
+
+annotationsExecutor:
+  enable: yes
+  syntax: {"sidecar.istio.io/inject": "true", "traffic.sidecar.istio.io/excludeOutboundPorts": "443,8080"}
+```
+
+2. Custom Resource Management or Prometheus:
+```yaml
+annotationsCrane:
+  enable: yes
+  syntax: {"prometheus.io/scrape": "true", "prometheus.io/port": "5000"}
+
+annotationsExecutor:
+  enable: yes
+  syntax: {"custom.company.com/workload-type": "load-testing", "custom.company.com/billing-code": "project-alpha"}
+```
+
+**Notes:**
+- `annotationsCrane` applies annotations only to the Crane pod.
+- `annotationsExecutor` applies annotations to all child resources (executor/agent pods) created by Crane.
+- The `syntax` field must be valid JSON format.
+- Child resources automatically get `"cluster-autoscaler.kubernetes.io/safe-to-evict": "false"` by default to prevent premature eviction during tests.
+- These annotations are added in addition to any default annotations set by the chart.
+- If `enable` is set to `no`, custom annotations will not be applied for that resource type.
+
+*Use these sections to ensure your Crane deployment and related resources work seamlessly with your cluster's automation, monitoring, service mesh, and management tools.*
+
+---
 
 ## [5.0] Verify if everything is setup correctly
 
@@ -679,6 +725,7 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
+- 1.4.2 - Support for custom annotations for crane as well as child resources. 
 - 1.4.1 - Added default values for secret wildcard credential for test-hook. Fixed minor condition handling for istio-based test-hook role configuration. No changes to main chart functionality.
 - 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Simplified the image override usage. Incorporation of ingress setup & usage in one single config. Other minor bug fixes and template enhancements. Extended documentations on chart usage. 
 - 1.3.1 - Readiness and Liveness probes are now added. 
