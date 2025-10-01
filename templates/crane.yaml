@@ -20,10 +20,14 @@ spec:
     metadata:
       labels:
       {{ if .Values.labelsCrane.enable | default false -}}
-      {{ .Values.labelsCrane.syntax | toYaml | nindent 8 }}
+      {{ .Values.labelsCrane.syntax | toYaml | nindent 8 -}}
       {{ end }}
         role: {{ include "crane.roleName" . }}
         crane: ready
+      {{ if .Values.annotationsCrane.enable | default false -}}
+      annotations: 
+        {{ .Values.annotationsCrane.syntax | toYaml | nindent 8 -}}
+      {{ end }}
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
@@ -185,6 +189,10 @@ spec:
         - name: TLS_KEY_GRID
           value: {{ .Values.gridProxy.tlsKeyGrid | quote }}
         {{ end -}}
+        {{ if .Values.annotationsExecutor.enable | default false }}
+        - name: KUBERNETES_CUSTOM_ANNOTATIONS_JSON
+          value:  {{ .Values.annotationsExecutor.syntax | toJson | quote }}
+        {{ end }}
         image: {{ .Values.imageOverride.craneImage | default (printf "gcr.io/verdant-bulwark-278/blazemeter/crane") }}:{{ .Values.imageOverride.tag | default "latest-master"}}
         imagePullPolicy: {{ .Values.imageOverride.pullPolicy | default "Always" }}
         name: crane-container
