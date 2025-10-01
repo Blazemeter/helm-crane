@@ -725,7 +725,7 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
-- 1.4.2 - Support for custom annotations for crane as well as child resources. 
+- 1.4.2 - Support for custom annotations with Crane and child resources.  
 - 1.4.1 - Added default values for secret wildcard credential for test-hook. Fixed minor condition handling for istio-based test-hook role configuration. No changes to main chart functionality.
 - 1.4.0 - Added support for Pod Disruption Budgets (PDB) and SecretProviderClass integration. Introduced ExternalSecrets Operator support. Addition of testHook for faster/accurate validation of installation. Simplified the image override usage. Incorporation of ingress setup & usage in one single config. Other minor bug fixes and template enhancements. Extended documentations on chart usage. 
 - 1.3.1 - Readiness and Liveness probes are now added. 
