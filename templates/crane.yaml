@@ -69,7 +69,7 @@ spec:
         - name: CONTAINER_MANAGER_TYPE
           value: KUBERNETES
         - name: IMAGE_OVERRIDES
-          value: {{ include "helm-crane.imageOverridesJson" . | indent 4 | toJson }}
+          value: {{ include "helm-crane.imageOverridesJson" . | quote }}
         - name: DOCKER_REGISTRY
           value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
         - name: AUTO_KUBERNETES_UPDATE
