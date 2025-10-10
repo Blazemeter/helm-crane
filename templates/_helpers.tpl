@@ -40,9 +40,13 @@
 {{- if eq (len $nonEmpty) 0 -}}
 {}
 {{- else -}}
-{ {{- $first := true -}}
+{{- $first := true -}}
+{{- print "{" -}}
 {{- range $k, $v := $nonEmpty -}}
-{{- if not $first }}, {{- end -}}"{{ $k }}": "{{ $v }}"{{- $first = false -}}
-{{- end -}} }
+{{- if not $first -}}{{- print "," -}}{{- end -}}
+{{- printf "\"%s\":\"%s\"" $k $v -}}
+{{- $first = false -}}
+{{- end -}}
+{{- print "}" -}}
 {{- end -}}
 {{- end -}}
