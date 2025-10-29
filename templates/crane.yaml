@@ -144,6 +144,8 @@ spec:
         {{ if .Values.non_privilege_container.enable | default false }}
         - name: INHERIT_RUNNING_USER_AND_GROUP
           value: 'true'
+        - name: KUBERNETES_SECURITY_CONTEXT_CAP_JSON
+          value: '{"drop": ["ALL"]}'
         {{ end -}}
         {{ if .Values.labelsExecutors.enable | default false }}
         - name: KUBERNETES_LABELS
