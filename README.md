@@ -266,7 +266,7 @@ non_privilege_container:
 ```
 **Note:**  
 >- Non-root deployment requires an additional feature to be enabled at account level, please contact support for enabling this feature.*
-
+>- This will automatically configure the `securityContext.Capabilities` to `drop all` for crane and child resources.*
 
 
 ### [4.8] Configure deployment to support Service Virtualisation (Mock Services)
