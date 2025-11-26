@@ -183,6 +183,10 @@ spec:
         - name: KUBERNETES_REQUESTS_EPHEMERAL_STORAGE
           value: {{ .Values.resourcesExecutors.requests.storage| quote }}
         {{ end -}}
+        {{ if .Values.resourcesExecutors.serviceAccount }}
+        - name: KUBERNETES_SERVICE_ACCOUNT_NAME
+          value: {{ .Values.resourcesExecutors.serviceAccount | quote }}
+        {{ end -}}
         {{ if .Values.gridProxy.enable | default false}}
         - name: DODUO_PORT
           value: {{ .Values.gridProxy.doduoPort | quote }}
