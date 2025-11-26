@@ -151,7 +151,8 @@ resourcesCrane:
     storage: #1024
 
 # CPU & Memory limits & requests for resources for child resources. You can also specify ephemeral storage limits for the child resources.
-resourcesExecutors: 
+resourcesExecutors:
+  serviceAccount:      # Optional: Specify a custom service account for executor pods. If not provided, executors will use the default service account
   requests:           
     CPU: 1000m        
     MEM: 4096         # This value should be an integer unlike other values that supports k8s standard for declaring resource limits/requests.
