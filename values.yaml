@@ -244,14 +244,17 @@ externalSecretsOperator:
       - secretKey: ship-id     # New key to make
         remoteRef:
           key: ship-id         # Name of the Secret in Secrets Manager
+          property: ship-id    # The JSON key within the secret
         envName: SHIP_ID       
       - secretKey: harbour-id  # New key to make
         remoteRef:
           key: harbour-id      # Name of the Secret in Secrets Manager
+          property: harbour-id # The JSON key within the secret
         envName: HARBOR_ID    
       - secretKey: auth-token  # New key to make
         remoteRef:
           key: auth-token      # Name of the Secret in Secrets Manager
+          property: authtoken  # The JSON key within the secret
         envName: AUTH_TOKEN   
   
   secretStore:
