@@ -38,7 +38,7 @@ icon: https://github.com/Blazemeter/helm-crane/raw/main/logo.png
 # - name: nginx
 #    condition: .Values.installed
 
-version: 1.4.3
+version: 1.4.4
 
 maintainers: 
   - name: Manan Patel
