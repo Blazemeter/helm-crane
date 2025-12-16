@@ -56,7 +56,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ $root.Values.externalSecretsOperator.externalSecret.target.name }}
-              key: {{ .remoteRef.key }}
+              key: {{ .secretKey }}
         {{ end -}}
         {{ else }}        
         - name: AUTH_TOKEN
