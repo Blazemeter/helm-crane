@@ -43,7 +43,6 @@ imageOverride:
   pullPolicy:                             # Default: "Always"
   #executorImages:                        # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   executorImages:
-    crane:latest:              # "pathToYourRepo/crane:version" 
     taurus-cloud:latest:       #"pathToYourRepo/taurus-cloud:version"
     torero:latest:             #"pathToYourRepo/torero:version"
     service-mock:latest:       # "pathToYourRepo/service-mock:version"
