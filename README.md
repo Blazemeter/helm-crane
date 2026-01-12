@@ -83,6 +83,26 @@ env:
 
 - Replace the example values above with your actual credentials.
 
+#### Using a Simple Kubernetes Secret (`fromSecret`)
+
+If you prefer to source credentials from a standard Kubernetes Secret, enable `env.fromSecret` and provide the secret name and key mappings. When `fromSecret.enable` is set to `yes`, the chart will read the values from the specified secret and ignore `env.authtoken`, `env.harbour_id`, and `env.ship_id` in `values.yaml`.
+
+Example:
+```yaml
+env:
+  fromSecret:
+    enable: yes
+    secretName: crane-tokens
+    authTokenKey: auth_token
+    harbourIdKey: harbor_id
+    shipIdKey: ship_id
+```
+
+> Note: You need to create the `crane-tokens` Secret in the target namespace with the appropriate keys and values before deploying the chart.
+```bash
+kubectl create secret generic crane-tokens --from-literal=auth_token='<YOUR_AUTH_TOKEN>' --from-literal=harbor_id='<YOUR_HARBOR_ID>' --from-literal=ship_id='<YOUR_SHIP_ID>' -n <TARGET_NAMESPACE>
+```
+
 #### Using Kubernetes Secrets or External Secret Managers
 
 If you want to keep your credentials secure and **not** store them directly in `values.yaml`, you can use one of the following integrations:
