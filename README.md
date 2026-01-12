@@ -103,6 +103,21 @@ env:
 kubectl create secret generic crane-tokens --from-literal=auth_token='<YOUR_AUTH_TOKEN>' --from-literal=harbor_id='<YOUR_HARBOR_ID>' --from-literal=ship_id='<YOUR_SHIP_ID>' -n <TARGET_NAMESPACE>
 ```
 
+**ServiceAccount binding (required on some clusters):**
+- Some clusters enforce policies where pods can only read secrets that are explicitly bound to their `ServiceAccount`. If that applies to your environment, list the secret under `deployment.serviceAccount.secrets` and ensure the Crane deployment uses that ServiceAccount.
+
+Example:
+```yaml
+deployment:
+  serviceAccount:
+    create: true
+    name: crane-sa
+    secrets:
+      - crane-tokens
+```
+
+- If you’re unsure whether your cluster requires this, we recommend creating a dedicated ServiceAccount and binding the secret as shown above.
+
 #### Using Kubernetes Secrets or External Secret Managers
 
 If you want to keep your credentials secure and **not** store them directly in `values.yaml`, you can use one of the following integrations:
@@ -481,6 +496,7 @@ secretProviderClass:
 >- You can specify as many as you need in the same map/slice fashion. The chart is designed to loop over these items. 
 >- The `parameters` and `secretObjects` fields should be customized based on your secrets provider and use case.
 >- If you do not require SecretProviderClass integration, leave `enable` as `no`.
+>- For using a standard Kubernetes Secret instead of an external provider, see [4.1](#41-adding-the-basicrequired-configurations) "Using a Simple Kubernetes Secret (`fromSecret`)".
 
 
 
@@ -558,6 +574,7 @@ externalSecretsOperator:
 - The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
 - If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
 - For more details, see the [ExternalSecrets Operator documentation](https://external-secrets.io/).
+ - If you prefer to use a simple Kubernetes Secret, see [4.1](#41-adding-the-basicrequired-configurations) "Using a Simple Kubernetes Secret (`fromSecret`)".
 
 
 ### [4.16] Configure Custom Annotations
