@@ -5,16 +5,16 @@ deployment:
   clusterrole:       # Mention if you wish to use the existing clusterrole
   serviceAccount:
                      # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
-    create: false
+    create: true
                      # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name:            # sample-serviceAccount-name
+    name: opl-sa           # sample-serviceAccount-name
                      # Bind secrets to the ServiceAccount to satisfy cluster policies.
     secrets:
-    #  - crane-tokens
+    - crane-tokens
     annotations:
                      # This is a sample  annotation. You can add any annotations here. Comment out if not needed.                    
-      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
-      custom.annotation/key: custom-value    
+      eks.amazonaws.com/role-arn: # arn:aws:iam::123456789012:role/example-role
+      custom.annotation/key:      # custom-value    
   restartPolicy:     # Defaults to Always as recommended
 
 env: 
@@ -25,7 +25,7 @@ env:
 
 # If the auth token, harbour id and ship id are stored in a kubernetes secret, enable the below section and provide the secret name and keys.
   fromSecret:  
-    enable: no
+    enable: yes
     secretName: crane-tokens
     authTokenKey: auth_token
     harbourIdKey: harbor_id

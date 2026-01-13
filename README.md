@@ -762,6 +762,8 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
+- 1.4.5: Use of simple secret for tokens in crane ENV. 
+- 1.4.4: Patches for External Secrets Operator config. 
 - 1.4.3: Inclusion of `securityContext.Capabilities` which would default to `drop: ["ALL"]` in our chart for child resources/executors. (No change to the values YAML file)
 - 1.4.2: Support for custom annotations with Crane and child resources.  
 - 1.4.1: Added default values for secret wildcard credential for test-hook. Fixed minor condition handling for istio-based test-hook role configuration. No changes to main chart functionality.
