@@ -5,20 +5,31 @@ deployment:
   clusterrole:       # Mention if you wish to use the existing clusterrole
   serviceAccount:
                      # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
-    create: false
+    create: true
                      # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
-    name:            # sample-serviceAccount-name
+    name: opl-sa           # sample-serviceAccount-name
+                     # Bind secrets to the ServiceAccount to satisfy cluster policies.
+    secrets:
+    - crane-tokens
     annotations:
                      # This is a sample  annotation. You can add any annotations here. Comment out if not needed.                    
-      eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/example-role
-      custom.annotation/key: custom-value    
+      eks.amazonaws.com/role-arn: # arn:aws:iam::123456789012:role/example-role
+      custom.annotation/key:      # custom-value    
   restartPolicy:     # Defaults to Always as recommended
 
 env: 
 # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
   authtoken: 
-  harbour_id:
-  ship_id:
+  harbour_id: 
+  ship_id: 
+
+# If the auth token, harbour id and ship id are stored in a kubernetes secret, enable the below section and provide the secret name and keys.
+  fromSecret:  
+    enable: yes
+    secretName: crane-tokens
+    authTokenKey: auth_token
+    harbourIdKey: harbor_id
+    shipIdKey: ship_id
 
 # Allows the override of the default image received from BZA for the container to run. Set the key to the original value (Example: apm-image:latest). Set the value to the new repository name with a tag. Extract the appropriate version number from 'admin/ship-stats'.
 imageOverride:
@@ -32,7 +43,6 @@ imageOverride:
   pullPolicy:                             # Default: "Always"
   #executorImages:                        # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   executorImages:
-    crane:latest:              # "pathToYourRepo/crane:version" 
     taurus-cloud:latest:       #"pathToYourRepo/taurus-cloud:version"
     torero:latest:             #"pathToYourRepo/torero:version"
     service-mock:latest:       # "pathToYourRepo/service-mock:version"

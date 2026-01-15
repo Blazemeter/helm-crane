@@ -83,6 +83,41 @@ env:
 
 - Replace the example values above with your actual credentials.
 
+#### Using a Simple Kubernetes Secret (`fromSecret`)
+
+If you prefer to source credentials from a standard Kubernetes Secret, enable `env.fromSecret` and provide the secret name and key mappings. When `fromSecret.enable` is set to `yes`, the chart will read the values from the specified secret and ignore `env.authtoken`, `env.harbour_id`, and `env.ship_id` in `values.yaml`.
+
+Example:
+```yaml
+env:
+  fromSecret:
+    enable: yes
+    secretName: crane-tokens
+    authTokenKey: auth_token
+    harbourIdKey: harbor_id
+    shipIdKey: ship_id
+```
+
+> Note: You need to create the `crane-tokens` Secret in the target namespace with the appropriate keys and values before deploying the chart.
+```bash
+kubectl create secret generic crane-tokens --from-literal=auth_token='<YOUR_AUTH_TOKEN>' --from-literal=harbor_id='<YOUR_HARBOR_ID>' --from-literal=ship_id='<YOUR_SHIP_ID>' -n <TARGET_NAMESPACE>
+```
+
+**ServiceAccount binding (required on some clusters):**
+- Some clusters enforce policies where pods can only read secrets that are explicitly bound to their `ServiceAccount`. If that applies to your environment, list the secret under `deployment.serviceAccount.secrets` and ensure the Crane deployment uses that ServiceAccount.
+
+Example:
+```yaml
+deployment:
+  serviceAccount:
+    create: true
+    name: crane-sa
+    secrets:
+      - crane-tokens
+```
+
+- If you’re unsure whether your cluster requires this, we recommend creating a dedicated ServiceAccount and binding the secret as shown above.
+
 #### Using Kubernetes Secrets or External Secret Managers
 
 If you want to keep your credentials secure and **not** store them directly in `values.yaml`, you can use one of the following integrations:
@@ -461,6 +496,7 @@ secretProviderClass:
 >- You can specify as many as you need in the same map/slice fashion. The chart is designed to loop over these items. 
 >- The `parameters` and `secretObjects` fields should be customized based on your secrets provider and use case.
 >- If you do not require SecretProviderClass integration, leave `enable` as `no`.
+>- For using a standard Kubernetes Secret instead of an external provider, see [4.1](#41-adding-the-basicrequired-configurations) "Using a Simple Kubernetes Secret (`fromSecret`)".
 
 
 
@@ -538,6 +574,7 @@ externalSecretsOperator:
 - The `data` section allows you to map external secrets to Kubernetes secrets and environment variables.
 - If you do not require ExternalSecrets Operator integration, leave `enable` as `no`.
 - For more details, see the [ExternalSecrets Operator documentation](https://external-secrets.io/).
+ - If you prefer to use a simple Kubernetes Secret, see [4.1](#41-adding-the-basicrequired-configurations) "Using a Simple Kubernetes Secret (`fromSecret`)".
 
 
 ### [4.16] Configure Custom Annotations
@@ -725,6 +762,8 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
+- 1.4.5: Use of simple secret for tokens in crane ENV. 
+- 1.4.4: Patches for External Secrets Operator config. 
 - 1.4.3: Inclusion of `securityContext.Capabilities` which would default to `drop: ["ALL"]` in our chart for child resources/executors. (No change to the values YAML file)
 - 1.4.2: Support for custom annotations with Crane and child resources.  
 - 1.4.1: Added default values for secret wildcard credential for test-hook. Fixed minor condition handling for istio-based test-hook role configuration. No changes to main chart functionality.

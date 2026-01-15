@@ -41,7 +41,7 @@ spec:
       {{ end }}
       containers:
       - env:
-        {{- if and ( .Values.secretProviderClass.enable | default false ) ( not .Values.externalSecretsOperator.enable | default false) }} 
+        {{- if and ( .Values.secretProviderClass.enable | default false ) ( not .Values.externalSecretsOperator.enable | default false) ( not .Values.env.fromSecret.enable | default false) }} 
         {{- range .Values.secretProviderClass.secretObjects }}
         - name: {{ .envName }}
           valueFrom:
@@ -49,7 +49,7 @@ spec:
               name: {{ .secretName }}
               key: {{ (index .data 0).key }}
         {{ end -}}
-        {{ else if and (.Values.externalSecretsOperator.enable | default false) ( not .Values.secretProviderClass.enable | default false) }}
+        {{ else if and (.Values.externalSecretsOperator.enable | default false) ( not .Values.secretProviderClass.enable | default false) ( not .Values.env.fromSecret.enable | default false) }}
         {{- $root := . }}
         {{ range .Values.externalSecretsOperator.externalSecret.data }}
         - name: {{ .envName }}
@@ -58,6 +58,22 @@ spec:
               name: {{ $root.Values.externalSecretsOperator.externalSecret.target.name }}
               key: {{ .secretKey }}
         {{ end -}}
+        {{ else if and (.Values.env.fromSecret.enable | default false) ( not .Values.secretProviderClass.enable | default false) ( not .Values.externalSecretsOperator.enable | default false) }}
+        - name: AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.env.fromSecret.secretName }}
+              key: {{ .Values.env.fromSecret.authTokenKey }}
+        - name: HARBOR_ID
+          valueFrom: 
+            secretKeyRef:
+              name: {{ .Values.env.fromSecret.secretName }}
+              key: {{ .Values.env.fromSecret.harbourIdKey }}
+        - name: SHIP_ID
+          valueFrom: 
+            secretKeyRef: 
+              name: {{ .Values.env.fromSecret.secretName }}
+              key: {{ .Values.env.fromSecret.shipIdKey }} 
         {{ else }}        
         - name: AUTH_TOKEN
           value: {{ .Values.env.authtoken }}
