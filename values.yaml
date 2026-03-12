@@ -43,13 +43,18 @@ imageOverride:
   pullPolicy:                             # Default: "Always"
   #executorImages:                        # {"taurus-cloud:latest": "pathToYourRepo/<image_name:version_number>", "torero:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/service-mock:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/mock-pc-service:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/sv-bridge:latest": "pathToYourRepo/<image_name:version_number>", "blazemeter/doduo:latest": "pathToYourRepo/<image_name:version_number>"}
   executorImages:
-    taurus-cloud:latest:       #"pathToYourRepo/taurus-cloud:version"
-    torero:latest:             #"pathToYourRepo/torero:version"
-    service-mock:latest:       # "pathToYourRepo/service-mock:version"
-    sv-bridge:latest:          # "pathToYourRepo/sv-bridge:version"
-    doduo:latest:              # "pathToYourRepo/doduo:version"
-    proxy-recorder:latest:     # "pathToYourRepo/proxy-recorder:version"
-    apm-image:latest:          # "pathToYourRepo/apm-image:version"
+    blazemeter:latest:                    # "pathToYourRepo/blazemeter:version"
+    taurus-cloud:latest:                  # "pathToYourRepo/taurus-cloud:version"
+    torero:latest:                        # "pathToYourRepo/torero:version"
+    secrets-image:latest:                 # "pathToYourRepo/secrets-image:version"
+    blazemeter/proxy-recorder:latest:     # "pathToYourRepo/proxy-recorder:version"
+    blazemeter/service-mock:latest:       # "pathToYourRepo/service-mock:version"
+    sv-bridge:latest:                     # "pathToYourRepo/sv-bridge:version"
+    blazemeter/mock-pc-service:latest:    # "pathToYourRepo/mock-pc-service:version"
+    blazemeter/group-gateway:latest:      # "pathToYourRepo/group-gateway:version"
+    doduo:latest:                         # "pathToYourRepo/doduo:version"
+    apm-image:latest:                     # "pathToYourRepo/apm-image:version"
+    
   # CHECK VERSION IN THE RSS FEED  
   # blazemeter/charmander/microsoftedge_128.0.2739.81:latest:    # "pathToYourRepo/charmander/microsoftedge_128.0.2739.81:version"
   # blazemeter/charmander/safari_15.0:latest:                    # "pathToYourRepo/charmander/safari_15.0:version"
