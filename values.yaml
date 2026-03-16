@@ -121,26 +121,26 @@ service_virtualization:
 # Labels to add to crane and child resources created by Crane, must be in JSON format.
 labelsCrane:
   enable: no
-  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+  syntax: # {"label_1": "label_1_value", "label_2": "label_2_value"}
 labelsExecutors:
   enable: no
-  syntax: {"label_1": "label_1_value", "label_2": "label_2_value"}
+  syntax: # {"label_1": "label_1_value", "label_2": "label_2_value"}
 
 #Set to specify the tolerations for the crane and child resources. Must be in JSON format.
 tolerationCrane: 
   enable: no
-  syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
+  syntax: # [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 tolerationExecutors: 
   enable: no
-  syntax: [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
+  syntax: # [{ "effect": "NoSchedule", "key": "lifecycle", "operator": "Equal", "value": "spot" }]
 
 #Used to configure the k8s nodeSelector field to match specific node labels for the Crane as well as child resources. Must be in JSON format.
 nodeSelectorCrane:
   enable: no
-  syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
+  syntax: # {"label_1": "label_1_value", "label_2": "label_2_value"}
 nodeSelectorExecutor:
   enable: no
-  syntax:  {"label_1": "label_1_value", "label_2": "label_2_value"}
+  syntax: # {"label_1": "label_1_value", "label_2": "label_2_value"}
 
 
 # Used to add annotations to the Crane and it's child resources. Must be in JSON format. 
@@ -148,10 +148,10 @@ nodeSelectorExecutor:
 
 annotationsCrane:
   enable: no
-  syntax:  {"custom_annotation1": "value1", "custom_annotation2": "value2"}
+  syntax: # {"custom_annotation1": "value1", "custom_annotation2": "value2"}
 annotationsExecutor:
   enable: no
-  syntax:  {"custom_annotation1": "value1", "custom_annotation2": "value2"}
+  syntax: # {"custom_annotation1": "value1", "custom_annotation2": "value2"}
 
 
 # CPU & Memory limits & requests for resources for crane deployment.  You can also specify ephemeral storage limits for the crane.
@@ -209,7 +209,7 @@ podDisruptionBudget:
   # If both are specified, minAvailable is used.
   minAvailable: 1
   maxUnavailable: #5 
-  matchLabels: {"label_1": "label_1_value", "label_2": "label_2_value"}
+  matchLabels: # {"label_1": "label_1_value", "label_2": "label_2_value"}
 
 
 secretProviderClass:
