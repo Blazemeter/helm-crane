@@ -9,6 +9,9 @@ rules:
   resources: ["pods/exec"]
   verbs: ["create"]
 - apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create", "list", "update", "patch", "delete"]
+- apiGroups: [""]
   resources: ["pods", "pods/log"]
   verbs: ["get", "list"]
 - apiGroups: ["extensions", "apps", "batch", ""] # leave empty string for core
