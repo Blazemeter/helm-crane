@@ -762,6 +762,7 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
+- 1.5.0: Following the security update for Blazemeter agent, all charts before 1.5.0 are now depracated for crane version 3.7.x
 - 1.4.5: Use of simple secret for tokens in crane ENV. 
 - 1.4.4: Patches for External Secrets Operator config. 
 - 1.4.3: Inclusion of `securityContext.Capabilities` which would default to `drop: ["ALL"]` in our chart for child resources/executors. (No change to the values YAML file)
