@@ -31,6 +31,7 @@ keywords:
   - External Secret Operator
   - Test Hook
   - Custom Annotations
+  - ignoreBindings
   
 type: application
 icon: https://github.com/Blazemeter/helm-crane/raw/main/logo.png
@@ -38,7 +39,7 @@ icon: https://github.com/Blazemeter/helm-crane/raw/main/logo.png
 # - name: nginx
 #    condition: .Values.installed
 
-version: 1.5.0
+version: 1.5.1
 
 maintainers: 
   - name: Manan Patel
