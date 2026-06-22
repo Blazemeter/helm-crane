@@ -9,6 +9,7 @@ rules:
   verbs: ["get", "list", "update", "watch", "patch" ]
 ---
 {{ end }}
+{{ if not .Values.deployment.ignoreBindings | default false }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -21,3 +22,4 @@ subjects:
 - kind: ServiceAccount
   name: {{ template "blazemeter-crane.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
+{{ end }}

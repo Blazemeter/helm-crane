@@ -1,8 +1,9 @@
 
 deployment:
-                     # This is the name of existing roles and clusterroles to use, defaults to releaseName-role and releaseName-clusterrole
-  role:              # Mention if you wish to use the existing role in the namespace
-  clusterrole:       # Mention if you wish to use the existing clusterrole
+                        # This is the name of existing roles and clusterroles to use, defaults to releaseName-role and releaseName-clusterrole
+  role:                 # Mention if you wish to use the existing role in the namespace
+  clusterrole:          # Mention if you wish to use the existing clusterrole
+  ignoreBindings:       # Set to true to ignore creating rolebinding and clusterrolebinding, useful when you want to manage bindings separately or have pre-existing bindings in place. Default is false.
   serviceAccount:
                      # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
     create: false
@@ -18,11 +19,10 @@ deployment:
   restartPolicy:     # Defaults to Always as recommended
 
 env: 
-# if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
-  authtoken: auth-token
-  harbour_id: harbour-id
-  ship_id: ship-id
-
+# if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.  
+  authtoken: 
+  harbour_id:
+  ship_id: 
 # If the auth token, harbour id and ship id are stored in a kubernetes secret, enable the below section and provide the secret name and keys.
   fromSecret:  
     enable: no
@@ -161,19 +161,19 @@ resourcesCrane:
     MEM: 512Mi 
     storage: #100
   limits:
-    CPU: #1 
-    MEM: #2Gi
+    CPU: 500m 
+    MEM: 1024Mi
     storage: #1024
 
 # CPU & Memory limits & requests for resources for child resources. You can also specify ephemeral storage limits for the child resources.
 resourcesExecutors: 
   requests:           
-    CPU: 1000m        
+    CPU: 1       
     MEM: 4096         # This value should be an integer unlike other values that supports k8s standard for declaring resource limits/requests.
     storage: #100     
   limits:
-    CPU: #2
-    MEM: #8Gi
+    CPU: 1
+    MEM: 8Gi
     storage: #1024
 
 
