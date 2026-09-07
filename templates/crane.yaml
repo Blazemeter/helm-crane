@@ -89,9 +89,9 @@ spec:
         - name: DOCKER_REGISTRY
           value: {{ .Values.imageOverride.docker_registry | default "gcr.io/verdant-bulwark-278" | quote }}
         - name: AUTO_KUBERNETES_UPDATE
-          value: {{ .Values.imageOverride.auto_update | default "true" | quote }}
+          value: {{ if kindIs "invalid" .Values.imageOverride.auto_update }}"true"{{ else }}{{ .Values.imageOverride.auto_update | toString | quote }}{{ end }}
         - name: AUTO_UPDATE_CONTAINERS_WHILE_RUNNING
-          value: {{ .Values.imageOverride.auto_update_running_containers | default "false" | quote }}
+          value: {{ if kindIs "invalid" .Values.imageOverride.auto_update_running_containers }}"false"{{ else }}{{ .Values.imageOverride.auto_update_running_containers | toString | quote }}{{ end }}
         {{ if .Values.proxy.enable | default false -}}
           {{ if ne .Values.proxy.http_path "" }}
         - name: HTTP_PROXY
@@ -211,7 +211,7 @@ spec:
         - name: KUBERNETES_CUSTOM_ANNOTATIONS_JSON
           value:  {{ .Values.annotationsExecutor.syntax | toJson | quote }}
         {{ end }}
-        image: {{ .Values.imageOverride.craneImage | default (printf "gcr.io/verdant-bulwark-278/blazemeter/crane") }}:{{ .Values.imageOverride.tag | default "latest-master"}}
+        image: {{ include "helm-crane.craneImageRef" . }}
         imagePullPolicy: {{ .Values.imageOverride.pullPolicy | default "Always" }}
         name: crane-container
         {{ with .Values.resourcesCrane -}}
