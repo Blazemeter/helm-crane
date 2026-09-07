@@ -36,6 +36,9 @@ imageOverride:
                                           # Add the details below to override the default image used by Crane and default configuration.
   docker_registry:                        # Example: "gcr.io/<custom-registry>"
   craneImage:                             # Example: "gcr.io/<custom-registry>/blazemeter/crane"
+                                          # Also pins the auto-updater to this image, so Crane is never
+                                          # self-upgraded from the public registry. Set docker_registry
+                                          # too if executor images must come from your registry as well.
   tag:                                    # Default: "latest-master"
   auto_update:                            # Default: true
   auto_update_running_containers:         # Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
