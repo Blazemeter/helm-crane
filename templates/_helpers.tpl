@@ -28,25 +28,31 @@
 {{- end }}
 {{- end }}
 
-# This helper function returns the imageOverrides as a JSON object if set. 
+# Returns the fully-qualified Crane image reference (repo:tag).
+# Single source of truth, shared by the Deployment's image field and by
+# imageOverridesJson, so the image Crane runs and the image the auto-updater
+# treats as current can never diverge.
+{{- define "helm-crane.craneImageRef" -}}
+{{- $repo := .Values.imageOverride.craneImage | default "gcr.io/verdant-bulwark-278/blazemeter/crane" -}}
+{{- $tag := "latest-master" -}}
+{{- with .Values.imageOverride.tag -}}{{- $tag = . | toString -}}{{- end -}}
+{{- printf "%s:%s" $repo $tag -}}
+{{- end -}}
+
+# This helper function returns the imageOverrides as a JSON object if set.
+# When craneImage is set (i.e. a private registry), Crane's own image is added
+# to the map under the key the updater looks up ("blazemeter/crane:latest").
+# Without it the auto-updater falls back to DOCKER_REGISTRY and pulls Crane
+# from the public registry, ignoring craneImage entirely.
 {{- define "helm-crane.imageOverridesJson" -}}
-{{- $overrides := .Values.imageOverride.executorImages | default dict -}}
 {{- $nonEmpty := dict -}}
-{{- range $k, $v := $overrides -}}
+{{- range $k, $v := (.Values.imageOverride.executorImages | default dict) -}}
   {{- if $v -}}
     {{- $_ := set $nonEmpty $k $v -}}
   {{- end -}}
 {{- end -}}
-{{- if eq (len $nonEmpty) 0 -}}
-{}
-{{- else -}}
-{{- $first := true -}}
-{{- print "{" -}}
-{{- range $k, $v := $nonEmpty -}}
-{{- if not $first -}}{{- print "," -}}{{- end -}}
-{{- printf "\"%s\":\"%s\"" $k $v -}}
-{{- $first = false -}}
+{{- if and .Values.imageOverride.craneImage (not (hasKey $nonEmpty "blazemeter/crane:latest")) -}}
+  {{- $_ := set $nonEmpty "blazemeter/crane:latest" (include "helm-crane.craneImageRef" .) -}}
 {{- end -}}
-{{- print "}" -}}
-{{- end -}}
+{{- $nonEmpty | toJson -}}
 {{- end -}}
