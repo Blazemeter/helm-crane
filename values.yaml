@@ -4,6 +4,9 @@ deployment:
   role:              # Mention if you wish to use the existing role in the namespace
   clusterrole:       # Mention if you wish to use the existing clusterrole
   serviceAccount:
+                     # Confirm whether the serviceAccount token is expected to be refreshed.
+    tokenRefresh: true  
+    automountServiceAccountToken: true
                      # Specifies whether a ServiceAccount should be created, if already exists, the value should be false. 
     create: false
                      # The name of the ServiceAccount to use, keep empty to use default ServiceAccount.
@@ -15,13 +18,32 @@ deployment:
                      # This is a sample  annotation. You can add any annotations here. Comment out if not needed.                    
       eks.amazonaws.com/role-arn: # arn:aws:iam::123456789012:role/example-role
       custom.annotation/key:      # custom-value    
+  
   restartPolicy:     # Defaults to Always as recommended
+  
+  # In case you need to mount additional volumes, define them here.
+  # Example demonstrates the use of Projected volume for token recycling (Security best practice). Set "automountServiceAccountToken" to "false"
+  addonVolume: 
+    enable: false
+    volumes:
+    - name: sa-token
+      projected:
+        sources:
+        - serviceAccountToken:
+            path: sa-token
+            expirationSeconds: 1200
+ 
+  addonVolumeMount:
+    enable: false
+    volumeMounts: 
+    - mountPath: /var/run/secrets/tokens
+      name: sa-token
 
 env: 
 # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
-  authtoken: auth-token
-  harbour_id: harbour-id
-  ship_id: ship-id
+  authtoken:
+  harbour_id:
+  ship_id:
 
 # If the auth token, harbour id and ship id are stored in a kubernetes secret, enable the below section and provide the secret name and keys.
   fromSecret:  
@@ -37,7 +59,7 @@ imageOverride:
   docker_registry:                        # Example: "gcr.io/<custom-registry>"
   craneImage:                             # Example: "gcr.io/<custom-registry>/blazemeter/crane"
   tag:                                    # Default: "latest-master"
-  auto_update:                            # Default: true
+  auto_update: true                           # Default: true
   auto_update_running_containers:         # Controls auto update of components, default false. Also, either AUTO_UPDATE or AUTO_KUBERNETES_UPDATE must be true for this option to work, depending on the platform Crane is running on.
                                           # Example: {"blazemeter/crane:latest":"gcr.io/verdant-bulwark-278/blazemeter/crane:3.6.47"}
   pullPolicy:                             # Default: "Always"

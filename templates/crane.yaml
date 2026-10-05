@@ -211,7 +211,9 @@ spec:
         - name: KUBERNETES_CUSTOM_ANNOTATIONS_JSON
           value:  {{ .Values.annotationsExecutor.syntax | toJson | quote }}
         {{ end }}
-        image: {{ .Values.imageOverride.craneImage | default (printf "gcr.io/verdant-bulwark-278/blazemeter/crane") }}:{{ .Values.imageOverride.tag | default "latest-master"}}
+        - name: KUBERNETES_SERVICE_ACCOUNT_TOKEN_REFRESH
+          value: {{ .Values.deployment.serviceAccount.tokenRefresh | quote | default "false" }}
+          image: {{ .Values.imageOverride.craneImage | default (printf "gcr.io/verdant-bulwark-278/blazemeter/crane") }}:{{ .Values.imageOverride.tag | default "latest-master"}}
         imagePullPolicy: {{ .Values.imageOverride.pullPolicy | default "Always" }}
         name: crane-container
         {{ with .Values.resourcesCrane -}}
@@ -269,7 +271,7 @@ spec:
           timeoutSeconds: {{ .readinessProbe.timeoutSeconds | default 10 }}
         {{ end -}}
       {{ end -}}      
-      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) (.Values.externalSecretsOperator.enable) | default false }} 
+      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) (.Values.externalSecretsOperator.enable) ( .Values.deployment.addonVolumeMount.enable ) | default false }} 
         volumeMounts:
           {{ if .Values.ca_bundle.enable }}
         - name: {{ .Values.ca_bundle.volume.volume_name }}
@@ -291,17 +293,24 @@ spec:
           mountPath: {{ .Values.externalSecretsOperator.volume.path | default "/mnt/secrets" }}
           readOnly: {{ .Values.externalSecretsOperator.volume.readOnly | default true }}
           {{ end }}
+          {{ if .Values.deployment.addonVolumeMount.enable }}
+          {{ with .Values.deployment.addonVolumeMount.volumeMounts }}
+          {{ toYaml . | nindent 8 }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+      {{ if or ( .Values.ca_bundle.enable ) ( .Values.gridProxy.enable ) (.Values.secretProviderClass.enable) (.Values.externalSecretsOperator.enable) ( .Values.deployment.addonVolume.enable ) | default false }}     
       volumes:
-          {{ if .Values.ca_bundle.enable }}
+          {{- if .Values.ca_bundle.enable }}
       - name: {{ .Values.ca_bundle.volume.volume_name }}
         configMap:
           name: {{ .Release.Name }}-configmap
-          {{ end -}}
-          {{ if .Values.gridProxy.enable }}
+          {{- end }}
+          {{- if .Values.gridProxy.enable }}
       - name: {{ .Values.gridProxy.volume.volume_name }}
         configMap:
           name: {{ .Release.Name }}-configmap
-          {{ end -}}
+          {{- end }}
           {{ if .Values.secretProviderClass.enable }}
       - name: {{ .Values.secretProviderClass.volume.name | default (printf "%s-secrets-store-volume" .Release.Name) }} 
         csi:
@@ -309,12 +318,17 @@ spec:
           readOnly: {{ .Values.secretProviderClass.volume.readOnly | default true }}
           volumeAttributes:
             secretProviderClass: {{ .Release.Name }}-secrets-store #non-prod-blaze-deployment-aws-secrets
-          {{ end -}}        
-          {{ if .Values.externalSecretsOperator.enable }}
+          {{- end }}        
+          {{- if .Values.externalSecretsOperator.enable }}
       - name: {{ .Values.externalSecretsOperator.volume.name | default (printf "%s-externalsecrets-volume" .Release.Name) }}
         secret:
           secretName: {{ .Values.externalSecretsOperator.externalSecret.target.name }}
-          {{ end -}}            
-      {{ end }}
+          {{- end }}            
+          {{ if .Values.deployment.addonVolume.enable }}
+          {{ with .Values.deployment.addonVolume.volumes }}
+            {{ toYaml . | nindent 6 }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
       restartPolicy: {{ .Values.deployment.restartPolicy | default "Always" }}
       terminationGracePeriodSeconds: 30
