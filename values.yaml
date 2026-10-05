@@ -25,19 +25,31 @@ deployment:
   # Example demonstrates the use of Projected volume for token recycling (Security best practice). Set "automountServiceAccountToken" to "false"
   addonVolume: 
     enable: false
-    volumes:
-    - name: sa-token
-      projected:
-        sources:
-        - serviceAccountToken:
-            path: sa-token
-            expirationSeconds: 1200
+    volumes: {}
+#    - name: crane-api-access
+#      projected:
+#        sources:
+#        - serviceAccountToken:
+#            path: token
+#            expirationSeconds: 600
+#        - configMap:
+#            name: kube-root-ca.crt
+#            items:
+#            - key: ca.crt
+#              path: ca.crt
+#        - downwardAPI:
+#            items:
+#            - path: namespace
+#              fieldRef:
+#                apiVersion: v1
+#                fieldPath: metadata.namespace
  
   addonVolumeMount:
     enable: false
-    volumeMounts: 
-    - mountPath: /var/run/secrets/tokens
-      name: sa-token
+    volumeMounts: {}
+#    - name: crane-api-access
+#      mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+#      readOnly: true
 
 env: 
 # if you plan to pass the AUTH_TOKEN through secret store, use secret store CSI driver or External Secrets Operator, the below will be ignored.
