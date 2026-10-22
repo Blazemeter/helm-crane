@@ -211,6 +211,10 @@ spec:
         - name: KUBERNETES_CUSTOM_ANNOTATIONS_JSON
           value:  {{ .Values.annotationsExecutor.syntax | toJson | quote }}
         {{ end }}
+        {{- if .Values.non_privilege_pod_executor.enable }}
+        - name: KUBERNETES_POD_SECURITY_CONTEXT_JSON
+          value: {{ .Values.non_privilege_pod_executor.podSecurityContext | toJson | quote }}
+        {{- end }}
         image: {{ include "helm-crane.craneImageRef" . }}
         imagePullPolicy: {{ .Values.imageOverride.pullPolicy | default "Always" }}
         name: crane-container
