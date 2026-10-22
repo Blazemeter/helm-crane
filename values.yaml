@@ -109,6 +109,23 @@ non_privilege_container:
   runAsGroup: 1337
   runAsUser: 1337
 
+non_privilege_pod_executor:
+  enable: no
+  podSecurityContext: {}
+    # seccompProfile: { "type": "RuntimeDefault" }
+    #runAsNonRoot: true
+    # runAsUser:  # 1000
+    # runAsGroup: # 3000
+    # fsGroup:    # 2000
+
+non_privilege_pod_crane:
+  enable: no
+  podSecurityContext: {}
+    # seccompProfile: { "type": "RuntimeDefault" }
+    # runAsNonRoot: true
+    # runAsUser: 
+    # runAsGroup: # 3000
+    # fsGroup:    # 2000  
 
 # Enable the service_virtualization if this Private location is going to run service-virtualisation or formerly called: mock-services
 # Select the ingressType as nginx or istio, depending on your cluster ingress setup.
