@@ -16,6 +16,10 @@ spec:
       crane: ready
   strategy:
     type: Recreate
+  {{- if .Values.non_privilege_pod_crane.enable | default false }}
+  securityContext:
+    {{- toYaml .Values.non_privilege_pod_crane.podSecurityContext | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
