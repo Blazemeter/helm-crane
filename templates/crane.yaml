@@ -16,10 +16,6 @@ spec:
       crane: ready
   strategy:
     type: Recreate
-  {{- if .Values.non_privilege_pod_crane.enable }}
-  securityContext:
-    {{- toYaml .Values.non_privilege_pod_crane.podSecurityContext | nindent 4 }}
-  {{- end }}
   template:
     metadata:
       labels:
@@ -32,6 +28,10 @@ spec:
       annotations: 
         {{ .Values.annotationsCrane.syntax | toYaml | nindent 8 -}}
       {{ end }}
+    {{- if .Values.non_privilege_pod_crane.enable }}
+    securityContext:
+      {{- toYaml .Values.non_privilege_pod_crane.podSecurityContext | nindent 4 }}
+    {{- end }}    
     spec:
       serviceAccountName: {{ template "blazemeter-crane.serviceAccountName" . }}
       automountServiceAccountToken: true
