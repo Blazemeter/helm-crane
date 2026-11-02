@@ -143,7 +143,7 @@ externalSecretsOperator:
 
 **Notes:**  
 >- If you use a secret manager, ensure your secret keys and environment variable mappings are correct in the relevant section.
->- See [4.14](#414-configure-secretproviderclass) and [4.15](#415-configure-externalsecrets-operator) for detailed configuration examples.
+>- See [4.15](#415-configure-secretproviderclass) and [4.16](#416-configure-externalsecrets-operator) for detailed configuration examples.
 
 
 **Important:**  
@@ -304,7 +304,42 @@ non_privilege_container:
 >- This will automatically configure the `securityContext.Capabilities` to `drop all` for crane and child resources.*
 
 
-### [4.8] Configure deployment to support Service Virtualisation (Mock Services)
+### [4.8] Configure Pod-Level Security Context for Crane and Child Executors
+
+You can configure pod-level security contexts separately for the Crane pod and child executor pods. Set the corresponding `enable` value to `yes` and add Kubernetes `PodSecurityContext` fields under `podSecurityContext`. Leave `enable` as `no` to keep the setting disabled.
+
+**Crane pod:** This configuration is applied directly to the Crane pod.
+
+```yaml
+non_privilege_pod_crane:
+  enable: yes
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+```
+
+**Child executor pods:** This configuration is passed to Crane for use by child executor pods. It is independent of the Crane pod setting.
+
+```yaml
+non_privilege_pod_executor:
+  enable: yes
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+```
+
+Use the fields required by your cluster's security policies. The Crane and executor settings can be enabled and configured independently.
+
+
+### [4.9] Configure deployment to support Service Virtualisation (Mock Services)
 
 If your Private Location will run service-virtualisation (mock services), enable the `service_virtualization` section in your `values.yaml` file. This allows you to expose mock services using either Istio or NGINX ingress controllers.
 
@@ -327,7 +362,7 @@ service_virtualization:
 
 
 
-### [4.9] Configuring Labels for Crane and Child Resources
+### [4.10] Configuring Labels for Crane and Child Resources
 
 You can add custom labels to the main Crane deployment, crane pod and its child resources (such as executor pods) using the following sections in your `values.yaml` file. This is useful for organizing, tracking, or applying policies to your resources.
 
@@ -357,7 +392,7 @@ labelsExecutors:
 
 
 
-### [4.10] Configure deployment to support for tolerations 
+### [4.11] Configure deployment to support for tolerations 
 
 - The configuration is used to specify the tolerations for crane and child resources. Switch the `enable` to `yes` and add tolerations for crane and & child resources. Add tolerations in a Json format as per the example:
 ```yaml
@@ -374,7 +409,7 @@ tolerationExecutors:
 
 
 
-### [4.11] Configure deployment to support node selector for crane & child resources
+### [4.12] Configure deployment to support node selector for crane & child resources
 - The configuration is used to specify the node selector for crane and child resources. Switch the `enable` to `yes` and add node selectors for crane and child resources. Add node selectors in a Json format as per the example:
 ```yaml
 nodeSelectorCrane:
@@ -390,7 +425,7 @@ nodeSelectorExecutor:
 
 
 
-### [4.12] Configure resource limits and requests for Crane & child resources
+### [4.13] Configure resource limits and requests for Crane & child resources
 
 You can specify CPU, memory, and ephemeral storage resource requests and limits for both the Crane deployment and its child resources. Use the `resourcesCrane` section for the main Crane deployment, and `resourcesExecutors` for child resources (executors/agents).
 
@@ -428,7 +463,7 @@ resourcesExecutors:
 >- If you do not need to set resource limits or requests, you can omit these sections or leave them
 
 
-### [4.13] Configure the Pod Disruption Budget
+### [4.14] Configure the Pod Disruption Budget
 
 A [Pod Disruption Budget (PDB)](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) ensures that a minimum number of pods remain available during voluntary disruptions (such as node drains or cluster upgrades). You can configure a PDB for the Crane deployment by enabling the following settings in your `values.yaml` file.
 
@@ -451,7 +486,7 @@ podDisruptionBudget:
 
 
 
-### [4.14] Configure SecretProviderClass
+### [4.15] Configure SecretProviderClass
 
 The [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/topics/introduction.html) resource is used with the [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/) to mount secrets, keys, or certificates from external secret management systems (such as Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault) into Kubernetes pods as files or Kubernetes secrets.
 
@@ -500,7 +535,7 @@ secretProviderClass:
 
 
 
-### [4.15] Configure ExternalSecrets Operator
+### [4.16] Configure ExternalSecrets Operator
 
 The [ExternalSecrets Operator](https://external-secrets.io/) allows you to synchronize secrets from external secret management systems (such as AWS Secrets Manager or Google Cloud Secret Manager) into Kubernetes secrets. This integration is useful if you want your Crane deployment to automatically fetch and manage secrets from your external provider.
 
@@ -577,7 +612,7 @@ externalSecretsOperator:
  - If you prefer to use a simple Kubernetes Secret, see [4.1](#41-adding-the-basicrequired-configurations) "Using a Simple Kubernetes Secret (`fromSecret`)".
 
 
-### [4.16] Configure Custom Annotations
+### [4.17] Configure Custom Annotations
 
 You can add custom annotations to the main Crane deployment and its child resources (such as executor pods) using the annotations sections in your `values.yaml` file. This is useful for integrating with cluster autoscaler, admission controllers, monitoring systems, service meshes like Istio, or other Kubernetes tools that rely on pod annotations.
 
@@ -762,6 +797,7 @@ helm uninstall <release-name> -n <namespace name>
 
 ## [10.0] Changelog:
 
+- 1.7.0: The chart now includes support for pod level security context for Crane and it's child resources.
 - 1.6.0: Fixed bool handling and ensured private Crane images are used by the auto-updater, when the agent is configured with `imageOverrides`.
 - 1.5.0: Following the security update for Blazemeter agent, all charts before 1.5.0 are now depracated for crane version 3.7.x
 - 1.4.5: Use of simple secret for tokens in crane ENV. 
